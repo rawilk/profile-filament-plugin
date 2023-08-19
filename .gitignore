@@ -1,0 +1,14 @@
+.env
+.idea
+.php_cs
+.php_cs.cache
+.php-cs-fixer.cache
+.phpunit.cache
+build
+composer.lock
+coverage
+node_modules
+phpstan.neon
+phpunit.xml
+psalm.xml
+vendor
