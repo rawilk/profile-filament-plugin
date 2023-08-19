@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Rawilk\ProfileFilamentPlugin\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
