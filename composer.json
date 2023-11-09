@@ -18,9 +18,14 @@
     ],
     "require": {
         "php": "^8.2",
+        "bacon/bacon-qr-code": "^2.0",
         "filament/filament": "^3.0",
         "illuminate/contracts": "^10.0",
-        "spatie/laravel-package-tools": "^1.14"
+        "pragmarx/google2fa": "^8.0",
+        "rawilk/filament-inner-nav": "^1.1",
+        "rawilk/filament-password-input": "^1.0",
+        "spatie/laravel-package-tools": "^1.14",
+        "web-auth/webauthn-lib": "^4.7"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
@@ -35,7 +40,10 @@
         "psr-4": {
             "Rawilk\\ProfileFilament\\": "src/",
             "Rawilk\\ProfileFilament\\Database\\Factories\\": "database/factories/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -59,8 +67,15 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Rawilk\\ProfileFilament\\ProfileFilamentPluginServiceProvider"
-            ]
+                "Rawilk\\ProfileFilament\\ProfileFilamentPluginServiceProvider",
+                "Rawilk\\ProfileFilament\\Providers\\AuthServiceProvider"
+            ],
+            "aliases": {
+                "ProfileFilament": "Rawilk\\ProfileFilament\\Facades\\ProfileFilament",
+                "Mfa": "Rawilk\\ProfileFilament\\Facades\\Mfa",
+                "Sudo": "Rawilk\\ProfileFilament\\Facades\\Sudo",
+                "Webauthn": "Rawilk\\ProfileFilament\\Facades\\Webauthn"
+            }
         }
     },
     "minimum-stability": "dev",
