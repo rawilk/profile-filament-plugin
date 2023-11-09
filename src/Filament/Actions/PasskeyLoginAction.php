@@ -38,9 +38,7 @@ class PasskeyLoginAction extends Action
         $this->name('passkeyLogin');
         $this->livewireClickHandlerEnabled(false);
 
-        $this->defaultView(function () {
-            return 'profile-filament::filament.actions.passkey-login';
-        });
+        $this->defaultView('profile-filament::filament.actions.passkey-login');
 
         $this->color('gray');
 
