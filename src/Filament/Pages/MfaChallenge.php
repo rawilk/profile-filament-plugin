@@ -149,13 +149,6 @@ class MfaChallenge extends SimplePage
         $this->mode = ProfileFilament::preferredMfaMethodFor($user, $this->challengeOptions);
 
         $this->form->fill();
-
-        if ($this->mode === MfaChallengeMode::Webauthn->value) {
-            // Ensure a fresh challenge is sent to the browser.
-            session()->forget(MfaSession::AssertionPublicKey->value);
-
-            $this->initWebauthn();
-        }
     }
 
     public function setMode(string $mode): void
@@ -170,10 +163,6 @@ class MfaChallenge extends SimplePage
         $this->form->fill();
         $this->error = null;
         $this->hasWebauthnError = false;
-
-        if ($mode === MfaChallengeMode::Webauthn->value) {
-            $this->initWebauthn();
-        }
     }
 
     public function authenticate(Request $request, $assertionResponse = null)
@@ -240,31 +229,6 @@ class MfaChallenge extends SimplePage
             ->send($eventBag)
             ->through(ProfileFilament::getMfaAuthenticationPipes())
             ->then(fn () => app(LoginResponse::class));
-    }
-
-    public function rendering($view): void
-    {
-        if (session()->has(MfaSession::AssertionPublicKey->value)) {
-            $view->with([
-                'publicKey' => unserialize(session()->get(MfaSession::AssertionPublicKey->value))->jsonSerialize(),
-            ]);
-        }
-    }
-
-    protected function initWebauthn(): void
-    {
-        $this->hasWebauthnError = false;
-
-        if (session()->has(MfaSession::AssertionPublicKey->value)) {
-            return;
-        }
-
-        $model = config('profile-filament.models.webauthn_key');
-        $publicKey = Webauthn::assertionObjectFor(
-            userId: app($model)::getUserHandle(Mfa::challengedUser()),
-        );
-
-        session()->put(MfaSession::AssertionPublicKey->value, serialize($publicKey));
     }
 
     protected function getFormSchema(): array
