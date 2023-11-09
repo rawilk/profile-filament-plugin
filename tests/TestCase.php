@@ -19,16 +19,16 @@ class TestCase extends Orchestra
         );
     }
 
+    public function getEnvironmentSetUp($app)
+    {
+        // include_once __DIR__ . '/../database/migrations/create_profile-filament-plugin_table.php.stub';
+        // (new \CreatePackageTable())->up();
+    }
+
     protected function getPackageProviders($app): array
     {
         return [
             ProfileFilamentPluginServiceProvider::class,
         ];
-    }
-
-    public function getEnvironmentSetUp($app)
-    {
-        // include_once __DIR__ . '/../database/migrations/create_profile-filament-plugin_table.php.stub';
-        // (new \CreatePackageTable())->up();
     }
 }
