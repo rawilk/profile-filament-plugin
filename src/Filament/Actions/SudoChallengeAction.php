@@ -160,7 +160,7 @@ class SudoChallengeAction extends Action
             )
             ->required()
             ->extraInputAttributes([
-                'x-on:keydown.enter.prevent.stop' => '$wire.callMountedAction(' . Js::from(['method' => 'confirm', 'challengeMode' => SudoChallengeMode::Password->value]) . ')',
+                'x-on:keydown.enter.prevent.stop' => '$wire.callMountedAction(' . Js::from(['method' => 'confirm']) . ')',
             ]);
     }
 
@@ -174,7 +174,7 @@ class SudoChallengeAction extends Action
             ->statePath('sudoChallengeData.totp')
             ->required()
             ->extraInputAttributes([
-                'x-on:keydown.enter.prevent.stop' => '$wire.callMountedAction(' . Js::from(['method' => 'confirm', 'challengeMode' => SudoChallengeMode::App->value]) . ')',
+                'x-on:keydown.enter.prevent.stop' => '$wire.callMountedAction(' . Js::from(['method' => 'confirm']) . ')',
             ]);
     }
 
