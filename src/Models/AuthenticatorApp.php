@@ -27,6 +27,8 @@ class AuthenticatorApp extends Model
         'last_used_at' => 'immutable_datetime',
     ];
 
+    protected $guarded = [];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

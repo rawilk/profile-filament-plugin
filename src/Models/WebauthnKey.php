@@ -35,6 +35,8 @@ class WebauthnKey extends Model
         'credential_id',
     ];
 
+    protected $guarded = [];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
