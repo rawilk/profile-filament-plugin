@@ -6,9 +6,14 @@ namespace Rawilk\ProfileFilament\Filament\Pages;
 
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
 use Rawilk\ProfileFilament\Concerns\IsProfilePage;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
+/**
+ * @property-read array<string, \Livewire\Component> $registeredComponents
+ */
 class Settings extends Page
 {
     use IsProfilePage;
@@ -47,5 +52,11 @@ class Settings extends Page
     public function getTitle(): string|Htmlable
     {
         return __('profile-filament::pages/settings.title');
+    }
+
+    #[Computed]
+    public function registeredComponents(): Collection
+    {
+        return filament(ProfileFilamentPlugin::make()->getId())->componentsFor(self::class);
     }
 }

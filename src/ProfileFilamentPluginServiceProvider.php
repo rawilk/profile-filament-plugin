@@ -7,6 +7,8 @@ namespace Rawilk\ProfileFilament;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Facades\FilamentAsset;
 use Psr\Log\NullLogger;
+use Rawilk\ProfileFilament\Responses\EmailRevertedResponse;
+use Rawilk\ProfileFilament\Responses\PendingEmailVerifiedResponse;
 use Rawilk\ProfileFilament\Services\Mfa;
 use Rawilk\ProfileFilament\Services\Sudo;
 use Rawilk\ProfileFilament\Services\Webauthn;
@@ -27,6 +29,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
                 'add_two_factor_to_users_table',
                 'create_authenticator_apps_table',
                 'create_webauthn_keys_table',
+                'create_pending_user_emails_table',
             ]);
     }
 
@@ -50,17 +53,17 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(
+        $this->app->scoped(
             Contracts\AuthenticatorAppService::class,
             Services\AuthenticatorAppService::class,
         );
 
-        $this->app->singleton(
+        $this->app->scoped(
             Mfa::class,
             fn ($app) => new Mfa(userModel: $app['config']['auth.providers.users.model']),
         );
 
-        $this->app->singleton(
+        $this->app->scoped(
             Webauthn::class,
             fn ($app) => new Webauthn(
                 model: $app['config']['profile-filament.models.webauthn_key'],
@@ -68,7 +71,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
             ),
         );
 
-        $this->app->singleton(
+        $this->app->scoped(
             Sudo::class,
             fn ($app) => new Sudo(
                 expiration: $app['config']['profile-filament.sudo.expires'],
@@ -98,5 +101,13 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->bind(Contracts\Passkeys\DeletePasskeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_passkey')));
         $this->app->bind(Contracts\Passkeys\RegisterPasskeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.register_passkey')));
         $this->app->bind(Contracts\Passkeys\UpgradeToPasskeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.upgrade_to_passkey')));
+
+        // Pending user emails
+        $this->app->bind(Contracts\PendingUserEmail\StoreOldUserEmailAction::class, fn ($app) => $app->make(config('profile-filament.actions.store_old_user_email')));
+        $this->app->bind(Contracts\PendingUserEmail\UpdateUserEmailAction::class, fn ($app) => $app->make(config('profile-filament.actions.update_user_email')));
+
+        // Responses
+        $this->app->bind(Contracts\Responses\PendingEmailVerifiedResponse::class, PendingEmailVerifiedResponse::class);
+        $this->app->bind(Contracts\Responses\EmailRevertedResponse::class, EmailRevertedResponse::class);
     }
 }

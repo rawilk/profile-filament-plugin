@@ -19,6 +19,7 @@ use Rawilk\ProfileFilament\Filament\Pages\ProfilePageGroup;
 use Rawilk\ProfileFilament\Filament\Pages\Security;
 use Rawilk\ProfileFilament\Filament\Pages\Sessions;
 use Rawilk\ProfileFilament\Filament\Pages\Settings;
+use Rawilk\ProfileFilament\Livewire\Emails\UserEmail;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 use Rawilk\ProfileFilament\Livewire\PasskeyManager;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
@@ -329,7 +330,9 @@ final class PageManager
                 'slug' => 'profile/admin',
                 'icon' => 'heroicon-o-cog-6-tooth',
                 'className' => Settings::class,
-                'components' => [],
+                'components' => [
+                    UserEmail::class => ['class' => UserEmail::class, 'sort' => 0],
+                ],
                 'sort' => 10,
                 'group' => null,
             ],

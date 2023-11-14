@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Route;
 use Rawilk\ProfileFilament\Http\Controllers\PasskeysController;
+use Rawilk\ProfileFilament\Http\Controllers\RevertEmailController;
+use Rawilk\ProfileFilament\Http\Controllers\VerifyPendingEmailController;
 use Rawilk\ProfileFilament\Http\Controllers\WebauthnPublicKeysController;
 
 Route::name('filament.')
@@ -41,6 +43,15 @@ Route::name('filament.')
                                 ->name('auth.sudo-challenge')
                                 ->middleware($panel->getAuthMiddleware());
                         }
+
+                        // Email verification
+                        Route::get('/pending-emails/verify/{token}', VerifyPendingEmailController::class)
+                            ->name('pending_email.verify')
+                            ->middleware(['throttle:6,1', 'signed']);
+
+                        Route::get('/pending-emails/revert/{token}', RevertEmailController::class)
+                            ->name('pending_email.revert')
+                            ->middleware(['throttle:6,1', 'signed']);
                     });
             }
         }

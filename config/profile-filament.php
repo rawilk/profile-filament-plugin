@@ -51,6 +51,10 @@ return [
         'delete_passkey' => \Rawilk\ProfileFilament\Actions\Passkeys\DeletePasskeyAction::class,
         'register_passkey' => \Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction::class,
         'upgrade_to_passkey' => \Rawilk\ProfileFilament\Actions\Passkeys\UpgradeToPasskeyAction::class,
+
+        // Pending user emails
+        'store_old_user_email' => \Rawilk\ProfileFilament\Actions\PendingUserEmails\StoreOldUserEmailAction::class,
+        'update_user_email' => \Rawilk\ProfileFilament\Actions\PendingUserEmails\UpdateUserEmailAction::class,
     ],
 
     /*
@@ -65,6 +69,8 @@ return [
     'table_names' => [
         'authenticator_app' => 'authenticator_apps',
         'webauthn_key' => 'webauthn_keys',
+        'pending_user_email' => 'pending_user_emails',
+        'old_user_email' => 'old_user_emails',
     ],
 
     /*
@@ -74,13 +80,15 @@ return [
     |
     | Here you may override the models provided by this package.
     |
+    | Note: Any custom models you define MUST extend the package's models.
+    |
     */
     'models' => [
         /**
          * Authenticator App
          *
          * This model is responsible for storing a user's verified authenticator apps
-         * for 2fa. Your model must extend the AuthenticatorApp model.
+         * for 2fa.
          */
         'authenticator_app' => \Rawilk\ProfileFilament\Models\AuthenticatorApp::class,
 
@@ -88,10 +96,39 @@ return [
          * Webauthn Key
          *
          * This model is responsible for storing webauthn keys for a user, such
-         * as hardware security keys or passkeys. Your model must extend
-         * the WebauthnKey model.
+         * as hardware security keys or passkeys.
          */
         'webauthn_key' => \Rawilk\ProfileFilament\Models\WebauthnKey::class,
+
+        /**
+         * Pending User Email
+         *
+         * This model is responsible for storing tokens for when a user wants to
+         * change their email address.
+         */
+        'pending_user_email' => \Rawilk\ProfileFilament\Models\PendingUserEmail::class,
+
+        /**
+         * Old User Email
+         *
+         * This model is responsible for storing a user's old email addresses, which
+         * can be used to revert a change if it wasn't made by the user.
+         */
+        'old_user_email' => \Rawilk\ProfileFilament\Models\OldUserEmail::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mailables
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define which mailables are used for the notifications from
+    | this package.
+    |
+    */
+    'mail' => [
+        'pending_email_verification' => \Rawilk\ProfileFilament\Mail\PendingEmailVerificationMail::class,
+        'pending_email_verified' => \Rawilk\ProfileFilament\Mail\PendingEmailVerifiedMail::class,
     ],
 
     /*
@@ -124,6 +161,33 @@ return [
     */
     'sudo' => [
         'expires' => DateInterval::createFromDateString('2 hours'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pending Email Changes
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define some constraints for when a user changes their email
+    | address.
+    |
+    */
+    'pending_email_changes' => [
+        /**
+         * The amount of time a revert change link should be valid for, in the case
+         * a user needs to revert their email change when it wasn't made by them.
+         */
+        'revert_expiration' => DateInterval::createFromDateString('5 days'),
+
+        /**
+         * Log users in after they verify their new emails. (not recommended)
+         */
+        'login_after_verification' => false,
+
+        /**
+         * Set the "remember" cookie after login from verification.
+         */
+        'login_remember' => true,
     ],
 
     /*

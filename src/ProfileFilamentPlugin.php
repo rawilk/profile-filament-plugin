@@ -89,7 +89,7 @@ class ProfileFilamentPlugin implements Plugin
 
         if ($this->features->hasTwoFactorAuthentication()) {
             $panel->authMiddleware([
-                RequiresTwoFactorAuthentication::class,
+                //                RequiresTwoFactorAuthentication::class,
             ]);
 
             Livewire::component('mfa-challenge', MfaChallenge::class);
@@ -102,6 +102,7 @@ class ProfileFilamentPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
+        $this->pageManager()->registerPageComponents(Settings::class);
         $this->pageManager()->registerPageComponents(Security::class);
 
         if ($this->features->hasTwoFactorAuthentication()) {

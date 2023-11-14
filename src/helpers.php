@@ -17,11 +17,11 @@ function wrapDateInTimeTag(DateTimeInterface $date, string $format = 'M d, Y'): 
     HTML;
 }
 
-function renderMarkdown(string $content, bool $inline = true): HtmlString
+function renderMarkdown(?string $content, bool $inline = true): HtmlString
 {
     $markdown = $inline
-        ? Str::inlineMarkdown($content)
-        : Str::markdown($content);
+        ? Str::inlineMarkdown($content ?? '')
+        : Str::markdown($content ?? '');
 
     return new HtmlString($markdown);
 }
