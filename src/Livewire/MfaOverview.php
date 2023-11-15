@@ -19,7 +19,6 @@ use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Enums\Livewire\SensitiveProfileSection;
 use Rawilk\ProfileFilament\Events\RecoveryCodesViewed;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
-use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Features;
 
 /**
@@ -248,7 +247,6 @@ class MfaOverview extends ProfileComponent
                 }
             })
             ->mountUsing(function () {
-                Sudo::deactivate();
                 // Hiding the recovery codes doesn't need re-authentication.
                 if ($this->showRecoveryCodes) {
                     return;
