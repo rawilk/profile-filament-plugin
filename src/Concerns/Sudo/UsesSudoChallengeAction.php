@@ -37,14 +37,14 @@ trait UsesSudoChallengeAction
         return SudoChallengeAction::make('sudoChallenge');
     }
 
-    protected function ensureSudoIsActive(string $returnAction): void
+    protected function ensureSudoIsActive(string $returnAction, array $arguments = []): void
     {
         if (! $this->sudoModeIsAllowed()) {
             return;
         }
 
         if (! Sudo::isActive()) {
-            $this->replaceMountedAction('sudoChallenge', ['returnAction' => $returnAction]);
+            $this->replaceMountedAction('sudoChallenge', ['returnAction' => $returnAction, ...$arguments]);
 
             throw new Halt;
         }

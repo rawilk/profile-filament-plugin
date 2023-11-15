@@ -74,7 +74,7 @@ class SudoChallengeAction extends Action
                     SudoModeActivated::dispatch($this->user(), $request);
 
                     if (Arr::has($arguments, 'returnAction')) {
-                        $livewire->replaceMountedAction($arguments['returnAction']);
+                        $livewire->replaceMountedAction($arguments['returnAction'], Arr::except($arguments, ['returnAction', 'method', 'assertion']));
 
                         $action->halt();
                     }

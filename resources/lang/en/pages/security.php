@@ -15,6 +15,7 @@ return [
             'save_button' => 'Update password',
             'notification' => 'Password updated!',
             'forgot_password_link' => 'I forgot my password',
+            'form_info' => 'Note: Changing your password will log you out of all your other devices.',
         ],
     ],
 

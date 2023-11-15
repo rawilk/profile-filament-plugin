@@ -1,3 +1,7 @@
 <x-profile-filament::layout>
-    Sessions content here.
+    <div class="flex flex-col gap-y-6 lg:gap-y-10">
+        @foreach ($this->registeredComponents as $component)
+            @livewire($component)
+        @endforeach
+    </div>
 </x-profile-filament::layout>

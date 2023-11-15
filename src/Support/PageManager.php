@@ -22,6 +22,7 @@ use Rawilk\ProfileFilament\Filament\Pages\Settings;
 use Rawilk\ProfileFilament\Livewire\Emails\UserEmail;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 use Rawilk\ProfileFilament\Livewire\PasskeyManager;
+use Rawilk\ProfileFilament\Livewire\Sessions\SessionManager;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
 
 final class PageManager
@@ -356,7 +357,9 @@ final class PageManager
                 'slug' => 'profile/sessions',
                 'icon' => 'heroicon-o-signal',
                 'className' => Sessions::class,
-                'components' => [],
+                'components' => [
+                    SessionManager::class => ['class' => SessionManager::class, 'sort' => 0],
+                ],
                 'sort' => 30,
                 'group' => null,
             ],

@@ -104,6 +104,7 @@ class ProfileFilamentPlugin implements Plugin
     {
         $this->pageManager()->registerPageComponents(Settings::class);
         $this->pageManager()->registerPageComponents(Security::class);
+        $this->pageManager()->registerPageComponents(Sessions::class);
 
         if ($this->features->hasTwoFactorAuthentication()) {
             Livewire::component('recovery-codes', RecoveryCodes::class);

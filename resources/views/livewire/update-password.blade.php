@@ -24,6 +24,18 @@
                     @endif
                 </div>
             </form>
+
+            <div class="mt-4 text-xs gap-x-1 flex items-center">
+                <div>
+                    <x-filament::icon
+                        alias="profile-filament::help"
+                        icon="heroicon-o-question-mark-circle"
+                        class="h-5 w-5"
+                    />
+                </div>
+
+                <span>{{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.password.form.form_info')) }}</span>
+            </div>
         @else
             <x-profile-filament::blocked-profile-section>
                 {{ __('profile-filament::messages.blocked_profile_section.update_password') }}
