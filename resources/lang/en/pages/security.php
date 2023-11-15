@@ -9,7 +9,7 @@ return [
         'title' => 'Change password',
 
         'form' => [
-            'current_password' => 'Old password',
+            'current_password' => 'Current password',
             'password' => 'New password',
             'password_confirmation' => 'Confirm new password',
             'save_button' => 'Update password',
