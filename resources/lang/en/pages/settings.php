@@ -51,4 +51,22 @@ return [
 
         ],
     ],
+
+    'delete_account' => [
+        'title' => 'Delete account',
+        'description' => 'Once you delete your account, all of your data and resources will be permanently deleted. We will be unable to recover any of your data.',
+
+        'actions' => [
+
+            'delete' => [
+                'trigger' => 'Delete your account',
+                'modal_title' => 'Delete your account',
+                'submit_button' => 'Delete your account',
+                'email_label' => 'To confirm, type your email, ":email", in the box below',
+                'incorrect_email' => 'The email address you entered is not correct.',
+                'success' => 'Your account has been deleted.',
+            ],
+
+        ],
+    ],
 ];

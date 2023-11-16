@@ -19,6 +19,7 @@ use Rawilk\ProfileFilament\Filament\Pages\ProfilePageGroup;
 use Rawilk\ProfileFilament\Filament\Pages\Security;
 use Rawilk\ProfileFilament\Filament\Pages\Sessions;
 use Rawilk\ProfileFilament\Filament\Pages\Settings;
+use Rawilk\ProfileFilament\Livewire\DeleteAccount;
 use Rawilk\ProfileFilament\Livewire\Emails\UserEmail;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 use Rawilk\ProfileFilament\Livewire\PasskeyManager;
@@ -349,6 +350,7 @@ final class PageManager
                 'className' => Settings::class,
                 'components' => [
                     UserEmail::class => ['class' => UserEmail::class, 'sort' => 0],
+                    DeleteAccount::class => ['class' => DeleteAccount::class, 'sort' => 15],
                 ],
                 'sort' => 10,
                 'group' => null,

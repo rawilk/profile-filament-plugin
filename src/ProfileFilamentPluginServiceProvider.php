@@ -86,6 +86,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
     private function makeClassBindings(): void
     {
         $this->app->bind(Contracts\UpdatePasswordAction::class, fn ($app) => $app->make(config('profile-filament.actions.update_password')));
+        $this->app->bind(Contracts\DeleteAccountAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_account')));
 
         // General two factor
         $this->app->bind(Contracts\TwoFactor\DisableTwoFactorAction::class, fn ($app) => $app->make(config('profile-filament.actions.disable_two_factor')));

@@ -32,6 +32,7 @@ return [
     */
     'actions' => [
         'update_password' => \Rawilk\ProfileFilament\Actions\UpdatePasswordAction::class,
+        'delete_account' => \Rawilk\ProfileFilament\Actions\DeleteAccountAction::class,
 
         // General two factor
         'disable_two_factor' => \Rawilk\ProfileFilament\Actions\TwoFactor\DisableTwoFactorAction::class,
