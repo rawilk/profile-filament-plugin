@@ -6,7 +6,9 @@ namespace Rawilk\ProfileFilament;
 
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Facades\FilamentAsset;
+use Livewire\Livewire;
 use Psr\Log\NullLogger;
+use Rawilk\ProfileFilament\Livewire\MaskedValue;
 use Rawilk\ProfileFilament\Responses\EmailRevertedResponse;
 use Rawilk\ProfileFilament\Responses\PendingEmailVerifiedResponse;
 use Rawilk\ProfileFilament\Services\Mfa;
@@ -77,6 +79,8 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
                 expiration: $app['config']['profile-filament.sudo.expires'],
             ),
         );
+
+        Livewire::component('masked-value', MaskedValue::class);
     }
 
     private function makeClassBindings(): void

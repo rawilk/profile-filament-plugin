@@ -22,6 +22,7 @@ use Rawilk\ProfileFilament\Filament\Pages\Settings;
 use Rawilk\ProfileFilament\Livewire\Emails\UserEmail;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 use Rawilk\ProfileFilament\Livewire\PasskeyManager;
+use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 use Rawilk\ProfileFilament\Livewire\Sessions\SessionManager;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
 
@@ -251,6 +252,19 @@ final class PageManager
             ->map(fn (string|array $componentDefinition) => is_array($componentDefinition) ? $componentDefinition['class'] : $componentDefinition);
     }
 
+    public function swapComponent(string $page, string $component, string $newComponent): self
+    {
+        $componentDefinition = Arr::get($this->defaults, "{$page}.components.{$component}");
+
+        $componentDefinition = is_array($componentDefinition)
+            ? [...$componentDefinition, ...['class' => $newComponent]]
+            : $newComponent;
+
+        Arr::set($this->defaults, "{$page}.components.{$component}", $componentDefinition);
+
+        return $this;
+    }
+
     private function mapToInnerNavItems(Collection $pages, int $level = 0): Collection
     {
         return $pages->transform(function (mixed $page, string|int $index) use ($level) {
@@ -321,7 +335,9 @@ final class PageManager
                 'slug' => 'profile',
                 'icon' => 'heroicon-o-user',
                 'className' => Profile::class,
-                'components' => [],
+                'components' => [
+                    ProfileInfo::class => ['class' => ProfileInfo::class, 'sort' => 0],
+                ],
                 'sort' => 0,
                 'group' => null,
             ],

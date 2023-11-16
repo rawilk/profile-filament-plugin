@@ -59,4 +59,8 @@ return [
 
     ],
 
+    'masked_value' => [
+        'reveal_button' => 'Reveal',
+    ],
+
 ];

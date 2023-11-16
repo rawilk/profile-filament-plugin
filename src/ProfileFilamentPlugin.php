@@ -102,6 +102,7 @@ class ProfileFilamentPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
+        $this->pageManager()->registerPageComponents(Profile::class);
         $this->pageManager()->registerPageComponents(Settings::class);
         $this->pageManager()->registerPageComponents(Security::class);
         $this->pageManager()->registerPageComponents(Sessions::class);
@@ -355,13 +356,7 @@ class ProfileFilamentPlugin implements Plugin
 
     public function swapComponent(string $page, string $component, string $newComponent): self
     {
-        $componentDefinition = Arr::get($this->defaults, "{$page}.components.{$component}", []);
-
-        $componentDefinition = is_array($componentDefinition)
-            ? [...$componentDefinition, ...['class' => $newComponent]]
-            : $newComponent;
-
-        Arr::set($this->defaults, "{$page}.components.{$component}", $componentDefinition);
+        $this->pageManager()->swapComponent($page, $component, $newComponent);
 
         return $this;
     }
