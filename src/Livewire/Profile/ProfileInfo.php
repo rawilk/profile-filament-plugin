@@ -19,6 +19,10 @@ use Rawilk\ProfileFilament\Events\Profile\ProfileInformationUpdated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 
+/**
+ * This component is meant to be extended by your own component,
+ * so it's very basic on purpose.
+ */
 class ProfileInfo extends ProfileComponent implements HasInfolists
 {
     use InteractsWithInfolists;
