@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilamentPlugin\Tests;
+namespace Rawilk\ProfileFilament\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Rawilk\ProfileFilamentPlugin\ProfileFilamentPluginServiceProvider;
+use Rawilk\ProfileFilament\ProfileFilamentPluginServiceProvider;
 
 class TestCase extends Orchestra
 {
+    protected $enablesPackageDiscoveries = true;
+
     protected function setUp(): void
     {
         parent::setUp();
