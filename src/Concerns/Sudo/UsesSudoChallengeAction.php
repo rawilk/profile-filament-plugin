@@ -13,6 +13,9 @@ use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Filament\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
+/**
+ * @property-read null|\Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode $sudoChallengeModeEnum
+ */
 trait UsesSudoChallengeAction
 {
     public array $sudoChallengeData = [];

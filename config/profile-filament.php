@@ -3,12 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'component_defaults' => [
-        'nav_item' => [
-            'color' => 'primary',
-        ],
-    ],
-
     /*
     |--------------------------------------------------------------------------
     | Hash User Passwords

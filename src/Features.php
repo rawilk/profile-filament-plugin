@@ -35,6 +35,13 @@ final class Features
      */
     private bool $sudoMode = true;
 
+    private array $updatePasswordConfig = [
+        'current_password' => true,
+        'password_confirmation' => true,
+    ];
+
+    private bool $showPasswordResetLink = true;
+
     public static function make(): self
     {
         return new self;
@@ -69,11 +76,25 @@ final class Features
         return $features instanceof self ? $features : new self;
     }
 
+    public function requireCurrentPasswordToUpdatePassword(bool $condition = true): self
+    {
+        $this->updatePasswordConfig['current_password'] = $condition;
+
+        return $this;
+    }
+
+    public function requirePasswordConfirmationToUpdatePassword(bool $condition = true): self
+    {
+        $this->updatePasswordConfig['password_confirmation'] = $condition;
+
+        return $this;
+    }
+
     public function twoFactorAuthentication(
         bool $enabled = null,
         bool $authenticatorApps = null,
         bool $webauthn = null,
-        bool $confirmPassword = null,
+        bool $passkeys = null,
     ): self {
         if (is_bool($enabled)) {
             $this->twoFactorAuthentication = $enabled;
@@ -87,9 +108,16 @@ final class Features
             $this->twoFactorOptions['webauthn'] = $webauthn;
         }
 
-        if (is_bool($confirmPassword)) {
-            $this->twoFactorOptions['confirmPassword'] = $confirmPassword;
+        if (is_bool($passkeys)) {
+            $this->passkeys = $passkeys;
         }
+
+        return $this;
+    }
+
+    public function hidePasswordResetLink(): self
+    {
+        $this->showPasswordResetLink = false;
 
         return $this;
     }
@@ -140,5 +168,26 @@ final class Features
     public function hasTwoFactorAuthentication(): bool
     {
         return $this->twoFactorAuthentication;
+    }
+
+    /**
+     * Is the user's current password required to update their password?
+     */
+    public function requiresCurrentPassword(): bool
+    {
+        return $this->updatePasswordConfig['current_password'];
+    }
+
+    /**
+     * Is a password confirmation required to update the user's password?
+     */
+    public function requiresPasswordConfirmation(): bool
+    {
+        return $this->updatePasswordConfig['password_confirmation'];
+    }
+
+    public function shouldShowPasswordResetLink(): bool
+    {
+        return $this->showPasswordResetLink;
     }
 }

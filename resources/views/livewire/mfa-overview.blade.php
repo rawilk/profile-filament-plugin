@@ -25,21 +25,15 @@
             </x-slot:actions>
         @endif
 
-        @if ($this->shouldShow)
-            <p class="text-sm">
-                {{ __('profile-filament::pages/security.mfa.description') }}
-            </p>
+        <p class="text-sm">
+            {{ __('profile-filament::pages/security.mfa.description') }}
+        </p>
 
-            {{ \Filament\Support\Facades\FilamentView::renderHook('profile-filament::mfa.settings.before') }}
+        {{ \Filament\Support\Facades\FilamentView::renderHook('profile-filament::mfa.settings.before') }}
 
-            <div class="mt-6">
-                @include('profile-filament::livewire.partials.mfa-summary')
-            </div>
-        @else
-            <x-profile-filament::blocked-profile-section>
-                {{ __('profile-filament::messages.blocked_profile_section.mfa') }}
-            </x-profile-filament::blocked-profile-section>
-        @endif
+        <div class="mt-6">
+            @include('profile-filament::livewire.partials.mfa-summary')
+        </div>
     </x-profile-filament::component-section>
 
     <x-filament-actions::modals />

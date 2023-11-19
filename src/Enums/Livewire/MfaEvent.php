@@ -15,7 +15,6 @@ enum MfaEvent: string
 
     // Webauthn Keys
     case ToggleWebauthnKeys = 'mfa:toggle-webauthn-keys';
-    case WebauthnFormInitialized = 'mfa:webauthn-form-initialized';
     case WebauthnKeyAdded = 'mfa:webauthn-key-added';
     case WebauthnKeyDeleted = 'mfa:webauthn-key-deleted';
     case WebauthnAssertionInitialized = 'mfa:webauthn-assertion-initialized';

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Concerns;
 
 use Filament\Actions\Action;
+use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
@@ -30,7 +31,7 @@ trait CopiesRecoveryCodes
             ->livewireClickHandlerEnabled(false)
             ->color('gray')
             ->label(__('profile-filament::pages/security.mfa.recovery_codes.actions.copy.label'))
-            ->icon('heroicon-o-document-duplicate')
+            ->icon(FilamentIcon::resolve('mfa::recovery-codes.copy') ?? 'heroicon-o-document-duplicate')
             ->extraAttributes([
                 'x-on:click' => new HtmlString(<<<JS
                 window.navigator.clipboard.writeText({$codes});
@@ -44,7 +45,7 @@ trait CopiesRecoveryCodes
         return Action::make('download')
             ->color('gray')
             ->label(__('profile-filament::pages/security.mfa.recovery_codes.actions.download.label'))
-            ->icon('heroicon-o-arrow-down-tray')
+            ->icon(FilamentIcon::resolve('mfa::recovery-codes.download') ?? 'heroicon-o-arrow-down-tray')
             ->action(function () {
                 $appName = Str::slug(config('app.name'));
 
@@ -62,7 +63,7 @@ trait CopiesRecoveryCodes
             ->livewireClickHandlerEnabled(false)
             ->color('gray')
             ->label(__('profile-filament::pages/security.mfa.recovery_codes.actions.print.label'))
-            ->icon('heroicon-o-printer')
+            ->icon(FilamentIcon::resolve('mfa::recovery-codes.print') ?? 'heroicon-o-printer')
             ->extraAttributes([
                 'x-on:click' => new HtmlString(<<<JS
                 const newTab = window.open('', '_blank');

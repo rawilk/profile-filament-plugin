@@ -36,7 +36,7 @@ class Passkey extends ProfileComponent
         return EditAction::make()
             ->label(__('profile-filament::pages/security.passkeys.actions.edit.trigger_label', ['name' => e($this->passkey->name)]))
             ->record($this->passkey)
-            ->icon('heroicon-o-pencil')
+            ->icon(FilamentIcon::resolve('actions::edit-action') ?? 'heroicon-o-pencil')
             ->button()
             ->hiddenLabel()
             ->color('primary')
@@ -78,7 +78,7 @@ class Passkey extends ProfileComponent
 
         return Action::make('delete')
             ->label(__('profile-filament::pages/security.passkeys.actions.delete.trigger_label', ['name' => e($this->passkey->name)]))
-            ->icon('heroicon-o-trash')
+            ->icon(FilamentIcon::resolve('actions::delete-action') ?? 'heroicon-o-trash')
             ->button()
             ->hiddenLabel()
             ->tooltip(__('profile-filament::pages/security.passkeys.actions.delete.trigger_tooltip'))
@@ -101,7 +101,7 @@ class Passkey extends ProfileComponent
                 $this->passkey = null;
             })
             ->requiresConfirmation()
-            ->modalIcon(FilamentIcon::resolve('actions::delete-action.modal') ?? 'heroicon-o-trash')
+            ->modalIcon(fn () => FilamentIcon::resolve('actions::delete-action.modal') ?? 'heroicon-o-trash')
             ->modalHeading(__('profile-filament::pages/security.passkeys.actions.delete.title'))
             ->modalDescription(
                 new HtmlString(<<<HTML

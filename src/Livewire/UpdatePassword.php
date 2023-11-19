@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Livewire;
 
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Form;
@@ -13,21 +14,30 @@ use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Computed;
 use Rawilk\FilamentPasswordInput\Password as PasswordInput;
 use Rawilk\ProfileFilament\Contracts\UpdatePasswordAction;
-use Rawilk\ProfileFilament\Enums\Livewire\SensitiveProfileSection;
-use Rawilk\ProfileFilament\Facades\ProfileFilament;
-use Symfony\Component\HttpFoundation\Response;
+use Rawilk\ProfileFilament\Features;
 
 /**
- * @property-read bool $shouldShowForm
+ * @property-read null|string $passwordResetUrl
+ * @property-read \Rawilk\ProfileFilament\Features $pluginFeatures
  */
 class UpdatePassword extends ProfileComponent
 {
     public ?array $data = [];
 
     #[Computed]
-    public function shouldShowForm(): bool
+    public function passwordResetUrl(): ?string
     {
-        return ProfileFilament::shouldShowProfileSection(SensitiveProfileSection::UpdatePassword->value);
+        if (! $this->pluginFeatures->shouldShowPasswordResetLink()) {
+            return null;
+        }
+
+        return Filament::getRequestPasswordResetUrl();
+    }
+
+    #[Computed]
+    public function pluginFeatures(): Features
+    {
+        return $this->profilePlugin->panelFeatures();
     }
 
     public function form(Form $form): Form
@@ -41,21 +51,20 @@ class UpdatePassword extends ProfileComponent
             ->statePath('data');
     }
 
+    public function submitAction(): Action
+    {
+        return Action::make('submit')
+            ->action('updatePassword')
+            ->color('primary')
+            ->submit('updatePassword')
+            ->label(__('profile-filament::pages/security.password.form.save_button'));
+    }
+
     public function updatePassword(UpdatePasswordAction $updater): void
     {
-        abort_unless(
-            ProfileFilament::shouldShowProfileSection(SensitiveProfileSection::UpdatePassword->value),
-            Response::HTTP_FORBIDDEN,
-        );
+        $updater(Filament::auth()->user(), $this->form->getState()['password']);
 
-        $password = $this->form->getState()['password'];
-        if (config('profile-filament.hash_user_passwords')) {
-            $password = Hash::make($password);
-        }
-
-        $updater(Filament::auth()->user(), $password);
-
-        $this->reset(['data']);
+        $this->form->fill();
 
         Notification::make()
             ->success()
@@ -74,9 +83,9 @@ class UpdatePassword extends ProfileComponent
             ->label(__('profile-filament::pages/security.password.form.current_password'))
             ->required()
             ->autocomplete('current-password')
-            ->rule('current_password')
+            ->currentPassword()
             ->maxWidth('lg')
-            ->visible($this->profilePlugin->isUpdatePasswordFieldEnabled('current_password'));
+            ->visible(fn (): bool => $this->pluginFeatures->requiresCurrentPassword());
     }
 
     protected function getPasswordField(): Component
@@ -89,6 +98,11 @@ class UpdatePassword extends ProfileComponent
             ->required()
             ->autocomplete('new-password')
             ->rule(Password::defaults())
+            ->dehydrateStateUsing(
+                fn (string $state): string => config('profile-filament.hash_user_passwords')
+                    ? Hash::make($state)
+                    : $state
+            )
             ->maxWidth('lg');
     }
 
@@ -98,7 +112,7 @@ class UpdatePassword extends ProfileComponent
             ->label(__('profile-filament::pages/security.password.form.password_confirmation'))
             ->hidePasswordManagerIcons()
             ->required()
-            ->visible($this->profilePlugin->isUpdatePasswordFieldEnabled('password_confirmation'))
+            ->visible(fn (): bool => $this->pluginFeatures->requiresPasswordConfirmation())
             ->same('password')
             ->maxWidth('lg');
     }

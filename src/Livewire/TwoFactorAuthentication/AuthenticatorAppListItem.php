@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
@@ -29,7 +30,7 @@ class AuthenticatorAppListItem extends ProfileComponent
         return EditAction::make()
             ->label(__('profile-filament::pages/security.mfa.app.actions.edit.trigger_label', ['name' => e($this->app->name)]))
             ->record($this->app)
-            ->icon('heroicon-o-pencil')
+            ->icon(FilamentIcon::resolve('actions::edit-action') ?? 'heroicon-o-pencil')
             ->button()
             ->hiddenLabel()
             ->color('primary')
@@ -69,7 +70,7 @@ class AuthenticatorAppListItem extends ProfileComponent
     {
         return Action::make('delete')
             ->label(__('profile-filament::pages/security.mfa.app.actions.delete.trigger_label', ['name' => e($this->app->name)]))
-            ->icon('heroicon-o-trash')
+            ->icon(FilamentIcon::resolve('actions::delete-action') ?? 'heroicon-o-trash')
             ->button()
             ->hiddenLabel()
             ->tooltip(__('profile-filament::pages/security.mfa.app.actions.delete.trigger_tooltip'))
@@ -94,6 +95,7 @@ class AuthenticatorAppListItem extends ProfileComponent
             })
             ->requiresConfirmation()
             ->modalHeading(__('profile-filament::pages/security.mfa.app.actions.delete.title'))
+            ->modalIcon(fn () => FilamentIcon::resolve('actions::delete-action.modal') ?? 'heroicon-o-trash')
             ->modalDescription(
                 new HtmlString(
                     Str::inlineMarkdown(__('profile-filament::pages/security.mfa.app.actions.delete.description', ['name' => e($this->app->name)]))

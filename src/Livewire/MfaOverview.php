@@ -16,9 +16,7 @@ use Rawilk\ProfileFilament\Concerns\CopiesRecoveryCodes;
 use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
 use Rawilk\ProfileFilament\Contracts\TwoFactor\DisableTwoFactorAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Enums\Livewire\SensitiveProfileSection;
 use Rawilk\ProfileFilament\Events\RecoveryCodesViewed;
-use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Features;
 
 /**
@@ -27,7 +25,6 @@ use Rawilk\ProfileFilament\Features;
  * @property-read bool $canWebauthn
  * @property-read bool $hasMfaEnabled
  * @property-read \Rawilk\ProfileFilament\Features $panelFeatures
- * @property-read bool $shouldShow
  * @property-read \Illuminate\Support\Collection<int, \Rawilk\ProfileFilament\Models\WebauthnKey> $webauthnKeys
  */
 class MfaOverview extends ProfileComponent
@@ -50,12 +47,6 @@ class MfaOverview extends ProfileComponent
     public function hasMfaEnabled(): bool
     {
         return filament()->auth()->user()->two_factor_enabled;
-    }
-
-    #[Computed]
-    public function shouldShow(): bool
-    {
-        return ProfileFilament::shouldShowProfileSection(SensitiveProfileSection::Mfa->value);
     }
 
     #[Computed]

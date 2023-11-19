@@ -1,5 +1,6 @@
 @props([
     'icon' => null,
+    'iconAlias' => null,
     'deviceCount' => 0,
     'description' => '',
     'deviceCountTranslation' => '',
@@ -12,6 +13,7 @@
         <x-filament::icon
             class="w-6 h-6"
             :icon="$icon"
+            :alias="$iconAlias"
         />
     @endif
 

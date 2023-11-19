@@ -23,10 +23,8 @@ use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
 use Rawilk\ProfileFilament\Contracts\Passkeys\RegisterPasskeyAction;
 use Rawilk\ProfileFilament\Contracts\Passkeys\UpgradeToPasskeyAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Enums\Livewire\SensitiveProfileSection;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\AttestationFailed;
-use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Facades\Webauthn;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Throwable;
@@ -50,12 +48,6 @@ class PasskeyManager extends ProfileComponent
     public function user(): User
     {
         return filament()->auth()->user();
-    }
-
-    #[Computed]
-    public function shouldShow(): bool
-    {
-        return ProfileFilament::shouldShowProfileSection(SensitiveProfileSection::Passkeys->value);
     }
 
     public function messages(): array

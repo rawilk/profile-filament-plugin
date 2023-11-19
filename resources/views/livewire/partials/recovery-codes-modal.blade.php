@@ -4,6 +4,7 @@
     :heading="__('profile-filament::pages/security.mfa.recovery_codes.current_codes_title')"
     :description="__('profile-filament::pages/security.mfa.recovery_codes.description')"
     icon="heroicon-o-key"
+    icon-alias="mfa::recovery-codes"
     :close-by-clicking-away="false"
 >
     @if ($showRecoveryInModal && filament()->auth()->user()->two_factor_enabled)
@@ -14,7 +15,7 @@
                          style="{{ Arr::toCssStyles([\Filament\Support\get_color_css_variables('primary', [300, 400, 500, 600])]) }}"
                     >
                         <p class="text-xs text-gray-500 dark:text-gray-300">
-                            {!! \Illuminate\Support\Str::inlineMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.recommendation', ['1password' => 'https://1password.com/', 'authy' => 'https://authy.com/', 'keeper' => 'https://www.keepersecurity.com/'])) !!}
+                            {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.recommendation', ['1password' => 'https://1password.com/', 'authy' => 'https://authy.com/', 'keeper' => 'https://www.keepersecurity.com/'])) }}
                         </p>
                     </div>
                 </div>
@@ -27,7 +28,7 @@
                     alias="mfa::recovery-codes-notice"
                     class="rounded-none border-x-0"
                 >
-                    {!! \Illuminate\Support\Str::markdown(__('profile-filament::pages/security.mfa.recovery_codes.warning')) !!}
+                    {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.warning')) }}
                 </x-profile-filament::alert>
             </div>
 

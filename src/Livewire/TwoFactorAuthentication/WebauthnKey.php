@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
@@ -37,7 +38,7 @@ class WebauthnKey extends ProfileComponent
         return EditAction::make()
             ->label(__('profile-filament::pages/security.mfa.webauthn.actions.edit.trigger_label', ['name' => e($this->webauthnKey->name)]))
             ->record($this->webauthnKey)
-            ->icon('heroicon-o-pencil')
+            ->icon(FilamentIcon::resolve('actions::edit-action') ?? 'heroicon-o-pencil')
             ->button()
             ->hiddenLabel()
             ->color('primary')
@@ -77,7 +78,7 @@ class WebauthnKey extends ProfileComponent
     {
         return Action::make('delete')
             ->label(__('profile-filament::pages/security.mfa.webauthn.actions.delete.trigger_label', ['name' => e($this->webauthnKey->name)]))
-            ->icon('heroicon-o-trash')
+            ->icon(FilamentIcon::resolve('actions::delete-action') ?? 'heroicon-o-trash')
             ->button()
             ->hiddenLabel()
             ->tooltip(__('profile-filament::pages/security.mfa.webauthn.actions.delete.trigger_tooltip'))
@@ -99,6 +100,7 @@ class WebauthnKey extends ProfileComponent
                 $this->webauthnKey = null;
             })
             ->requiresConfirmation()
+            ->modalIcon(fn () => FilamentIcon::resolve('actions::delete-action.modal') ?? 'heroicon-o-trash')
             ->modalHeading(__('profile-filament::pages/security.mfa.webauthn.actions.delete.title'))
             ->modalDescription(
                 new HtmlString(

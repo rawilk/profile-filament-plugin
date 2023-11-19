@@ -10,7 +10,7 @@
                      style="{{ Arr::toCssStyles([\Filament\Support\get_color_css_variables('primary', [300, 400, 500, 600])]) }}"
                 >
                     <p class="text-xs text-gray-500 dark:text-gray-300">
-                        {!! \Illuminate\Support\Str::inlineMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.recommendation', ['1password' => 'https://1password.com/', 'authy' => 'https://authy.com/', 'keeper' => 'https://www.keepersecurity.com/'])) !!}
+                        {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.recommendation', ['1password' => 'https://1password.com/', 'authy' => 'https://authy.com/', 'keeper' => 'https://www.keepersecurity.com/'])) }}
                     </p>
                 </div>
             </div>
@@ -48,9 +48,7 @@
     <div class="mt-2">
         <p class="text-sm font-bold">{{ __('profile-filament::pages/security.mfa.recovery_codes.actions.generate.heading') }}</p>
         <p class="text-xs mt-1 text-gray-500 dark:text-gray-300">
-            {{ new \Illuminate\Support\HtmlString(
-                \Illuminate\Support\Str::inlineMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.actions.generate.description'))
-            ) }}
+            {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.actions.generate.description')) }}
         </p>
 
         <div class="mt-4">

@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Support\Facades\FilamentIcon;
 use Livewire\Attributes\Locked;
 use Rawilk\ProfileFilament\Concerns\CopiesRecoveryCodes;
 use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
@@ -29,6 +30,7 @@ class RecoveryCodes extends ProfileComponent
             ->color('gray')
             ->label(__('profile-filament::pages/security.mfa.recovery_codes.actions.generate.button'))
             ->requiresConfirmation()
+            ->modalIcon(FilamentIcon::resolve('mfa::recovery-codes') ?? 'heroicon-o-key')
             ->modalIconColor('primary')
             ->action(function (GenerateNewRecoveryCodesAction $generator) {
                 // Re-check for sudo mode in case the user waited too long to confirm.

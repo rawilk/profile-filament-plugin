@@ -20,14 +20,6 @@ class ProfileFilament
     public static $findUserTimezoneUsingCallback;
 
     /**
-     * The callback that is responsible for determining if certain
-     * sections of the profile should be shown to the user.
-     *
-     * @var callable|null
-     */
-    public static $shouldShowSensitiveProfileCallback;
-
-    /**
      * The callback that is responsible for determining if mfa should
      * be enforced by our middleware.
      *
@@ -57,15 +49,6 @@ class ProfileFilament
     public static function findUserTimezoneUsing(callable $callback): void
     {
         static::$findUserTimezoneUsingCallback = $callback;
-    }
-
-    /**
-     * Register a callback that is responsible for determining if certain profile sections,
-     * like mfa should be shown.
-     */
-    public static function showSensitiveProfileSectionsUsing(callable $callback): void
-    {
-        static::$shouldShowSensitiveProfileCallback = $callback;
     }
 
     /**
@@ -106,20 +89,6 @@ class ProfileFilament
             : call_user_func(static::$findUserTimezoneUsingCallback, $user);
 
         return $userTimezone ?? 'UTC';
-    }
-
-    /**
-     * Determine if a given profile section should be shown to the user. This can be useful
-     * if the app allows things like impersonation, but we don't want to expose sensitive
-     * data like mfa apps.
-     */
-    public function shouldShowProfileSection(string $section): bool
-    {
-        if (is_callable(static::$shouldShowSensitiveProfileCallback)) {
-            return call_user_func(static::$shouldShowSensitiveProfileCallback, $section);
-        }
-
-        return true;
     }
 
     /**

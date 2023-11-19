@@ -39,11 +39,6 @@ class ProfileFilamentPlugin implements Plugin
 
     protected string $rootProfilePage = Profile::class;
 
-    protected array $updatePasswordConfig = [
-        'current_password' => true,
-        'password_confirmation' => true,
-    ];
-
     protected ?Features $features = null;
 
     protected PageManager $pageManager;
@@ -51,6 +46,8 @@ class ProfileFilamentPlugin implements Plugin
     protected null|string|Closure|array $mfaChallengeAction = null;
 
     protected null|string|Closure|array $sudoChallengeAction = null;
+
+    protected bool $mfaMiddlewareEnabled = true;
 
     public static function make(): static
     {
@@ -88,8 +85,8 @@ class ProfileFilamentPlugin implements Plugin
         }
 
         if ($this->features->hasTwoFactorAuthentication()) {
-            $panel->authMiddleware([
-                //                RequiresTwoFactorAuthentication::class,
+            $this->mfaMiddlewareEnabled && $panel->authMiddleware([
+                RequiresTwoFactorAuthentication::class,
             ]);
 
             Livewire::component('mfa-challenge', MfaChallenge::class);
@@ -181,6 +178,13 @@ class ProfileFilamentPlugin implements Plugin
     public function hasSudoMode(): bool
     {
         return $this->panelFeatures()->hasSudoMode();
+    }
+
+    public function useMfaMiddleware(bool $condition = true): self
+    {
+        $this->mfaMiddlewareEnabled = $condition;
+
+        return $this;
     }
 
     public function profile(
@@ -316,18 +320,6 @@ class ProfileFilamentPlugin implements Plugin
         $this->pageManager()->addPage($className);
 
         return $this;
-    }
-
-    public function disableUpdatePasswordField(string $field): self
-    {
-        $this->updatePasswordConfig[$field] = false;
-
-        return $this;
-    }
-
-    public function isUpdatePasswordFieldEnabled(string $field): bool
-    {
-        return $this->updatePasswordConfig[$field] === true;
     }
 
     public function navigation(): InnerNav

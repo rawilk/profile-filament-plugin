@@ -8,13 +8,8 @@ return [
         'dismiss' => 'Dismiss',
     ],
 
-    'blocked_profile_section' => [
-
-        'title' => 'Section locked',
-        'update_password' => 'Your account is not able to access the update password feature at this time.',
-        'mfa' => 'Two-factor authentication functionality is not available to your account at this time.',
-        'passkeys' => 'Passkey functionality is not available to your account at this time.',
-
+    'mfa_challenge' => [
+        'invalid_challenged_user' => 'Your user account could not be verified.',
     ],
 
     'sudo_challenge' => [
@@ -23,6 +18,7 @@ return [
         'tip' => "**Tip:** You are entering sudo mode. After you've performed a sudo-protected action, you'll only be asked to re-authenticate again after a few hours of inactivity.",
         'cancel_button' => 'Cancel',
         'signed_in_as' => 'Signed in as: **:handle**',
+        'expired' => 'Your sudo session has expired. Please refresh the page to try again.',
 
         'alternative_heading' => 'Having problems?',
 

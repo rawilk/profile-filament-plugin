@@ -88,17 +88,7 @@ class WebauthnKeys extends ProfileComponent
 
         $this->form->fill();
 
-        $model = config('profile-filament.models.webauthn_key');
-        $publicKey = Webauthn::attestationObjectFor(
-            username: app($model)::getUsername($this->user),
-            userId: app($model)::getUserHandle($this->user),
-        );
-
-        session()->put(MfaSession::AttestationPublicKey->value, serialize($publicKey));
-
         $this->showForm = true;
-
-        $this->dispatch(MfaEvent::WebauthnFormInitialized->value, publicKey: json_encode($publicKey->jsonSerialize()));
     }
 
     public function form(Form $form): Form

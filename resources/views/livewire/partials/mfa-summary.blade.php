@@ -10,6 +10,7 @@
     @if ($this->canAuthenticatorApps)
         <x-profile-filament::box-row
             icon="heroicon-o-device-phone-mobile"
+            icon-alias="mfa::totp"
             device-count-translation="profile-filament::pages/security.mfa.app.device_count"
             :label="__('profile-filament::pages/security.mfa.app.title')"
             :description="__('profile-filament::pages/security.mfa.app.description')"
@@ -29,6 +30,7 @@
     @if ($this->canWebauthn)
         <x-profile-filament::box-row
             icon="heroicon-o-shield-exclamation"
+            icon-alias="mfa::webauthn"
             device-count-translation="profile-filament::pages/security.mfa.webauthn.device_count"
             :label="__('profile-filament::pages/security.mfa.webauthn.title')"
             :description="__('profile-filament::pages/security.mfa.webauthn.description')"
@@ -52,6 +54,7 @@
 
     <x-profile-filament::box-row
         icon="heroicon-o-key"
+        icon-alias="mfa::recovery-codes"
         :label="__('profile-filament::pages/security.mfa.recovery_codes.title')"
         :description="__('profile-filament::pages/security.mfa.recovery_codes.description')"
         id="recovery-codes-container"

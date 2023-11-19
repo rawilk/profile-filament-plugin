@@ -13,6 +13,7 @@ use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUsed;
 use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Note: Webauthn security key verification is handled through the Webauthn service class.
@@ -84,9 +85,11 @@ class Mfa
             ->whereKey(session()->get(MfaSession::User->value))
             ->first();
 
-        if (! $user) {
-            dd('user not found');
-        }
+        abort_unless(
+            $user,
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+            __('profile-filament::messages.mfa_challenge.invalid_challenged_user'),
+        );
 
         return $this->challengedUser = $user;
     }

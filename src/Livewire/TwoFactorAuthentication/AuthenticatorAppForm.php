@@ -9,6 +9,8 @@ use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Support\Exceptions\Halt;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
@@ -115,6 +117,17 @@ class AuthenticatorAppForm extends ProfileComponent
 
     public function confirm(ConfirmTwoFactorAppAction $action): void
     {
+        try {
+            $this->ensureSudoIsActive(returnAction: 'add');
+        } catch (Halt) {
+            Notification::make()
+                ->danger()
+                ->title(__('profile-filament::messages.sudo_challenge.expired'))
+                ->send();
+
+            return;
+        }
+
         App::make(Timebox::class)->call(callback: function (Timebox $timebox) use ($action) {
             $data = $this->form->getState();
             $this->ensureCodeIsValid($data['code']);

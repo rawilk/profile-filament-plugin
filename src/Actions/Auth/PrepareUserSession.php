@@ -16,8 +16,10 @@ class PrepareUserSession
      */
     public function handle($request, Closure $next)
     {
-        session()->forget(MfaSession::User->value);
-        session()->forget(MfaSession::Remember->value);
+        session()->forget([
+            MfaSession::User->value,
+            MfaSession::Remember->value,
+        ]);
 
         Mfa::confirmUserSession($request->user);
 
