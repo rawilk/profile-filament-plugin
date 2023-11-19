@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Route;
-use Rawilk\ProfileFilament\Http\Controllers\PasskeysController;
 use Rawilk\ProfileFilament\Http\Controllers\RevertEmailController;
 use Rawilk\ProfileFilament\Http\Controllers\VerifyPendingEmailController;
-use Rawilk\ProfileFilament\Http\Controllers\WebauthnPublicKeysController;
 
 Route::name('filament.')
     ->group(function () {
@@ -55,25 +53,4 @@ Route::name('filament.')
                     });
             }
         }
-    });
-
-// Routes for webauthn public key generation...
-Route::as('profile-filament::')
-    ->middleware(['web'])
-    ->group(function () {
-        Route::post('/sessions/webauthn/assertion-pk/{user}', [WebauthnPublicKeysController::class, 'assertionPublicKey'])
-            ->name('webauthn.assertion_pk')
-            ->middleware(['signed']);
-
-        Route::post('/sessions/webauthn/attestation-pk', [WebauthnPublicKeysController::class, 'attestationPublicKey'])
-            ->name('webauthn.attestation_pk')
-            ->middleware(['auth']);
-
-        Route::post('/sessions/webauthn/passkey-assertion-pk', [PasskeysController::class, 'assertionPublicKey'])
-            ->name('webauthn.passkey_assertion_pk')
-            ->middleware(['signed']);
-
-        Route::post('/sessions/webauthn/passkey-attestation-pk', [PasskeysController::class, 'attestationPublicKey'])
-            ->name('webauthn.passkey_attestation_pk')
-            ->middleware(['auth']);
     });

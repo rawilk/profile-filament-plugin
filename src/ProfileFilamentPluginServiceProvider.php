@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament;
 
+use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Psr\Log\NullLogger;
+use Rawilk\ProfileFilament\Http\Controllers\PasskeysController;
+use Rawilk\ProfileFilament\Http\Controllers\WebauthnPublicKeysController;
 use Rawilk\ProfileFilament\Livewire\MaskedValue;
 use Rawilk\ProfileFilament\Responses\EmailRevertedResponse;
 use Rawilk\ProfileFilament\Responses\PendingEmailVerifiedResponse;
@@ -38,19 +43,8 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->makeClassBindings();
-
-        FilamentAsset::register([
-            AlpineComponent::make('webauthnForm', __DIR__ . '/../resources/dist/webauthn.js')
-                ->loadedOnRequest(),
-        ], 'rawilk/profile-filament-plugin');
-
-        $sets = $this->app['config']->get('blade-icons.sets');
-        $sets['profile-filament'] = [
-            'path' => 'vendor/rawilk/profile-filament-plugin/resources/svg',
-            'prefix' => 'pf',
-        ];
-
-        $this->app['config']->set('blade-icons.sets', $sets);
+        $this->registerRouteMacros();
+        $this->registerAssets();
     }
 
     public function packageRegistered(): void
@@ -114,5 +108,51 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         // Responses
         $this->app->bind(Contracts\Responses\PendingEmailVerifiedResponse::class, PendingEmailVerifiedResponse::class);
         $this->app->bind(Contracts\Responses\EmailRevertedResponse::class, EmailRevertedResponse::class);
+    }
+
+    private function registerAssets(): void
+    {
+        FilamentAsset::register([
+            AlpineComponent::make('webauthnForm', __DIR__ . '/../resources/dist/webauthn.js')
+                ->loadedOnRequest(),
+        ], 'rawilk/profile-filament-plugin');
+
+        $sets = $this->app['config']->get('blade-icons.sets');
+        $sets['profile-filament'] = [
+            'path' => 'vendor/rawilk/profile-filament-plugin/resources/svg',
+            'prefix' => 'pf',
+        ];
+
+        $this->app['config']->set('blade-icons.sets', $sets);
+    }
+
+    private function registerRouteMacros(): void
+    {
+        Route::macro(
+            name: 'webauthn',
+            macro: function (
+                string $prefix = 'sessions/webauthn',
+                array $assertionMiddleware = [ValidateSignature::class],
+                array $attestationMiddleware = [FilamentAuthenticate::class],
+            ) {
+                Route::as('profile-filament::')
+                    ->group(function () use ($prefix, $assertionMiddleware, $attestationMiddleware) {
+                        Route::post("/{$prefix}/assertion-pk/{user}", [WebauthnPublicKeysController::class, 'assertionPublicKey'])
+                            ->name('webauthn.assertion_pk')
+                            ->middleware($assertionMiddleware);
+
+                        Route::post("/{$prefix}/passkey-assertion-pk", [PasskeysController::class, 'assertionPublicKey'])
+                            ->name('webauthn.passkey_assertion_pk')
+                            ->middleware($assertionMiddleware);
+
+                        Route::post("/{$prefix}/attestation-pk", [WebauthnPublicKeysController::class, 'attestationPublicKey'])
+                            ->name('webauthn.attestation_pk')
+                            ->middleware($attestationMiddleware);
+
+                        Route::post("/{$prefix}/passkey-attestation-pk", [PasskeysController::class, 'attestationPublicKey'])
+                            ->name('webauthn.passkey_attestation_pk')
+                            ->middleware($attestationMiddleware);
+                    });
+            });
     }
 }

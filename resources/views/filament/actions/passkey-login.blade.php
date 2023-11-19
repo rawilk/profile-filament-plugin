@@ -5,7 +5,8 @@
     x-data="webauthnForm({
         mode: 'login',
         wireId: '{{ $this->getId() }}',
-        loginPublicKeyUrl: '{{ URL::signedRoute('profile-filament::webauthn.passkey_assertion_pk', ['s' => Hash::make(session()->getId())]) }}',
+        {{-- adding time variable to url so a unique signature is always generated --}}
+        loginPublicKeyUrl: '{{ URL::signedRoute('profile-filament::webauthn.passkey_assertion_pk', ['t' => now()->unix()]) }}',
         loginUsing: function (assertion) {
             return @this.mountAction('{{ $getName() }}', { assertion });
         },
