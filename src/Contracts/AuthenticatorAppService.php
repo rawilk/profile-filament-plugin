@@ -12,5 +12,5 @@ interface AuthenticatorAppService
 
     public function qrCodeSvg(string $url): string;
 
-    public function verify(string $secret, string $code): bool;
+    public function verify(string $secret, string $code, bool $withoutTimestamps = false): bool;
 }

@@ -69,9 +69,9 @@ class RequiresTwoFactorAuthentication
         $panelId = filament()->getCurrentPanel()?->getId();
 
         if (filament()->hasTenancy() && $tenantId = $request->route()?->parameter('tenant')) {
-            return route("filament.{$panelId}.auth.mfa-challenge", ['tenant' => $tenantId]);
+            return route("filament.{$panelId}.auth.mfa.challenge", ['tenant' => $tenantId]);
         }
 
-        return route("filament.{$panelId}.auth.mfa-challenge");
+        return route("filament.{$panelId}.auth.mfa.challenge");
     }
 }

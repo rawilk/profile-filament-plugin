@@ -8,6 +8,8 @@
         filament()->auth()->user()?->two_factor_enabled,
         \Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN,
     );
+
+    \Rawilk\ProfileFilament\Events\RecoveryCodesViewed::dispatch(filament()->auth()->user());
 @endphp
 
 <!DOCTYPE html>

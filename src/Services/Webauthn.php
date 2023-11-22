@@ -7,6 +7,7 @@ namespace Rawilk\ProfileFilament\Services;
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature;
 use Illuminate\Contracts\Auth\Authenticatable as User;
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use Psr\Log\LoggerInterface;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUsed;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\AssertionFailed;
@@ -46,11 +47,27 @@ class Webauthn
 
     protected AuthenticatorAssertionResponseValidator $authenticatorAssertionResponseValidator;
 
+    /**
+     * A callback responsible for generating a challenge with. This is mostly useful
+     * in testing scenarios.
+     *
+     * @var null|callable
+     */
+    protected static $generateChallengeCallback = null;
+
     public function __construct(
         protected string $model,
         protected LoggerInterface $logger,
     ) {
         $this->initialize();
+    }
+
+    /**
+     * Define a callback to generate the challenges with.
+     */
+    public static function generateChallengeWith(?callable $callback): void
+    {
+        static::$generateChallengeCallback = $callback;
     }
 
     public function attestationObjectFor(string $username, string|int $userId = null): PublicKeyCredentialCreationOptions
@@ -72,7 +89,7 @@ class Webauthn
         return PublicKeyCredentialCreationOptions::create(
             rp: $rpEntity,
             user: $userEntity,
-            challenge: random_bytes(32),
+            challenge: $this->generateChallenge(),
             pubKeyCredParams: $this->getPubKeyCredParams(),
             authenticatorSelection: AuthenticatorSelectionCriteria::create(
                 authenticatorAttachment: config('profile-filament.webauthn.authenticator_attachment', AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE),
@@ -104,7 +121,7 @@ class Webauthn
         return PublicKeyCredentialCreationOptions::create(
             rp: $rpEntity,
             user: $userEntity,
-            challenge: random_bytes(32),
+            challenge: $this->generateChallenge(),
             pubKeyCredParams: $this->getPubKeyCredParams(),
             authenticatorSelection: AuthenticatorSelectionCriteria::create(
                 // Resident key and user verification are required for passkeys
@@ -140,7 +157,7 @@ class Webauthn
     public function assertionObjectFor(string|int $userId = null): PublicKeyCredentialRequestOptions
     {
         return PublicKeyCredentialRequestOptions::create(
-            challenge: random_bytes(32),
+            challenge: $this->generateChallenge(),
             rpId: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
             allowCredentials: $this->getPublicKeyCredentialDescriptorsFor($userId),
             userVerification: config('profile-filament.webauthn.user_verification', AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED),
@@ -151,7 +168,7 @@ class Webauthn
     public function passkeyAssertionObject(): PublicKeyCredentialRequestOptions
     {
         return PublicKeyCredentialRequestOptions::create(
-            challenge: random_bytes(32),
+            challenge: $this->generateChallenge(),
             rpId: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
             userVerification: AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED,
             timeout: config('profile-filament.webauthn.passkey_timeout', 300_000)
@@ -179,7 +196,7 @@ class Webauthn
 
         throw_unless(
             filled($authenticator) && filled($authenticator->user),
-            AssertionFailed::keyNotFound(base64_encode($publicKeyCredential->rawId))
+            AssertionFailed::keyNotFound(Base64UrlSafe::encodeUnpadded($publicKeyCredential->rawId)),
         );
 
         throw_if(
@@ -247,6 +264,15 @@ class Webauthn
                 );
             })
             ->toArray();
+    }
+
+    protected function generateChallenge(): string
+    {
+        if (is_callable(static::$generateChallengeCallback)) {
+            return call_user_func(static::$generateChallengeCallback);
+        }
+
+        return random_bytes(32);
     }
 
     /**

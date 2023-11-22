@@ -234,7 +234,7 @@ class AuthenticatorAppForm extends ProfileComponent
                     return;
                 }
 
-                $this->codeValid = $this->isCodeValid($state);
+                $this->ensureCodeIsValid($state);
             });
     }
 
@@ -275,7 +275,11 @@ class AuthenticatorAppForm extends ProfileComponent
 
     protected function isCodeValid(string $code): bool
     {
-        return $this->authenticatorService->verify($this->secret, $code);
+        return $this->authenticatorService->verify(
+            secret: $this->secret,
+            code: $code,
+            withoutTimestamps: true
+        );
     }
 
     protected function ensureCodeIsValid(string $code): void

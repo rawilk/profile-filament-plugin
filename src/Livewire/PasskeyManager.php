@@ -129,7 +129,7 @@ class PasskeyManager extends ProfileComponent
                     user: filament()->auth()->user(),
                     publicKeyCredentialSource: $publicKeyCredentialSource,
                     attestation: $attestation,
-                    keyName: $this->name,
+                    keyName: $this->form->getState()['name'],
                 );
             }
 
@@ -176,7 +176,6 @@ class PasskeyManager extends ProfileComponent
             ->modalContent(fn (array $arguments): View => view(
                 'profile-filament::livewire.partials.register-passkey',
                 [
-                    //                    'attestation' => $this->getAttestation($arguments['excludeId'] ?? null),
                     'upgrading' => $this->upgrading,
                 ],
             ))
@@ -219,26 +218,6 @@ class PasskeyManager extends ProfileComponent
             ->extraInputAttributes([
                 'x-on:keydown.enter.prevent.stop' => 'submit',
             ]);
-    }
-
-    protected function getAttestation(mixed $excludeId = null): array
-    {
-        if (session()->has(MfaSession::PasskeyAttestationPk->value)) {
-            return unserialize(
-                session()->get(MfaSession::PasskeyAttestationPk->value),
-            )->jsonSerialize();
-        }
-
-        $model = config('profile-filament.models.webauthn_key');
-        $publicKey = Webauthn::passkeyAttestationObjectFor(
-            username: app($model)::getUsername($this->user),
-            userId: app($model)::getUserHandle($this->user),
-            excludeCredentials: filled($excludeId) ? Arr::wrap($excludeId) : [],
-        );
-
-        session()->put(MfaSession::PasskeyAttestationPk->value, serialize($publicKey));
-
-        return $publicKey->jsonSerialize();
     }
 
     protected function view(): string

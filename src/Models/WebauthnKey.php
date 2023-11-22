@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\WrongUserHandle;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Webauthn\PublicKeyCredentialSource;
@@ -23,7 +24,6 @@ class WebauthnKey extends Model
     use HasFactory;
 
     protected $casts = [
-        'credential_id' => 'encrypted',
         'public_key' => 'encrypted:json',
         'transports' => 'array',
         'is_passkey' => 'boolean',
@@ -91,7 +91,7 @@ class WebauthnKey extends Model
 
     public function scopeByCredentialId(Builder $query, string $credentialId): void
     {
-        $query->where('credential_id', base64_encode($credentialId));
+        $query->where('credential_id', Base64UrlSafe::encodeUnpadded($credentialId));
     }
 
     public function scopePasskeys(Builder $query): void
@@ -99,7 +99,7 @@ class WebauthnKey extends Model
         $query->where('is_passkey', true);
     }
 
-    public function notPasskeys(Builder $query): void
+    public function scopeNotPasskeys(Builder $query): void
     {
         $query->where('is_passkey', false);
     }
@@ -122,8 +122,8 @@ class WebauthnKey extends Model
     protected function credentialId(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => base64_decode($value),
-            set: fn ($value) => base64_encode($value),
+            get: fn ($value) => Base64UrlSafe::decodeNoPadding($value),
+            set: fn ($value) => Base64UrlSafe::encodeUnpadded($value),
         )->shouldCache();
     }
 

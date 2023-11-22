@@ -7,9 +7,11 @@ namespace Rawilk\ProfileFilament;
 use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
+use PragmaRX\Google2FA\Google2FA;
 use Psr\Log\NullLogger;
 use Rawilk\ProfileFilament\Http\Controllers\PasskeysController;
 use Rawilk\ProfileFilament\Http\Controllers\WebauthnPublicKeysController;
@@ -51,7 +53,10 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
     {
         $this->app->scoped(
             Contracts\AuthenticatorAppService::class,
-            Services\AuthenticatorAppService::class,
+            fn ($app) => new Services\AuthenticatorAppService(
+                engine: $app->make(Google2FA::class),
+                cache: $app->make(Cache::class),
+            ),
         );
 
         $this->app->scoped(

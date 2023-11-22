@@ -10,18 +10,19 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\Fill;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use PragmaRX\Google2FA\Google2FA;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorAppServiceContract;
 
 class AuthenticatorAppService implements AuthenticatorAppServiceContract
 {
-    public function __construct(protected Google2FA $engine)
+    public function __construct(protected Google2FA $engine, protected ?Cache $cache = null)
     {
     }
 
     public function generateSecretKey(): string
     {
-        return $this->engine->generateSecretKey();
+        return $this->engine->generateSecretKey(32);
     }
 
     public function qrCodeUrl(string $companyName, string $companyEmail, string $secret): string
@@ -41,8 +42,29 @@ class AuthenticatorAppService implements AuthenticatorAppServiceContract
         return trim(substr($svg, strpos($svg, "\n") + 1));
     }
 
-    public function verify(string $secret, string $code): bool
+    public function verify(string $secret, string $code, bool $withoutTimestamps = false): bool
     {
-        return (bool) $this->engine->verifyKey($secret, $code);
+        // This is mostly useful for our registration form, since we're verifying the same code twice.
+        if ($withoutTimestamps) {
+            return (bool) $this->engine->verifyKey($secret, $code);
+        }
+
+        $timestamp = $this->engine->verifyKeyNewer(
+            secret: $secret,
+            key: $code,
+            oldTimestamp: $this->cache?->get($key = 'profile-filament:totp_codes.' . md5($code)),
+        );
+
+        if ($timestamp !== false) {
+            if ($timestamp === true) {
+                $timestamp = $this->engine->getTimestamp();
+            }
+
+            $this->cache?->put($key, $timestamp, ($this->engine->getWindow() ?: 1) * 60);
+
+            return true;
+        }
+
+        return false;
     }
 }

@@ -13,6 +13,7 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
+use Livewire\Attributes\Computed;
 use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
 use Rawilk\ProfileFilament\Contracts\Webauthn\DeleteWebauthnKeyAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
@@ -20,11 +21,20 @@ use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpdated;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 use Rawilk\ProfileFilament\Models\WebauthnKey as WebauthnKeyModel;
 
+/**
+ * @property-read bool $hasPasskeys
+ */
 class WebauthnKey extends ProfileComponent
 {
     use UsesSudoChallengeAction;
 
     public ?WebauthnKeyModel $webauthnKey;
+
+    #[Computed]
+    public function hasPasskeys(): bool
+    {
+        return $this->profilePlugin->panelFeatures()->hasPasskeys();
+    }
 
     public function messages(): array
     {
@@ -86,6 +96,8 @@ class WebauthnKey extends ProfileComponent
             ->size('sm')
             ->outlined()
             ->action(function () {
+                $this->ensureSudoIsActive(returnAction: 'delete');
+
                 $this->authorize('delete', $this->webauthnKey);
 
                 app(DeleteWebauthnKeyAction::class)($this->webauthnKey);
@@ -124,14 +136,16 @@ class WebauthnKey extends ProfileComponent
         return Action::make('upgrade')
             ->livewireClickHandlerEnabled(false)
             ->label(__('profile-filament::pages/security.passkeys.actions.upgrade.trigger_label', ['name' => e($this->webauthnKey->name)]))
-            ->icon('heroicon-m-arrow-up')
+            ->icon(fn () => FilamentIcon::resolve('mfa::upgrade-to-passkey') ?? 'heroicon-m-arrow-up')
             ->button()
             ->hiddenLabel()
             ->color('success')
             ->size('sm')
             ->outlined()
             ->tooltip(__('profile-filament::pages/security.passkeys.actions.upgrade.trigger_tooltip'))
-            ->visible(fn () => filament()->auth()->user()->can('upgradeToPasskey', $this->webauthnKey))
+            ->visible(
+                fn () => $this->hasPasskeys && filament()->auth()->user()->can('upgradeToPasskey', $this->webauthnKey)
+            )
             ->extraAttributes([
                 'title' => '',
                 'x-on:click' => new HtmlString(<<<JS

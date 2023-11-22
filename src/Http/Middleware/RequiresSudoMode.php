@@ -8,11 +8,16 @@ use Closure;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\Facades\Sudo;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class RequiresSudoMode
 {
     public function handle(Request $request, Closure $next)
     {
+        if (! $this->shouldCheckForSudo()) {
+            return $next($request);
+        }
+
         if (Sudo::isActive()) {
             Sudo::extend();
 
@@ -35,5 +40,14 @@ class RequiresSudoMode
         }
 
         return route("filament.{$panelId}.auth.sudo-challenge");
+    }
+
+    protected function shouldCheckForSudo(): bool
+    {
+        return rescue(
+            callback: fn () => filament(ProfileFilamentPlugin::make()->getId())->hasSudoMode(),
+            rescue: fn () => true,
+            report: false,
+        );
     }
 }

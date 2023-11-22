@@ -6,6 +6,7 @@ use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Route;
 use Rawilk\ProfileFilament\Http\Controllers\RevertEmailController;
 use Rawilk\ProfileFilament\Http\Controllers\VerifyPendingEmailController;
+use Rawilk\ProfileFilament\Http\Middleware\RequiresSudoMode;
 
 Route::name('filament.')
     ->group(function () {
@@ -28,12 +29,15 @@ Route::name('filament.')
 
                         if ($plugin->panelFeatures()->hasTwoFactorAuthentication()) {
                             // Two Factor Challenge
-                            Route::get('/sessions/two-factor-challenge', $plugin->getMfaChallengeAction())->name('auth.mfa-challenge');
+                            Route::get('/sessions/two-factor-challenge', $plugin->getMfaChallengeAction())->name('auth.mfa.challenge');
 
                             // Print Recovery Codes
                             Route::view('/recovery-codes/print', 'profile-filament::pages.print-recovery-codes')
                                 ->name('auth.mfa.recovery-codes.print')
-                                ->middleware($panel->getAuthMiddleware());
+                                ->middleware([
+                                    ...$panel->getAuthMiddleware(),
+                                    RequiresSudoMode::class,
+                                ]);
                         }
 
                         if ($plugin->panelFeatures()->hasSudoMode()) {
