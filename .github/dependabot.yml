@@ -20,3 +20,13 @@ updates:
         labels:
             - "dependencies"
             - "composer"
+
+    -   package-ecosystem: "npm"
+        directory: "/"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "NPM"
+        labels:
+            - "dependencies"
+            - "npm"
