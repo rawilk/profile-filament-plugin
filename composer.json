@@ -19,14 +19,14 @@
     "require": {
         "php": "^8.2",
         "bacon/bacon-qr-code": "^2.0",
-        "filament/filament": "^3.0.10",
-        "illuminate/contracts": "^10.0",
+        "filament/filament": "^3.0.20",
+        "illuminate/contracts": "^10.10",
         "mobiledetect/mobiledetectlib": "^4.8",
         "pragmarx/google2fa": "^8.0",
         "rawilk/filament-inner-nav": "^1.1",
         "rawilk/filament-password-input": "^1.0",
         "spatie/laravel-package-tools": "^1.14",
-        "web-auth/webauthn-lib": "^4.7"
+        "web-auth/webauthn-lib": "^4.7.7"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
