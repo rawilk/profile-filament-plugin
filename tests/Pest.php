@@ -13,10 +13,6 @@ use Rawilk\ProfileFilament\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
 
-uses()->beforeAll(function () {
-    //    setupPlugin();
-})->in(__DIR__ . '/Feature');
-
 // Helpers
 
 function enableSudoMode(bool $resetSudo = true): void
