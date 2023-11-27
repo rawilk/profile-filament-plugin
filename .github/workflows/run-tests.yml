@@ -20,7 +20,7 @@ jobs:
                 include:
                     -   laravel: 10.*
                         testbench: 8.*
-                        filament: ^3.0.90
+                        filament: ^3.0.100
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }}
 
