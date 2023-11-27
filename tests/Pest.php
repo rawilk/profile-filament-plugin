@@ -38,18 +38,6 @@ function getPanelFeatures(): Features
     return filament()->getCurrentPanel()?->getPlugin(ProfileFilamentPlugin::make()->getId())->panelFeatures();
 }
 
-function setupPlugin(): void
-{
-    $panel = filament()->getCurrentPanel() ?? filament()->getDefaultPanel();
-    if (! $panel) {
-        return;
-    }
-
-    // I probably don't have something setup right, but this is necessary right now so our pages
-    // all get configured properly.
-    $panel->getPlugin(ProfileFilamentPlugin::make()->getId())->boot($panel);
-}
-
 function login(Authenticatable $user = null): Authenticatable
 {
     $user ??= User::factory()->create();
