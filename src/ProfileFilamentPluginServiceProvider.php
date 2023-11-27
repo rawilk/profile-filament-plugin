@@ -13,9 +13,11 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use PragmaRX\Google2FA\Google2FA;
 use Psr\Log\NullLogger;
+use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
+use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\Http\Controllers\PasskeysController;
 use Rawilk\ProfileFilament\Http\Controllers\WebauthnPublicKeysController;
-use Rawilk\ProfileFilament\Livewire\MaskedValue;
+use Rawilk\ProfileFilament\Livewire as PackageLivewire;
 use Rawilk\ProfileFilament\Responses\EmailRevertedResponse;
 use Rawilk\ProfileFilament\Responses\PendingEmailVerifiedResponse;
 use Rawilk\ProfileFilament\Services\Mfa;
@@ -51,6 +53,8 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
+        $this->registerLivewireComponents();
+
         $this->app->scoped(
             Contracts\AuthenticatorAppService::class,
             fn ($app) => new Services\AuthenticatorAppService(
@@ -78,8 +82,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
                 expiration: $app['config']['profile-filament.sudo.expires'],
             ),
         );
-
-        Livewire::component('masked-value', MaskedValue::class);
     }
 
     private function makeClassBindings(): void
@@ -159,5 +161,26 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
                             ->middleware($attestationMiddleware);
                     });
             });
+    }
+
+    private function registerLivewireComponents(): void
+    {
+        Livewire::component('masked-value', PackageLivewire\MaskedValue::class);
+        Livewire::component('recovery-codes', PackageLivewire\TwoFactorAuthentication\RecoveryCodes::class);
+        Livewire::component('authenticator-app-form', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppForm::class);
+        Livewire::component('authenticator-app-list-item', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppListItem::class);
+        Livewire::component('webauthn-keys', PackageLivewire\TwoFactorAuthentication\WebauthnKeys::class);
+        Livewire::component('webauthn-key', PackageLivewire\TwoFactorAuthentication\WebauthnKey::class);
+        Livewire::component('passkey', PackageLivewire\Passkey::class);
+        Livewire::component('mfa-challenge', MfaChallenge::class);
+        Livewire::component('sudo-challenge', SudoChallenge::class);
+
+        Livewire::component(PackageLivewire\Profile\ProfileInfo::class, PackageLivewire\Profile\ProfileInfo::class);
+        Livewire::component(PackageLivewire\Emails\UserEmail::class, PackageLivewire\Emails\UserEmail::class);
+        Livewire::component(PackageLivewire\DeleteAccount::class, PackageLivewire\DeleteAccount::class);
+        Livewire::component(PackageLivewire\UpdatePassword::class, PackageLivewire\UpdatePassword::class);
+        Livewire::component(PackageLivewire\PasskeyManager::class, PackageLivewire\PasskeyManager::class);
+        Livewire::component(PackageLivewire\MfaOverview::class, PackageLivewire\MfaOverview::class);
+        Livewire::component(PackageLivewire\Sessions\SessionManager::class, PackageLivewire\Sessions\SessionManager::class);
     }
 }

@@ -10,7 +10,6 @@ use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Livewire\Livewire;
 use Rawilk\FilamentInnerNav\InnerNav;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
 use Rawilk\ProfileFilament\Filament\Pages\Profile;
@@ -19,12 +18,6 @@ use Rawilk\ProfileFilament\Filament\Pages\Sessions;
 use Rawilk\ProfileFilament\Filament\Pages\Settings;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\Http\Middleware\RequiresTwoFactorAuthentication;
-use Rawilk\ProfileFilament\Livewire\Passkey;
-use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppForm;
-use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppListItem;
-use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\RecoveryCodes;
-use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKey;
-use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKeys;
 use Rawilk\ProfileFilament\Support\PageManager;
 
 class ProfileFilamentPlugin implements Plugin
@@ -88,39 +81,11 @@ class ProfileFilamentPlugin implements Plugin
             $this->mfaMiddlewareEnabled && $panel->authMiddleware([
                 RequiresTwoFactorAuthentication::class,
             ]);
-
-            Livewire::component('mfa-challenge', MfaChallenge::class);
-        }
-
-        if ($this->features->hasSudoMode()) {
-            Livewire::component('sudo-challenge', SudoChallenge::class);
         }
     }
 
     public function boot(Panel $panel): void
     {
-        $this->pageManager()->registerPageComponents(Profile::class);
-        $this->pageManager()->registerPageComponents(Settings::class);
-        $this->pageManager()->registerPageComponents(Security::class);
-        $this->pageManager()->registerPageComponents(Sessions::class);
-
-        if ($this->features->hasTwoFactorAuthentication()) {
-            Livewire::component('recovery-codes', RecoveryCodes::class);
-        }
-
-        if ($this->features->hasAuthenticatorApps()) {
-            Livewire::component('authenticator-app-form', AuthenticatorAppForm::class);
-            Livewire::component('authenticator-app-list-item', AuthenticatorAppListItem::class);
-        }
-
-        if ($this->features->hasWebauthn()) {
-            Livewire::component('webauthn-keys', WebauthnKeys::class);
-            Livewire::component('webauthn-key', WebauthnKey::class);
-        }
-
-        if ($this->features->hasPasskeys()) {
-            Livewire::component('passkey', Passkey::class);
-        }
     }
 
     public function features(Features $features): self

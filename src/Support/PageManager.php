@@ -7,7 +7,6 @@ namespace Rawilk\ProfileFilament\Support;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use Livewire\Livewire;
 use Rawilk\FilamentInnerNav\InnerNav;
 use Rawilk\FilamentInnerNav\InnerNavGroup;
 use Rawilk\FilamentInnerNav\InnerNavItem;
@@ -177,17 +176,6 @@ final class PageManager
 
         return InnerNav::make()
             ->setNavigationItems($pages);
-    }
-
-    public function registerPageComponents(string $page): void
-    {
-        if (! $this->pageIsEnabled($page)) {
-            return;
-        }
-
-        $this->componentsFor($page)->each(function (string $name, string $componentClass) {
-            Livewire::component($name, $componentClass);
-        });
     }
 
     public function setDefaultsFor(

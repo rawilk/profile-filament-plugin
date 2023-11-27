@@ -13,8 +13,8 @@ use Rawilk\ProfileFilament\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
 
-uses()->beforeEach(function () {
-    setupPlugin();
+uses()->beforeAll(function () {
+    //    setupPlugin();
 })->in(__DIR__ . '/Feature');
 
 // Helpers

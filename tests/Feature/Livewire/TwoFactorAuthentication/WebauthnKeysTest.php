@@ -73,11 +73,14 @@ test('a valid challenge is required to save a new key', function () {
     // Simulate call to controller
     storeAttestationPublicKeyInSession($this->user);
 
+    $attestation = FakeWebauthn::attestationResponse();
+    $attestation['response']['clientDataJSON'] = 'invalid';
+
     livewire(WebauthnKeys::class, ['webauthnKeys' => collect(), 'show' => true])
         ->callAction('add')
         ->assertSessionHas(MfaSession::AttestationPublicKey->value)
         ->set('data.name', 'my key')
-        ->call('verifyKey', attestation: FakeWebauthn::attestationResponse())
+        ->call('verifyKey', attestation: $attestation)
         ->assertNotified(__('profile-filament::pages/security.mfa.webauthn.actions.register.register_fail_notification'))
         ->assertNotDispatched(MfaEvent::WebauthnKeyAdded->value)
         ->assertSessionMissing(MfaSession::AttestationPublicKey->value);
