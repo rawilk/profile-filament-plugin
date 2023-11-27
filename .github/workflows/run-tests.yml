@@ -2,11 +2,11 @@ name: Tests
 
 on:
     push:
-        paths-ignore:
-            - '**.md'
-    pull_request:
-        paths-ignore:
-            - '**.md'
+        paths:
+            - '**.php'
+            - 'phpunit.xml.dist'
+            - '.github/workflows/run-tests.yml'
+            - 'composer.json'
 
 jobs:
     test:
@@ -26,7 +26,7 @@ jobs:
 
         steps:
             -   name: Checkout code
-                uses: actions/checkout@v3
+                uses: actions/checkout@v4
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
@@ -49,4 +49,4 @@ jobs:
                 run: composer show -D
 
             -   name: Execute tests
-                run: vendor/bin/pest
+                run: vendor/bin/pest --stop-on-failure --parallel --display-skipped
