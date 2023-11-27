@@ -26,6 +26,8 @@ class PendingUserEmail extends Model
 
     const UPDATED_AT = null;
 
+    protected $guarded = [];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
