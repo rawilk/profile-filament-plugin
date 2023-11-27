@@ -19,7 +19,7 @@
     "require": {
         "php": "^8.2",
         "bacon/bacon-qr-code": "^2.0",
-        "filament/filament": "^3.0.20",
+        "filament/filament": "^3.0.30",
         "illuminate/contracts": "^10.10",
         "mobiledetect/mobiledetectlib": "^4.8",
         "pragmarx/google2fa": "^8.0",
@@ -32,7 +32,7 @@
         "laravel/pint": "^1.0",
         "livewire/livewire": "^3.1.0",
         "nunomaduro/collision": "^7.0",
-        "orchestra/testbench": "^8.0",
+        "orchestra/testbench": "^8.15",
         "pestphp/pest": "^2.25",
         "pestphp/pest-plugin-arch": "^2.4",
         "pestphp/pest-plugin-laravel": "^2.2",
