@@ -78,7 +78,7 @@ class Agent extends MobileDetect
         return $this->retrieveUsingCacheOrResolve('profile-filament.desktop', function () {
             // Check specifically for cloudfront headers if the useragent === 'Amazon CloudFront'
             if (
-                $this->getUserAgent() === static::$cloudFrontUA
+                $this->getUserAgent() === (static::$cloudFrontUA ?? 'Amazon CloudFront')
                 && $this->getHttpHeader('HTTP_CLOUDFRONT_IS_DESKTOP_VIEWER') === 'true'
             ) {
                 return true;

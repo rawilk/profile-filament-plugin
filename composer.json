@@ -32,9 +32,9 @@
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^7.0",
         "orchestra/testbench": "^8.0",
-        "pestphp/pest": "^2.0",
-        "pestphp/pest-plugin-arch": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0",
+        "pestphp/pest": "^2.25",
+        "pestphp/pest-plugin-arch": "^2.4",
+        "pestphp/pest-plugin-laravel": "^2.2",
         "pestphp/pest-plugin-livewire": "^2.1",
         "spatie/laravel-ray": "^1.31"
     },
