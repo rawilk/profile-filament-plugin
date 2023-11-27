@@ -19,7 +19,7 @@
     "require": {
         "php": "^8.2",
         "bacon/bacon-qr-code": "^2.0",
-        "filament/filament": "^3.0.50",
+        "filament/filament": "^3.0.30",
         "illuminate/contracts": "^10.10",
         "mobiledetect/mobiledetectlib": "^4.8",
         "pragmarx/google2fa": "^8.0",
