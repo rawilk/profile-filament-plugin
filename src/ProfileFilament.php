@@ -110,7 +110,7 @@ class ProfileFilament
     public function preferredMfaMethodFor(User $user, array $availableMethods): string
     {
         if (is_callable(static::$getPreferredMfaMethodCallback)) {
-            return call_user_func(static::$getPreferredMfaMethodCallback, $user, $availableMethods);
+            return call_user_func(static::$getPreferredMfaMethodCallback, $user, $availableMethods, false);
         }
 
         // By default, return the first mfa method we find.
@@ -132,7 +132,7 @@ class ProfileFilament
         }
 
         $preferredMethod = is_callable(static::$getPreferredMfaMethodCallback)
-            ? call_user_func(static::$getPreferredMfaMethodCallback, $user, $availableMethods)
+            ? call_user_func(static::$getPreferredMfaMethodCallback, $user, $availableMethods, true)
             : SudoChallengeMode::Password->value;
 
         // Recovery codes cannot be used for a sudo challenge.
