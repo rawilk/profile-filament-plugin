@@ -58,6 +58,10 @@ class AdminPanelProvider extends PanelProvider
 }
 ```
 
+Here is what the base profile page will look like without any configuration:
+
+![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile.png)
+
 ## Documentation
 
 For comprehensive documentation, please visit: https://randallwilk.dev/docs/profile-filament-plugin
