@@ -53,7 +53,7 @@ class AdminPanelProvider extends PanelProvider
             // ...
             ->plugin(
                 ProfileFilamentPlugin::make()
-            );      
+            );
     }
 }
 ```
