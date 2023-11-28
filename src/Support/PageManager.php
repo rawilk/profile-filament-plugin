@@ -254,6 +254,20 @@ final class PageManager
         return $this;
     }
 
+    public function setComponentSort(string $page, string $component, int $sort): self
+    {
+        $componentDefinition = Arr::get($this->defaults, "{$page}.components.{$component}", []);
+        if (! is_array($componentDefinition)) {
+            $componentDefinition = ['class' => $componentDefinition];
+        }
+
+        $componentDefinition['sort'] = $sort;
+
+        Arr::set($this->defaults, "{$page}.components.{$component}", $componentDefinition);
+
+        return $this;
+    }
+
     private function mapToInnerNavItems(Collection $pages, int $level = 0): Collection
     {
         return $pages->transform(function (mixed $page, string|int $index) use ($level) {

@@ -8,7 +8,6 @@ use Closure;
 use Filament\Contracts\Plugin;
 use Filament\Navigation\MenuItem;
 use Filament\Panel;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Rawilk\FilamentInnerNav\InnerNav;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
@@ -299,14 +298,7 @@ class ProfileFilamentPlugin implements Plugin
 
     public function setComponentSort(string $page, string $component, int $sort): self
     {
-        $componentDefinition = Arr::get($this->defaults, "{$page}.components.{$component}", []);
-        if (! is_array($componentDefinition)) {
-            $componentDefinition = ['class' => $componentDefinition];
-        }
-
-        $componentDefinition['sort'] = $sort;
-
-        Arr::set($this->defaults, "{$page}.components.{$component}", $componentDefinition);
+        $this->pageManager()->setComponentSort($page, $component, $sort);
 
         return $this;
     }
