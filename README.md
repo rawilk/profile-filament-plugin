@@ -1,5 +1,8 @@
 # Filament Profile
 
+> **Warning:** While the plugin should be production ready, it is still in a pre-release stage. API and functionality are subject to change
+> without a major version bump until a stable release is made.
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/rawilk/profile-filament-plugin.svg?style=flat-square)](https://packagist.org/packages/rawilk/profile-filament-plugin)
 ![Tests](https://github.com/rawilk/profile-filament-plugin/workflows/Tests/badge.svg?style=flat-square)
 [![Total Downloads](https://img.shields.io/packagist/dt/rawilk/profile-filament-plugin.svg?style=flat-square)](https://packagist.org/packages/rawilk/profile-filament-plugin)
@@ -7,6 +10,10 @@
 [![License](https://img.shields.io/github/license/rawilk/profile-filament-plugin?style=flat-square)](https://github.com/rawilk/profile-filament-plugin/blob/main/LICENSE.md)
 
 ![social image](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/social-image.png)
+
+This package provides a [Filament](https://filamentphp.com/) plugin for a user profile. The plugin acts as a starting point for your user profile, and provides
+multi-factor authentication, password management, session management, and more. A lot of the boilerplate code that is required for these functionalities
+is taken care of by this plugin.
 
 ## Installation
 
@@ -19,24 +26,35 @@ composer require rawilk/profile-filament-plugin
 You can publish and run the migrations with:
 
 ```bash
-php artisan vendor:publish --tag="profile-filament-plugin-migrations"
+php artisan vendor:publish --tag="profile-filament-migrations"
 php artisan migrate
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="profile-filament-plugin-config"
+php artisan vendor:publish --tag="profile-filament-config"
 ```
 
 You can view the default configuration here: https://github.com/rawilk/profile-filament-plugin/blob/main/config/profile-filament-plugin.php
 
 ## Usage
 
+In a panel service provider, register the plugin:
+
 ```php
-$profile-filament-plugin = new Rawilk\ProfileFilamentPlugin;
-echo $profile-filament-plugin->echoPhrase('Hello, Rawilk!');
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+
+$panel
+    // ...
+    ->plugin(
+        ProfileFilamentPlugin::make()
+    )
 ```
+
+## Documentation
+
+For comprehensive documentation, please visit: https://randallwilk.dev/docs/profile-filament-plugin
 
 ## Scripts
 
@@ -55,6 +73,10 @@ Although formatting is done automatically via workflow, you can format php code 
 ```bash
 composer format
 ```
+
+### Release
+
+When a new release is ready, the `./bin/release.sh` script should be run. This script will compile the front-end assets provided by the package.
 
 ## Testing
 
@@ -78,6 +100,14 @@ Please review [my security policy](.github/SECURITY.md) on how to report securit
 
 -   [Randall Wilk](https://github.com/rawilk)
 -   [All Contributors](../../contributors)
+
+`Agent` service class for browser/device detection is derived from:
+- [Jenssegers/Agent](https://github.com/jenssegers/agent)
+- [Laravel Jetstream](https://github.com/laravel/jetstream)
+
+## Alternatives
+
+- [Filament Breezy](https://github.com/jeffgreco13/filament-breezy)
 
 ## License
 
