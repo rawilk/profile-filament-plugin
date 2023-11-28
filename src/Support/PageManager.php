@@ -291,17 +291,6 @@ final class PageManager
             ->sort($groupName::getSort())
             ->collapsible($groupName::isCollapsible())
             ->items($pages);
-        //            ->items($this->sortItems($pages));
-    }
-
-    /**
-     * @param  \Illuminate\Support\Collection<int|string, \Rawilk\FilamentInnerNav\InnerNavItem|\Rawilk\FilamentInnerNav\InnerNavGroup>  $items
-     */
-    private function sortItems(Collection $items): Collection
-    {
-        return $items->sortBy(
-            fn (InnerNavItem|InnerNavGroup $item): int => $item->getSort(),
-        );
     }
 
     private function setPageDefaults(): void
