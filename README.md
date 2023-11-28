@@ -45,11 +45,17 @@ In a panel service provider, register the plugin:
 ```php
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
-$panel
-    // ...
-    ->plugin(
-        ProfileFilamentPlugin::make()
-    )
+class AdminPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            // ...
+            ->plugin(
+                ProfileFilamentPlugin::make()
+            );      
+    }
+}
 ```
 
 ## Documentation
