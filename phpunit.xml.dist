@@ -19,6 +19,7 @@
         <server name="DB_CONNECTION" value="sqlite"/>
         <server name="DB_DATABASE" value=":memory:"/>
         <server name="APP_URL" value="https://acme.test"/>
+        <server name="APP_DEBUG" value="true"/>
         <server name="APP_KEY" value="base64:a5aevTt5Vtg1DbWqKeB6iMx2z2PikSPEl8qZC0kzKIA="/>
     </php>
 </phpunit>
