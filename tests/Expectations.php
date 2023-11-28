@@ -14,6 +14,10 @@ expect()->extend('toBeSudoSessionValue', function () {
     return $this->toBe($lastConfirmed->toDateTimeString());
 });
 
+expect()->extend('toBeQueryCount', function () {
+    return $this->toBe(queryCount());
+});
+
 expect()->intercept('toBe', Model::class, function (Model $model) {
     expect($this->value->is($model))->toBeTrue();
 

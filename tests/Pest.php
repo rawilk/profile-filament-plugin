@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\DB;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Facades\Webauthn;
@@ -49,4 +50,14 @@ function storeAttestationPublicKeyInSession(Authenticatable $user, string $sessi
     $sessionKey ??= MfaSession::AttestationPublicKey->value;
 
     session()->put($sessionKey, serialize($publicKey));
+}
+
+function queryCount(): int
+{
+    return count(DB::getQueryLog());
+}
+
+function trackQueries(): void
+{
+    DB::enableQueryLog();
 }
