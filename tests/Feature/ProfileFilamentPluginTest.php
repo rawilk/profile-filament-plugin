@@ -7,11 +7,8 @@ use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
 use Rawilk\ProfileFilament\Filament\Pages\Profile;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
-    login($this->user = User::factory()->create());
-
     $this->plugin = ProfileFilamentPlugin::make();
 
     $this->plugin->register(filament()->getDefaultPanel());
