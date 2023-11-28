@@ -58,6 +58,6 @@ trait UsesSudoChallengeAction
 
     protected function sudoModeIsAllowed(): bool
     {
-        return filament(ProfileFilamentPlugin::make()->getId())->hasSudoMode();
+        return filament(ProfileFilamentPLugin::PLUGIN_ID)->hasSudoMode();
     }
 }

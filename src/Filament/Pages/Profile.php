@@ -27,13 +27,13 @@ class Profile extends Page
 
     public static function getNavigationIcon(): ?string
     {
-        return filament(ProfileFilamentPlugin::make()->getId())->getIcon(self::class);
+        return filament(ProfileFilamentPlugin::PLUGIN_ID)->getIcon(self::class);
     }
 
     public static function getSlug(): string
     {
         return (string) rescue(
-            callback: fn () => filament(ProfileFilamentPlugin::make()->getId())->getSlug(self::class),
+            callback: fn () => filament(ProfileFilamentPlugin::PLUGIN_ID)->getSlug(self::class),
             rescue: fn () => '#',
             report: false,
         );
@@ -41,12 +41,12 @@ class Profile extends Page
 
     public static function innerNavGroup(): ?string
     {
-        return filament(ProfileFilamentPlugin::make()->getId())->pageGroup(self::class);
+        return filament(ProfileFilamentPLugin::PLUGIN_ID)->pageGroup(self::class);
     }
 
     public static function innerNavSort(): int
     {
-        return filament(ProfileFilamentPlugin::make()->getId())->pageSort(self::class);
+        return filament(ProfileFilamentPLugin::PLUGIN_ID)->pageSort(self::class);
     }
 
     public function getTitle(): string|Htmlable
@@ -57,6 +57,6 @@ class Profile extends Page
     #[Computed]
     public function registeredComponents(): Collection
     {
-        return filament(ProfileFilamentPlugin::make()->getId())->componentsFor(self::class);
+        return filament(ProfileFilamentPLugin::PLUGIN_ID)->componentsFor(self::class);
     }
 }

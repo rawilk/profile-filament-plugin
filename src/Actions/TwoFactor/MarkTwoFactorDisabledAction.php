@@ -16,7 +16,7 @@ class MarkTwoFactorDisabledAction implements MarkTwoFactorDisabledActionContract
 
     public function __construct()
     {
-        $this->features = filament(ProfileFilamentPlugin::make()->getId())->panelFeatures();
+        $this->features = filament(ProfileFilamentPlugin::PLUGIN_ID)->panelFeatures();
     }
 
     public function __invoke(User $user): void

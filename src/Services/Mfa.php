@@ -184,7 +184,7 @@ class Mfa
 
     protected function profilePlugin(): ProfileFilamentPlugin
     {
-        return Filament::getPlugin(ProfileFilamentPlugin::make()->getId());
+        return Filament::getPlugin(ProfileFilamentPLugin::PLUGIN_ID);
     }
 
     protected function hasWebauthnOrPasskeys(): bool

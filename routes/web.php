@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Rawilk\ProfileFilament\Http\Controllers\RevertEmailController;
 use Rawilk\ProfileFilament\Http\Controllers\VerifyPendingEmailController;
 use Rawilk\ProfileFilament\Http\Middleware\RequiresSudoMode;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 Route::name('filament.')
     ->group(function () {
@@ -15,7 +16,7 @@ Route::name('filament.')
             $panelId = $panel->getId();
             $domains = $panel->getDomains();
 
-            if (! $panel->hasPlugin('rawilk/filament-profile')) {
+            if (! $panel->hasPlugin(ProfileFilamentPlugin::PLUGIN_ID)) {
                 continue;
             }
 
@@ -25,7 +26,7 @@ Route::name('filament.')
                     ->name("{$panelId}.")
                     ->prefix($panel->getPath())
                     ->group(function () use ($panel) {
-                        $plugin = filament('rawilk/filament-profile');
+                        $plugin = filament(ProfileFilamentPlugin::PLUGIN_ID);
 
                         if ($plugin->panelFeatures()->hasTwoFactorAuthentication()) {
                             // Two Factor Challenge

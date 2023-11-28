@@ -21,6 +21,8 @@ use Rawilk\ProfileFilament\Support\PageManager;
 
 class ProfileFilamentPlugin implements Plugin
 {
+    public const PLUGIN_ID = 'rawilk/filament-profile';
+
     protected array $defaults;
 
     protected array $pages;
@@ -53,7 +55,7 @@ class ProfileFilamentPlugin implements Plugin
 
     public function getId(): string
     {
-        return 'rawilk/filament-profile';
+        return static::PLUGIN_ID;
     }
 
     public function register(Panel $panel): void

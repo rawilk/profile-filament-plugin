@@ -1,5 +1,5 @@
 @php
-    $pluginId = \Rawilk\ProfileFilament\ProfileFilamentPlugin::make()->getId();
+    $pluginId = \Rawilk\ProfileFilament\ProfileFilamentPlugin::PLUGIN_ID;
 
     /** @var \Rawilk\ProfileFilament\ProfileFilamentPlugin $plugin */
     $plugin = filament($pluginId);

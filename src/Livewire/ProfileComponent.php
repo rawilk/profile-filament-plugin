@@ -26,7 +26,7 @@ abstract class ProfileComponent extends Component implements HasActions, HasForm
     #[Computed]
     public function profilePlugin(): \Filament\FilamentManager|\Filament\Contracts\Plugin
     {
-        return filament(ProfileFilamentPlugin::make()->getId());
+        return filament(ProfileFilamentPLugin::PLUGIN_ID);
     }
 
     public function render(): View
