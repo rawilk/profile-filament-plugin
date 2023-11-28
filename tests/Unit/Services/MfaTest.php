@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use PragmaRX\Google2FA\Google2FA;
@@ -77,18 +78,27 @@ it('knows if a user session has been mfa confirmed', function () {
 it('can determine if a recovery code is valid', function () {
     challengeUser();
 
-    $validCode = $this->user->recoveryCodes()[0];
+    $this->user->update([
+        'two_factor_recovery_codes' => Crypt::encryptString(
+            json_encode([
+                'code-one',
+                'code-two',
+                'code-three',
+                'code-four',
+            ])
+        ),
+    ]);
 
-    expect($this->mfa->isValidRecoveryCode($validCode))->toBeTrue();
+    expect($this->mfa->isValidRecoveryCode('code-two'))->toBeTrue();
 
-    Event::assertDispatched(function (RecoveryCodeReplaced $event) use ($validCode) {
-        expect($event->oldCode)->toBe($validCode)
+    Event::assertDispatched(function (RecoveryCodeReplaced $event) {
+        expect($event->oldCode)->toBe('code-two')
             ->and($event->user)->toBe($this->user);
 
         return true;
     });
 
-    expect($this->user->refresh())->recoveryCodes()->not->toContain($validCode);
+    expect($this->user->refresh())->recoveryCodes()->not->toContain('code-two');
 });
 
 it('handles an invalid recovery code', function () {
