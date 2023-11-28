@@ -22,13 +22,17 @@ class UpdateUserEmailAction implements UpdateUserEmailActionContract
 
     public function __invoke(User $user, string $email)
     {
-        if ($email !== $user->email && $user instanceof MustVerifyNewEmail) {
+        if ($email === $user->email) {
+            return;
+        }
+
+        if ($user instanceof MustVerifyNewEmail) {
             $this->storePendingEmail($user, $email);
 
             return;
         }
 
-        if ($email !== $user->email && $user instanceof MustVerifyEmail) {
+        if ($user instanceof MustVerifyEmail) {
             $this->updateVerifiedUser($user, $email);
 
             return;

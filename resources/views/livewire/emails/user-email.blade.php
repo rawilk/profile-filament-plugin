@@ -28,7 +28,7 @@
                             <div class="text-sm font-bold">{{ __('profile-filament::pages/settings.email.pending_heading') }}</div>
 
                             <p class="mt-1 text-sm">
-                                {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/settings.email.pending_description', ['email' => $pendingEmail->email])) }}
+                                {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/settings.email.pending_description', ['email' => e($pendingEmail->email)])) }}
                             </p>
 
                             <div class="mt-3 flex items-center gap-x-2">

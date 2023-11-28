@@ -111,7 +111,7 @@ class UserEmail extends ProfileComponent
                     return;
                 }
 
-                if (! $pendingEmail = $this->getPendingEmail()) {
+                if (! $pendingEmail = $this->getPendingEmail(['*'])) {
                     return;
                 }
 
@@ -165,12 +165,13 @@ class UserEmail extends ProfileComponent
             ->required()
             ->email()
             ->unique(
-                table: config('auth.providers.users.model'),
+                table: fn () => app(config('auth.providers.users.model'))->getTable(),
                 column: 'email',
+                ignorable: $this->user,
             );
     }
 
-    protected function getPendingEmail(): ?PendingUserEmail
+    protected function getPendingEmail(array $fields = ['id', 'email']): ?PendingUserEmail
     {
         if (! $this->user instanceof MustVerifyNewEmail) {
             return null;
@@ -179,7 +180,7 @@ class UserEmail extends ProfileComponent
         return app(config('profile-filament.models.pending_user_email'))::query()
             ->forUser($this->user)
             ->latest()
-            ->first(['id', 'email']);
+            ->first($fields);
     }
 
     protected function view(): string

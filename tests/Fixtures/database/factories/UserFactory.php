@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Rawilk\ProfileFilament\Support\RecoveryCode;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
-final class UserFactory extends Factory
+class UserFactory extends Factory
 {
     protected $model = User::class;
 
@@ -20,7 +20,18 @@ final class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'password' => 'secret',
+            'email_verified_at' => null,
         ];
+    }
+
+    public function verified(): self
+    {
+        return $this->state(['email_verified_at' => fake()->dateTime()]);
+    }
+
+    public function notVerified(): self
+    {
+        return $this->state(['email_verified_at' => null]);
     }
 
     public function withoutMfa(): self

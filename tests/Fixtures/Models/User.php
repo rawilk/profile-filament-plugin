@@ -9,9 +9,10 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as BaseUser;
 use Rawilk\ProfileFilament\Concerns\TwoFactorAuthenticatable;
+use Rawilk\ProfileFilament\Contracts\PendingUserEmail\MustVerifyNewEmail;
 use Rawilk\ProfileFilament\Tests\Fixtures\database\factories\UserFactory;
 
-class User extends BaseUser implements FilamentUser
+class User extends BaseUser implements FilamentUser, MustVerifyNewEmail
 {
     use HasFactory;
     use TwoFactorAuthenticatable;
