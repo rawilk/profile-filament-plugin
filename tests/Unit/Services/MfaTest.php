@@ -88,6 +88,8 @@ it('can determine if a recovery code is valid', function () {
         return true;
     });
 
+    (fn () => $this->challengedUser = null)->call($this->mfa);
+
     // Same code cannot be used twice
     expect($this->mfa->isValidRecoveryCode($validCode))->toBeFalse();
 });
