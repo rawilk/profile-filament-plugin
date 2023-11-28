@@ -33,7 +33,7 @@ it('redirects to a sudo mode challenge', function () {
 
     Event::assertDispatched(SudoModeChallenged::class);
 
-    expect(session()->get('url.intended'))->toBe('http://localhost/requires-sudo');
+    expect(session()->get('url.intended'))->toBe('https://acme.test/requires-sudo');
 });
 
 it('extends sudo mode if it is active', function () {
