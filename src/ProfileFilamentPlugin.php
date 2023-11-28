@@ -146,6 +146,16 @@ class ProfileFilamentPlugin implements Plugin
         return $this->panelFeatures()->hasSudoMode();
     }
 
+    public function getRootProfilePage(): string
+    {
+        return $this->rootProfilePage;
+    }
+
+    public function isRootProfilePage(string $page): bool
+    {
+        return $this->rootProfilePage === $page;
+    }
+
     public function useMfaMiddleware(bool $condition = true): self
     {
         $this->mfaMiddlewareEnabled = $condition;
