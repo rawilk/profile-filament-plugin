@@ -88,10 +88,15 @@ it('can determine if a recovery code is valid', function () {
         return true;
     });
 
-    $newInstance = new Mfa(User::class);
+    expect($this->user->refresh())->recoveryCodes()->not->toContain($validCode);
+});
 
-    // Same code cannot be used twice
-    expect($newInstance->isValidRecoveryCode($validCode))->toBeFalse();
+it('handles an invalid recovery code', function () {
+    challengeUser();
+
+    expect($this->mfa->isValidRecoveryCode('invalid'))->toBeFalse();
+
+    Event::assertNotDispatched(RecoveryCodeReplaced::class);
 });
 
 it('can determine if a totp code is valid', function () {
