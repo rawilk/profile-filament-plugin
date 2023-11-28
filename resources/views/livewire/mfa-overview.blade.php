@@ -12,19 +12,6 @@
             </span>
         </x-slot:title>
 
-        @if ($this->hasMfaEnabled)
-            <x-slot:actions>
-                <x-filament-actions::group
-                    :actions="[
-                        $this->disableMfaAction,
-                    ]"
-                    color="gray"
-                    icon="heroicon-m-ellipsis-horizontal"
-                    dropdown-placement="bottom-end"
-                />
-            </x-slot:actions>
-        @endif
-
         <p class="text-sm">
             {{ __('profile-filament::pages/security.mfa.description') }}
         </p>

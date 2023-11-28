@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Livewire;
 
 use Filament\Actions\Action;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Rawilk\ProfileFilament\Concerns\CopiesRecoveryCodes;
 use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\DisableTwoFactorAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\RecoveryCodesViewed;
 use Rawilk\ProfileFilament\Features;
@@ -131,32 +127,6 @@ class MfaOverview extends ProfileComponent
             $this->showAuthenticatorAppForm = false;
             $this->showWebauthn = false;
         }
-    }
-
-    public function disableMfaAction(): Action
-    {
-        $modalContent = Str::markdown(__('profile-filament::pages/security.mfa.actions.disable.modal_text'));
-
-        return Action::make('disableMfa')
-            ->label(__('profile-filament::pages/security.mfa.actions.disable.trigger'))
-            ->icon('heroicon-m-x-mark')
-            ->color('danger')
-            ->tooltip(__('profile-filament::pages/security.mfa.actions.disable.trigger'))
-            ->requiresConfirmation()
-            ->modalHeading(__('profile-filament::pages/security.mfa.actions.disable.modal_heading'))
-            ->modalSubmitActionLabel(__('profile-filament::pages/security.mfa.actions.disable.modal_confirm_button'))
-            ->modalWidth('2xl')
-            ->modalDescription(new HtmlString(<<<HTML
-            <div class="fi-modal-description text-sm text-gray-500 dark:text-gray-400 space-y-2 text-left">{$modalContent}</div>
-            HTML))
-            ->action(function (DisableTwoFactorAction $disabler) {
-                $disabler(filament()->auth()->user());
-
-                Notification::make()
-                    ->title(__('profile-filament::pages/security.mfa.actions.disable.success'))
-                    ->success()
-                    ->send();
-            });
     }
 
     public function toggleTotpAction(): Action

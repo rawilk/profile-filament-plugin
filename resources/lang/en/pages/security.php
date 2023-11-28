@@ -31,18 +31,6 @@ return [
         'method_last_used_date' => 'Last used: :date',
         'method_never_used' => 'Never',
 
-        'actions' => [
-
-            'disable' => [
-                'trigger' => 'Disable two-factor authentication',
-                'modal_heading' => 'Disable two-factor authentication',
-                'modal_confirm_button' => 'Disable',
-                'modal_text' => "We will no longer require a second factor of authentication when you sign in and we will remove all second factors of authentication from your account.\n\nHowever, we strongly recommend you leave two-factor authentication enabled on your account.",
-                'success' => 'Two-factor authentication was disabled on your account.',
-            ],
-
-        ],
-
         'app' => [
             'title' => 'Authenticator app',
             'description' => 'Use an authentication app or browser extension to get two-factor authentication codes when prompted.',

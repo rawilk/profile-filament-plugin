@@ -29,7 +29,6 @@ return [
         'delete_account' => \Rawilk\ProfileFilament\Actions\DeleteAccountAction::class,
 
         // General two factor
-        'disable_two_factor' => \Rawilk\ProfileFilament\Actions\TwoFactor\DisableTwoFactorAction::class,
         'generate_new_recovery_codes' => \Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction::class,
         'mark_two_factor_disabled' => \Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction::class,
         'mark_two_factor_enabled' => \Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction::class,

@@ -90,7 +90,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->bind(Contracts\DeleteAccountAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_account')));
 
         // General two factor
-        $this->app->bind(Contracts\TwoFactor\DisableTwoFactorAction::class, fn ($app) => $app->make(config('profile-filament.actions.disable_two_factor')));
         $this->app->bind(Contracts\TwoFactor\GenerateNewRecoveryCodesAction::class, fn ($app) => $app->make(config('profile-filament.actions.generate_new_recovery_codes')));
         $this->app->bind(Contracts\TwoFactor\MarkTwoFactorDisabledAction::class, fn ($app) => $app->make(config('profile-filament.actions.mark_two_factor_disabled')));
         $this->app->bind(Contracts\TwoFactor\MarkTwoFactorEnabledAction::class, fn ($app) => $app->make(config('profile-filament.actions.mark_two_factor_enabled')));
