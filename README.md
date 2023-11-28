@@ -102,12 +102,13 @@ Please review [my security policy](.github/SECURITY.md) on how to report securit
 -   [All Contributors](../../contributors)
 
 `Agent` service class for browser/device detection is derived from:
-- [Jenssegers/Agent](https://github.com/jenssegers/agent)
-- [Laravel Jetstream](https://github.com/laravel/jetstream)
+
+-   [Jenssegers/Agent](https://github.com/jenssegers/agent)
+-   [Laravel Jetstream](https://github.com/laravel/jetstream)
 
 ## Alternatives
 
-- [Filament Breezy](https://github.com/jeffgreco13/filament-breezy)
+-   [Filament Breezy](https://github.com/jeffgreco13/filament-breezy)
 
 ## License
 
