@@ -1,11 +1,14 @@
 {
     "name": "rawilk/profile-filament-plugin",
-    "description": "Customize default filament profile.",
+    "description": "Profile & MFA starter kit for filament.",
     "keywords": [
         "rawilk",
         "laravel",
         "filament",
-        "filament"
+        "totp",
+        "mfa",
+        "webauthn",
+        "user-profile"
     ],
     "homepage": "https://github.com/rawilk/profile-filament-plugin",
     "license": "MIT",
