@@ -37,20 +37,20 @@ The `PendingEmailVerifiedMail` is sent out when a user confirms a new email addr
 
 You can publish the package's views, and modify the `mail/email-updated.blade.php` view for this mail. The mailable will send the following variables to the view:
 
-- `$maskedEmail`: An anonymized version of the new email address
-- `$url`: A url to revert the email change back
-- `$linkExpirationDays`: The amount of days the revert url link is valid for
-- `$requestDetails`: HTML markup containing the IP address and date the request originated from
+-   `$maskedEmail`: An anonymized version of the new email address
+-   `$url`: A url to revert the email change back
+-   `$linkExpirationDays`: The amount of days the revert url link is valid for
+-   `$requestDetails`: HTML markup containing the IP address and date the request originated from
 
 ### Override Mailable
 
 If you opt to use your own mailable class, you need to register it in the config. Your mailable should accept the following parameters in its constructor:
 
-- `string $newEmail`: The new email address for the user
-- `OldUserEmail $oldUserEmail`: A model instance containing the previous email address for the user - this is also where the email is sent to
-- `?string $panelId`: The id of the current filament panel
-- `?string $ip`: The IP address from the request
-- `?DateTimeInterface $date`: The date the request was made
+-   `string $newEmail`: The new email address for the user
+-   `OldUserEmail $oldUserEmail`: A model instance containing the previous email address for the user - this is also where the email is sent to
+-   `?string $panelId`: The id of the current filament panel
+-   `?string $ip`: The IP address from the request
+-   `?DateTimeInterface $date`: The date the request was made
 
 ```php
 // config/profile-filament.php

@@ -25,40 +25,40 @@ class Notifications extends Page
     use IsProfilePage;
 
     protected static string $view = 'filament.pages.notifications';
-    
+
     public static function getNavigationLabel(): string
     {
         return __('Notifications');
     }
-    
+
     public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-bell';
     }
-    
+
     public static function getSlug(): string
     {
         return 'profile/notifications';
     }
-    
+
     // Define where your component will render in the navigation
     public static function innerNavSort(): int
     {
         return 5;
     }
-    
+
     public static function getTitle(): string|Htmlable
     {
         return __('Notifications');
     }
-    
+
     // optional
     // uncomment if you're using nav groups
     // public static function innerNavGroup(): ?string
     // {
         // return YourGroup::class;
     // }
-    
+
     // ...
 }
 ```

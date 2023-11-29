@@ -173,7 +173,7 @@ class AppServiceProvider extends ServiceProvider
         Features::defaults(function () {
             return Features::make()
                 ->usePasskeys(false);
-        });     
+        });
     }
 }
 ```

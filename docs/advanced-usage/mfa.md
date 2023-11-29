@@ -13,9 +13,9 @@ If you're looking to customize the registration process for each method, please 
 
 The following package migrations will need to be run for two-factor authentication:
 
-- `add_two_factor_to_users_table`
-- `create_authenticator_apps_table`
-- `create_webauthn_keys_table`
+-   `add_two_factor_to_users_table`
+-   `create_authenticator_apps_table`
+-   `create_webauthn_keys_table`
 
 See [Migrations](/docs/profile-filament-plugin/{version}/installation#user-content-migrations) for more information.
 
@@ -105,29 +105,29 @@ class YourLoginPage extends Login
     public function authenticate(): ?LoginResponse
     {
         // rate limiting logic...
-        
+
         $data = $this->form->getState();
         $user = User::whereEmail($data['email'])->first();
-        
+
         if ($user->two_factor_enabled) {
             // verify password is correct before redirecting...
             session()->put([
                 MfaSession::User->value => $user->id,
                 MfaSession::Remember->value => $data['remember'] ?? false,
-            ]); 
-            
+            ]);
+
             TwoFactorAuthenticationChallenged::dispatch($user);
-            
+
             return app(TwoFactorResponse::class);
         }
-        
+
         // Handle auth like normal...
         if (! filament()->auth()->attempt($this->getCredentialsFromFormData($data), $data['remember'] ?? false)) {
             $this->throwFailureValidationException();
         }
-        
+
         // ...
-        
+
         return app(LoginResponse::class);
     }
 }
@@ -149,7 +149,7 @@ class TwoFactorResponse implements LoginResponse
     public function toResponse($request)
     {
         $panelId = filament()->getCurrentPanel()->getId();
-        
+
         return redirect()->route("filament.{$panelId}.auth.mfa.challenge");
     }
 }
@@ -157,7 +157,7 @@ class TwoFactorResponse implements LoginResponse
 
 #### Completing The MFA Challenge
 
-When our mfa challenge detects you have a challenged user in the session, we will utilize Laravel's [Pipeline](https://laravel.com/docs/10.x/helpers#pipeline) to authenticate the user. This will allow you to define your own pipes that can be used to handle your authentication process. 
+When our mfa challenge detects you have a challenged user in the session, we will utilize Laravel's [Pipeline](https://laravel.com/docs/10.x/helpers#pipeline) to authenticate the user. This will allow you to define your own pipes that can be used to handle your authentication process.
 
 By default, we provide the `\Rawilk\ProfileFilament\Actions\Auth\PrepareUserSession` pipe, which acts as the final step and handles logging the user in and preparing the session correctly, however you are free to use your own as well.
 
@@ -169,23 +169,23 @@ class MfaPipe
     /**
      * @param \Rawilk\ProfileFilament\Dto\Auth\TwoFactorLoginEventBag $request
      */
-    public function handle($request, Closure $next) 
+    public function handle($request, Closure $next)
     {
         // perform auth logic here.
-        
-        return $next($request);    
+
+        return $next($request);
     }
 }
 ```
 
 The `$request` that each pipe receives in `handle` is our custom `TwoFactorLoginEventBag` DTO object. This object contains the following properties:
 
-- `\Illuminate\Contracts\Auth\Authenticatable $user`: The user being authenticated
-- `bool $remember`: Indicates if the user wished to be remembered
-- `array $data`: Any data submitted through our mfa challenge form
-- `\Illuminate\Http\Request|null $request`: The current request object
-- `\Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode $mfaChallengeMode`: The current challenge mode (totp, webauthn)
-- `null|array $assertionResponse`: If webauthn is being used, this is the response we received from the webauthn key
+-   `\Illuminate\Contracts\Auth\Authenticatable $user`: The user being authenticated
+-   `bool $remember`: Indicates if the user wished to be remembered
+-   `array $data`: Any data submitted through our mfa challenge form
+-   `\Illuminate\Http\Request|null $request`: The current request object
+-   `\Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode $mfaChallengeMode`: The current challenge mode (totp, webauthn)
+-   `null|array $assertionResponse`: If webauthn is being used, this is the response we received from the webauthn key
 
 > {tip} Your pipe classes don't need to verify the mfa method being used is valid; our mfa challenge will handle that for you.
 
@@ -246,7 +246,7 @@ There are several configuration options available for webauthn, however the defa
         'id' => env('WEBAUTHN_RELYING_PARTY_ID', env('APP_URL')),
         'icon' => env('WEBAUTHN_RELYING_PARTY_ICON'),
     ],
-    
+
     /**
      * Attestation conveyance. This specifies the preference regarding the attestation
      * conveyance during credential generation.
@@ -317,7 +317,7 @@ The `relying_party` is going to be the most often needed configuration option, h
 
 ## Passkeys
 
-[Passkeys](https://fidoalliance.org/passkeys/) offer a simpler, userless sign-in option for a user. Once a user has a passkey [registered](/docs/profile-filament-plugin/{version}/pages/security#user-content-passkeys) to their account, they can use it as an alternative to the username/password + two-factor authentication workflow. 
+[Passkeys](https://fidoalliance.org/passkeys/) offer a simpler, userless sign-in option for a user. Once a user has a passkey [registered](/docs/profile-filament-plugin/{version}/pages/security#user-content-passkeys) to their account, they can use it as an alternative to the username/password + two-factor authentication workflow.
 
 We provide a filament action, `PasskeyLoginAction`, that can be added to your login forms easily, however you will need to make sure you have a [custom authentication workflow](#user-content-custom-authentication-workflow) in place before you add the action to your login form. You will probably want to use the same authentication pipeline classes for this action as you are using for normal mfa.
 
@@ -355,8 +355,7 @@ This will create a full-width button that will initiate passkey login when click
 
 ```html
 <x-filament-panels::page.simple>
-    // ...
-    {{ $this->passkeyLoginAction }}
+    // ... {{ $this->passkeyLoginAction }}
 </x-filament-panels::page.simple>
 ```
 
@@ -377,7 +376,7 @@ use Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode;
 public function boot(): void
 {
     ProfileFilament::getPreferredMfaMethodUsing(function ($user, array $availableMethods) {
-        return $availableMethods[0] ?? MfaChallengeMode::RecoveryCode->value;    
+        return $availableMethods[0] ?? MfaChallengeMode::RecoveryCode->value;
     });
 }
 ```
@@ -388,7 +387,7 @@ We will provide the callback the user instance, and an array of available challe
 
 When our `RequiresTwoFactorAuthentication` middleware is being used, we will check for a valid mfa session for a user that has mfa enabled on their account, except for when:
 
-- The request is for the `logout` route.
+-   The request is for the `logout` route.
 
 This may be fine for most applications, however there may be edge cases in your application. For these edge cases, you may provide a callback function to the `ProfileFilament` class in a service provider.
 
@@ -399,13 +398,13 @@ public function boot(): void
 {
     ProfileFilament::shouldCheckForMfaUsing(function ($request, $user) {
         // ...
-        
-        return true;    
+
+        return true;
     });
 }
 ```
 
 The callback you provide should return a boolean value, and will receive the following parameters:
 
-- `$request`: The current request object
-- `$user`: The user to enforce mfa for
+-   `$request`: The current request object
+-   `$user`: The user to enforce mfa for

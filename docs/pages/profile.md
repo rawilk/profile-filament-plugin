@@ -40,9 +40,9 @@ class CustomProfileInfo extends ProfileInfo
             $this->nameTextEntry(),
             TextEntry::make('timezone'),
             $this->createdAtTextEntry(),
-        ];   
+        ];
     }
-    
+
     protected function formSchema(): array
     {
         return [
@@ -51,7 +51,7 @@ class CustomProfileInfo extends ProfileInfo
                 ->options([
                     // ...
                 ])
-        ];   
+        ];
     }
 }
 ```

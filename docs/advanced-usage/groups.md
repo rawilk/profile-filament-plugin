@@ -17,11 +17,11 @@ use Rawilk\ProfileFilament\Filament\Pages\ProfilePageGroup;
 class BillingGroup extends ProfilePageGroup
 {
     protected static int $sort = 1;
-    
+
     protected static bool $collapsible = true;
-    
+
     protected static string $icon = 'heroicon-o-credit-card';
-    
+
     public static function getLabel(): ?string
     {
         return __('Billing');
@@ -37,9 +37,9 @@ class BillingPreferences extends Page
     use IsProfilePage;
 
     protected static string $view = 'filament.pages.billing-preferences';
-    
+
     // ...
-    
+
     public static function innerNavGroup(): ?string
     {
         return BillingGroup::class;

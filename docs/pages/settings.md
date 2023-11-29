@@ -61,7 +61,7 @@ If you just need to adjust some verbiage, [publishing](/docs/profile-filament-pl
 
 #### View
 
-For some changes, overriding our package's view may be a viable solution. Be sure to [publish the package views](/docs/profile-filament-plugin/{version}/installation#user-content-views), and then override the `livewire/delete-account.blade.php` view. 
+For some changes, overriding our package's view may be a viable solution. Be sure to [publish the package views](/docs/profile-filament-plugin/{version}/installation#user-content-views), and then override the `livewire/delete-account.blade.php` view.
 
 #### Action
 
@@ -78,8 +78,8 @@ class CustomDeleteAccountAction extends DeleteAccountAction
     public function __invoke(User $user)
     {
         $user->delete();
-    
-        // ...    
+
+        // ...
     }
 }
 ```

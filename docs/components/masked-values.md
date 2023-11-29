@@ -32,7 +32,7 @@ protected function infolistSchema(): array
 
 ## Mask Using
 
-By default, we will use Laravel's `Str::mask()` helper to render the masked value as all '*' characters underneath the blur. This is for security, so the actual value cannot be inspected underneath the blur with element inspector.
+By default, we will use Laravel's `Str::mask()` helper to render the masked value as all '\*' characters underneath the blur. This is for security, so the actual value cannot be inspected underneath the blur with element inspector.
 
 If you want to customize how the value is masked, you may provide a callback to `maskUsing`. This is useful if you want the value to look a little more realistic underneath the blur.
 

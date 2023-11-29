@@ -167,7 +167,7 @@ class CustomDeleteAction extends DeleteAuthenticatorAppAction
     public function __invoke(AuthenticatorApp $authenticatorApp): void
     {
         // ...
-        
+
         app(MarkTwoFactorDisabledAction::class)($authenticatorApp->user);
     }
 }
@@ -182,7 +182,6 @@ Now you just need to register the action in the config:
     'delete_authenticator_app' => \App\Actions\CustomDeleteAction::class,
 ],
 ```
-
 
 ### Webauthn
 
@@ -225,20 +224,20 @@ class CustomRegisterWebauthnAction extends RegisterWebauthnKeyAction
         User $user,
         PublicKeyCredentialSource $publicKeyCredentialSource,
         array $attestation,
-        string $keyName,    
+        string $keyName,
     ): WebauthnKey {
         $webauthnKey = WebauthnKey::fromPublicKeyCredentialSource(
             source: $publicKeyCredentialSource,
             user: $user,
             keyName: $keyName,
             attachmentType: Arr::get($attestation, 'authenticatorAttachment'),
-        );    
-        
+        );
+
         return tap($webauthnKey, function (WebauthnKey $webauthnKey) use ($user) {
             $webauthnKey->save();
-            
+
             app(MarkTwoFactorEnabledAction::class)($user);
-            
+
             WebauthnKeyRegistered::dispatch($webauthnKey, $user);
         });
     }
@@ -275,7 +274,7 @@ class CustomDeleteWebauthnKeyAction extends DeleteWebauthnKeyAction
     public function __invoke(WebauthnKey $webauthnKey): void
     {
         // ...
-        
+
         app(MarkTwoFactorDisabledAction::class)($webauthnKey->user);
     }
 }
@@ -293,9 +292,9 @@ Now you just need to register your action in the config:
 
 #### Upgrading To Passkeys
 
-When you have [Passkeys](#user-content-passkeys) enabled, and a webauthn key is a platform (i.e. touch id on an iphone) key, it can be upgraded to a passkey, which can be used for userless authentication. 
+When you have [Passkeys](#user-content-passkeys) enabled, and a webauthn key is a platform (i.e. touch id on an iphone) key, it can be upgraded to a passkey, which can be used for userless authentication.
 
-[Sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is required (when enabled) to perform this action. Here is a screenshot of the prompt you will receive for this action: 
+[Sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is required (when enabled) to perform this action. Here is a screenshot of the prompt you will receive for this action:
 
 ![upgrade passkey](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/upgrade-passkey.png)
 
@@ -327,17 +326,17 @@ class CustomPasskeyUpgradeAction extends UpgradeToPasskeyAction
             source: $publicKeyCredentialSource,
             user: $user,
             keyName: $webauthnKey->name,
-            attachmentType: Arr::get($attestation, 'authenticatorAttachment'), 
-        );    
-        
+            attachmentType: Arr::get($attestation, 'authenticatorAttachment'),
+        );
+
         return tap($passkey, function (WebauthnKey $passkey) use ($webauthnKey, $user) {
             $passkey->is_passkey = true;
             $passkey->save();
-            
+
             $webauthnKey->delete();
-            
+
             cache()->forget($user::hasPasskeysCacheKey($user));
-            
+
             WebauthnKeyUpgradeToPasskey::dispatch($user, $passkey, $webauthnKey);
         });
     }
@@ -366,9 +365,9 @@ Viewing the recovery codes is considered a sensitive action, so [sudo mode](/doc
 
 For convenience, we include actions to:
 
-- Download a text file of the codes
-- Print the codes
-- Copy the codes to clipboard
+-   Download a text file of the codes
+-   Print the codes
+-   Copy the codes to clipboard
 
 #### Code Regeneration
 
@@ -399,7 +398,7 @@ class CustomRecoveryCodeGeneration extends GenerateNewRecoveryCodesAction
                 Collection::times(8, fn () => RecoveryCode::generate())->toJson()
             ),
         ])->save();
-        
+
         RecoveryCodesRegenerated::dispatch($user);
     }
 }
@@ -475,15 +474,15 @@ class CustomPasskeyRegistration extends RegisterPasskeyAction
             keyName: $keyName,
             attachmentType: Arr::get($attestation, 'authenticatorAttachment'),
         );
-        
+
         return tap($passkey, function (WebauthnKey $passkey) use ($user) {
             $passkey->is_passkey = true;
             $passkey->save();
-            
+
             cache()->forget($user::hasPasskeysCacheKey($user));
-            
+
             app(MarkTwoFactorEnabledAction::class)($user);
-            
+
             PasskeyRegistered::dispatch($passkey, $user);
         });
     }
@@ -522,7 +521,7 @@ class CustomPasskeyDeletion extends DeletePasskeyAction
     public function __invoke(WebauthnKey $passkey): void
     {
         // ...
-        
+
         app(MarkTwoFactorDisabledAction::class)($passkey->user);
     }
 }
@@ -538,12 +537,11 @@ Now you just need to register your action in the config:
 ],
 ```
 
-
 ## Custom Content
 
 For convenience, we've included some render hooks in the mfa overview section to allow you to add in custom content as necessary. One example of needing the render hooks could be to insert a form for a user to choose their preferred mfa method. You can make use of the render hooks instead of completely overriding our views to accomplish this. Here are the render hooks available on this page:
 
-- `profile-filament::mfa.settings.before`: This will render your view in the two-factor authentication section right before the two-factor methods are listed.
-- `profile-filament::mfa.methods.after`: This will render your view right before the recovery codes section. Useful for adding additional mfa methods (note: this is not officially supported at this time, and may require additional work on your part to make it work correctly)
+-   `profile-filament::mfa.settings.before`: This will render your view in the two-factor authentication section right before the two-factor methods are listed.
+-   `profile-filament::mfa.methods.after`: This will render your view right before the recovery codes section. Useful for adding additional mfa methods (note: this is not officially supported at this time, and may require additional work on your part to make it work correctly)
 
 For more information on render hooks, see: https://filamentphp.com/docs/3.x/support/render-hooks

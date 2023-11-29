@@ -26,4 +26,3 @@ Although this package is highly opinionated in how it handles many things, it is
 ## Alternatives
 
 -   [Filament Breezy](https://github.com/jeffgreco13/filament-breezy)
-

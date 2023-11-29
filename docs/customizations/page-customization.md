@@ -12,10 +12,10 @@ Each of the profile pages offered by this plugin are highly customizable. Below 
 The easiest way to customize any of the profile pages is when you register the plugin. There are methods on the plugin for each of the profile pages, and each of them
 have the same parameters:
 
-- `profile` - The base profile page
-- `accountSecurity` - Update password & mfa settings page
-- `accountSettings` - Update email address and delete account
-- `sessions` - View and manage sessions
+-   `profile` - The base profile page
+-   `accountSecurity` - Update password & mfa settings page
+-   `accountSettings` - Update email address and delete account
+-   `sessions` - View and manage sessions
 
 Here is an example on how to customize the `profile` page:
 
@@ -30,19 +30,19 @@ $panel->plugin(
             components: [],
             sort: 0,
             group: null,
-        )    
+        )
 )
 ```
 
 Each parameter is optional, so you can specify only the ones you need to customize. Here is a breakdown of each parameter:
 
-- `enabled` - Setting this to false will completely remove the page from the user's profile.
-- `slug` - The URL slug to use for the page.
-- `icon` - The navigation icon for the page.
-- `className` - The class name of the page. This is useful if you want to extend the page or use your own implementation of it.
-- `components` - An array of livewire components to register onto the page. These will be merged with the default components for the page. To remove certain components from a page, use the [Features](/docs/profile-filament-plugin/{version}/customizations/features) object on the plugin.
-- `sort` - An integer value indicating where the page should appear in the profile inner navigation.
-- `group` - Should be the class name of a [Group](/docs/profile-filament/{version}/advanced-usage/groups) to render the page's navigation link under.
+-   `enabled` - Setting this to false will completely remove the page from the user's profile.
+-   `slug` - The URL slug to use for the page.
+-   `icon` - The navigation icon for the page.
+-   `className` - The class name of the page. This is useful if you want to extend the page or use your own implementation of it.
+-   `components` - An array of livewire components to register onto the page. These will be merged with the default components for the page. To remove certain components from a page, use the [Features](/docs/profile-filament-plugin/{version}/customizations/features) object on the plugin.
+-   `sort` - An integer value indicating where the page should appear in the profile inner navigation.
+-   `group` - Should be the class name of a [Group](/docs/profile-filament/{version}/advanced-usage/groups) to render the page's navigation link under.
 
 If you just want to edit the sort order for the profile page, for example, you could do it like this:
 
@@ -67,7 +67,7 @@ class MyCustomClass extends Page
 {
     use IsProfilePage;
     // ...
-} 
+}
 ```
 
 Here is an example on how you could override the `Profile` page with your own page class:
@@ -115,10 +115,10 @@ class SocialLinksForm extends Component implements HasActions, HasForms
 {
     use InteractsWithActions;
     use InteractsWithForms;
-    
+
     // optional
     public static int $sort = 5;
-    
+
     // ...
 }
 ```
@@ -136,7 +136,7 @@ $panel->plugin(
         ->profile(
             components: [
                 ['class' => SocialLinksForm::class, 'sort' => 5],
-            ],   
+            ],
         )
 )
 ```
@@ -152,7 +152,7 @@ $panel->plugin(
         ->profile(
             components: [
                 SocialLinksForm::class,
-            ],   
+            ],
         )
 )
 ```
@@ -201,17 +201,17 @@ $panel->plugin(
 
 Here is a breakdown of the parameters required by the `swapComponent` function:
 
-- `page` - The class name of the plugin page the component you're swapping is on.
-- `component` - The class name of the component you're swapping.
-- `newComponent` - The class name of your custom livewire component.
+-   `page` - The class name of the plugin page the component you're swapping is on.
+-   `component` - The class name of the component you're swapping.
+-   `newComponent` - The class name of your custom livewire component.
 
 ## Component Sort Order
 
 The order the livewire components for each page are rendered in can be customized using the `setComponentSort` method on the plugin. The method takes the following parameters:
 
-- `page` - The class name of the plugin page the component is on.
-- `component` - The class name of the component you're sorting.
-- `sort` - An integer value of the sort order the component should have.
+-   `page` - The class name of the plugin page the component is on.
+-   `component` - The class name of the component you're sorting.
+-   `sort` - An integer value of the sort order the component should have.
 
 For example, by default on the account security page, we render the update password form above the mfa section. If you wanted to render the mfa section first, you could set the sort orders like this:
 

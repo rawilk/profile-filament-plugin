@@ -158,8 +158,8 @@ class DeleteAccountAction extends BaseDeleteAccountAction
     public function __invoke(User $user)
     {
         $user->delete();
-    
-        // ...    
+
+        // ...
     }
 }
 ```

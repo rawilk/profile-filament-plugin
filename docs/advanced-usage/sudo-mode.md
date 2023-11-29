@@ -7,8 +7,8 @@ sort: 2
 
 For sensitive actions, we can prompt for authentication before the action is performed, even when you're already signed in. For example, we consider the following actions sensitive because each action could allow a new person to access your account.
 
-- Modification of your email address
-- Addition or deletion of a passkey
+-   Modification of your email address
+-   Addition or deletion of a passkey
 
 Once a user authenticates to perform a sensitive action, their session is temporarily in "sudo mode". In sudo mode, additional sensitive actions can be performed without additional authentication prompts.
 
