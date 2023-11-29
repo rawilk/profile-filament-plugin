@@ -15,6 +15,8 @@ This package provides a [Filament](https://filamentphp.com/) plugin for a user p
 multi-factor authentication, password management, session management, and more. A lot of the boilerplate code that is required for these functionalities
 is taken care of by this plugin.
 
+Although this package is highly opinionated in how it handles many things, it is still flexible and customizable in most areas.
+
 ## Installation
 
 You can install the package via composer:

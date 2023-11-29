@@ -25,7 +25,7 @@
                 <x-profile-filament::alert
                     color="primary"
                     icon="heroicon-o-exclamation-triangle"
-                    alias="mfa::recovery-codes-notice"
+                    icon-alias="mfa::recovery-codes-notice"
                     class="rounded-none border-x-0"
                 >
                     {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.warning')) }}

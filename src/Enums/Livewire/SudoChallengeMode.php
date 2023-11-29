@@ -27,7 +27,7 @@ enum SudoChallengeMode: string
     public function icon(): ?string
     {
         return match ($this) {
-            self::App => FilamentIcon::resolve('mfa::app') ?? 'heroicon-o-device-phone-mobile',
+            self::App => FilamentIcon::resolve('mfa::totp') ?? 'heroicon-o-device-phone-mobile',
             self::Webauthn => FilamentIcon::resolve('mfa::webauthn') ?? 'heroicon-o-shield-exclamation',
             default => null,
         };

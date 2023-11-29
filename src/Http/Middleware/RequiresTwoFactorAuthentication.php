@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Rawilk\ProfileFilament\Concerns\TwoFactorAuthenticatable;
+use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Facades\Mfa;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use RuntimeException;
@@ -28,17 +29,19 @@ class RequiresTwoFactorAuthentication
             new RuntimeException('User class [' . $user::class . '] must use the trait ' . TwoFactorAuthenticatable::class),
         );
 
-        if (! $this->shouldCheckForMfa($request, $user)) {
+        if (! $this->userHasMfaEnabled($user)) {
             return $next($request);
         }
 
-        if (! $this->userHasMfaEnabled($user)) {
+        if (! $this->shouldCheckForMfa($request, $user)) {
             return $next($request);
         }
 
         if (Mfa::isConfirmedInSession($user)) {
             return $next($request);
         }
+
+        TwoFactorAuthenticationChallenged::dispatch($user);
 
         return redirect()->guest($this->getRedirectUrl($request));
     }

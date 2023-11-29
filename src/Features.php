@@ -36,11 +36,32 @@ final class Features
     private bool $sudoMode = true;
 
     private array $updatePasswordConfig = [
+        'enabled' => true,
         'current_password' => true,
         'password_confirmation' => true,
     ];
 
     private bool $showPasswordResetLink = true;
+
+    /**
+     * Indicates the default profile form component should be used.
+     */
+    private bool $profileForm = true;
+
+    /**
+     * Indicates if the update email form should be used.
+     */
+    private bool $updateEmail = true;
+
+    /**
+     * Indicates a user can delete their own account.
+     */
+    private bool $deleteAccount = true;
+
+    /**
+     * Indicates the session manager component should be used.
+     */
+    private bool $sessionManager = true;
 
     public static function make(): self
     {
@@ -86,6 +107,41 @@ final class Features
     public function requirePasswordConfirmationToUpdatePassword(bool $condition = true): self
     {
         $this->updatePasswordConfig['password_confirmation'] = $condition;
+
+        return $this;
+    }
+
+    public function updatePassword(bool $condition): self
+    {
+        $this->updatePasswordConfig['enabled'] = $condition;
+
+        return $this;
+    }
+
+    public function useDefaultProfileForm(bool $condition = true): self
+    {
+        $this->profileForm = $condition;
+
+        return $this;
+    }
+
+    public function updateEmail(bool $condition = true): self
+    {
+        $this->updateEmail = $condition;
+
+        return $this;
+    }
+
+    public function deleteAccount(bool $condition = true): self
+    {
+        $this->deleteAccount = $condition;
+
+        return $this;
+    }
+
+    public function manageSessions(bool $condition = true): self
+    {
+        $this->sessionManager = $condition;
 
         return $this;
     }
@@ -168,6 +224,31 @@ final class Features
     public function hasTwoFactorAuthentication(): bool
     {
         return $this->twoFactorAuthentication;
+    }
+
+    public function hasProfileForm(): bool
+    {
+        return $this->profileForm;
+    }
+
+    public function hasUpdatePassword(): bool
+    {
+        return $this->updatePasswordConfig['enabled'];
+    }
+
+    public function hasUpdateEmail(): bool
+    {
+        return $this->updateEmail;
+    }
+
+    public function hasDeleteAccount(): bool
+    {
+        return $this->deleteAccount;
+    }
+
+    public function hasSessionManager(): bool
+    {
+        return $this->sessionManager;
     }
 
     /**

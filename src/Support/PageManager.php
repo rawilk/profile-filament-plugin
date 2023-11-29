@@ -89,26 +89,46 @@ final class PageManager
 
         if ($this->pageIsEnabled(Profile::class)) {
             $this->pages[Profile::class] = $this->pageClassName(Profile::class);
+
+            if (! $this->features->hasProfileForm()) {
+                unset($this->defaults[Profile::class]['components'][ProfileInfo::class]);
+            }
         }
 
         if ($this->pageIsEnabled(Settings::class)) {
             $this->pages[Settings::class] = $this->pageClassName(Settings::class);
+
+            if (! $this->features->hasUpdateEmail()) {
+                unset($this->defaults[Settings::class]['components'][UserEmail::class]);
+            }
+
+            if (! $this->features->hasDeleteAccount()) {
+                unset($this->defaults[Settings::class]['components'][DeleteAccount::class]);
+            }
         }
 
         if ($this->pageIsEnabled(Security::class)) {
             $this->pages[Security::class] = $this->pageClassName(Security::class);
 
-            if (! $this->features->hasPasskeys()) {
+            if (! $this->features->hasUpdatePassword()) {
+                unset($this->defaults[Security::class]['components'][UpdatePassword::class]);
+            }
+
+            if (! $this->features->hasPasskeys() || ! $this->features->hasWebauthn()) {
                 unset($this->defaults[Security::class]['components'][PasskeyManager::class]);
             }
 
-            if (! $this->features->hasTwoFactorAuthentication()) {
+            if (! $this->features->hasTwoFactorAuthentication() && ! $this->features->hasPasskeys()) {
                 unset($this->defaults[Security::class]['components'][MfaOverview::class]);
             }
         }
 
         if ($this->pageIsEnabled(Sessions::class)) {
             $this->pages[Sessions::class] = $this->pageClassName(Sessions::class);
+
+            if (! $this->features->hasSessionManager()) {
+                unset($this->defaults[Sessions::class]['components'][SessionManager::class]);
+            }
         }
 
         return array_values($this->pages);
@@ -232,8 +252,8 @@ final class PageManager
     {
         return collect(Arr::get($this->defaults, "{$page}.components", []))
             ->sortBy(function (string|array $componentDefinition) {
-                if (! is_array($componentDefinition)) {
-                    return -1;
+                if (is_string($componentDefinition)) {
+                    return $componentDefinition::$sort ?? -1;
                 }
 
                 return $componentDefinition['sort'] ?? -1;
@@ -355,8 +375,8 @@ final class PageManager
                 'sort' => 20,
                 'components' => [
                     UpdatePassword::class => ['class' => UpdatePassword::class, 'sort' => 0],
-                    PasskeyManager::class => ['class' => PasskeyManager::class, 'sort' => 10],
-                    MfaOverview::class => ['class' => MfaOverview::class, 'sort' => 15],
+                    PasskeyManager::class => ['class' => PasskeyManager::class, 'sort' => 15],
+                    MfaOverview::class => ['class' => MfaOverview::class, 'sort' => 30],
                 ],
                 'group' => null,
             ],

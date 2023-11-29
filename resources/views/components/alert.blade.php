@@ -1,6 +1,7 @@
 @props([
     'color' => 'danger',
     'icon' => null,
+    'iconAlias' => null,
     'dismiss' => false,
 ])
 
@@ -33,6 +34,7 @@
                 <div class="flex-shrink-0">
                     <x-filament::icon
                         :icon="$icon"
+                        :icon-alias="$iconAlias"
                         class="h-5 w-5 text-custom-400"
                     />
                 </div>

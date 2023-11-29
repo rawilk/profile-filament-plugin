@@ -16,9 +16,9 @@ enum MfaChallengeMode: string
     public function icon(): string
     {
         return match ($this) {
-            self::App => FilamentIcon::resolve('mfa::app') ?? 'heroicon-o-device-phone-mobile',
+            self::App => FilamentIcon::resolve('mfa::totp') ?? 'heroicon-o-device-phone-mobile',
             self::Webauthn => FilamentIcon::resolve('mfa::webauthn') ?? 'heroicon-o-shield-exclamation',
-            self::RecoveryCode => FilamentIcon::resolve('mfa::recovery_code') ?? 'heroicon-o-key',
+            self::RecoveryCode => FilamentIcon::resolve('mfa::recovery-codes') ?? 'heroicon-o-key',
         };
     }
 
