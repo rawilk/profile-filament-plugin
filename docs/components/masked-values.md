@@ -9,7 +9,7 @@ There may be situations where you need to show a sensitive piece of data on the 
 
 Here's a screenshot of the entry being used to initially hide a user's ID on their profile page:
 
-![masked entry](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/masked-entry.png)
+![masked entry](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/masked-entry.png?raw=true)
 
 ## Usage
 

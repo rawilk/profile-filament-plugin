@@ -24,7 +24,7 @@ The callback you provide to `findUserTimezoneUsing` will receive a user model as
 
 The plugin automatically adds a root profile page entry to the user dropdown menu that Filament creates. By default, the root profile page is set to `Profile::class`, however you are free to change it to something else.
 
-![user menu](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/user-menu.png)
+![user menu](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/user-menu.png?raw=true)
 
 ### Root Profile Page
 

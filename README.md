@@ -9,7 +9,7 @@
 [![PHP from Packagist](https://img.shields.io/packagist/php-v/rawilk/profile-filament-plugin?style=flat-square)](https://packagist.org/packages/rawilk/profile-filament-plugin)
 [![License](https://img.shields.io/github/license/rawilk/profile-filament-plugin?style=flat-square)](https://github.com/rawilk/profile-filament-plugin/blob/main/LICENSE.md)
 
-![social image](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/social-image.png)
+![social image](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/social-image.png?raw=true)
 
 This package provides a [Filament](https://filamentphp.com/) plugin for a user profile. The plugin acts as a starting point for your user profile, and provides
 multi-factor authentication, password management, session management, and more. A lot of the boilerplate code that is required for these functionalities
@@ -62,7 +62,7 @@ class AdminPanelProvider extends PanelProvider
 
 Here is what the base profile page will look like without any configuration:
 
-![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile.png)
+![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile.png?raw=true)
 
 ## Documentation
 

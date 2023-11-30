@@ -11,7 +11,7 @@ The Sessions profile page allows a user to log out of all other browser sessions
 
 Here is a screenshot of this page when you're using the database driver:
 
-![sessions](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/sessions.png)
+![sessions](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/sessions.png?raw=true)
 
 Each of the components on this page can be customized and swapped out for your own implementations. See [Swap Components](/docs/profile-filament-plugin/{version}/customizations/page-customization#user-content-swap-components) for more information on how to do that.
 
@@ -21,7 +21,7 @@ Regardless of the database driver being used in your application, your users wil
 
 Here is a screenshot of what this confirmation will look like:
 
-![revoke all sessions](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/revoke-all-sessions.png)
+![revoke all sessions](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/revoke-all-sessions.png?raw=true)
 
 ## Session List
 
@@ -31,4 +31,4 @@ Like the revoke all action, the singular revoke action requires a password confi
 
 Here is a screenshot of the revoke single session confirmation:
 
-![revoke session](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/revoke-session.png)
+![revoke session](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/revoke-session.png?raw=true)

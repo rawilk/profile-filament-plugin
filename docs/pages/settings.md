@@ -11,7 +11,7 @@ Each of the components on this page can be customized and swapped out for your o
 
 Here is what the account settings page will look like by default:
 
-![settings page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/settings-page.png)
+![settings page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/settings-page.png?raw=true)
 
 ## Email address
 
@@ -23,7 +23,7 @@ If you want to completely remove this form from the page, please see [Features](
 
 Here is what the form looks like if you require users to verify new email addresses:
 
-![edit email form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/edit-email-form.png)
+![edit email form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/edit-email-form.png?raw=true)
 
 When a user submits the edit email form, we will send an email to the new email address with a verification link, which will be a temporary signed url. This link is set to expire in 60 minutes of it being sent. The value for this expiration is determined by the `auth.verification.expire` configuration value. You can modify this in your `config/auth.php` file.
 
@@ -31,7 +31,7 @@ If you need to customize the email that is sent, you may modify either the langu
 
 When there is a pending email change for the user, we will show that in the UI, along with actions to either resend the link or cancel the change. Here is a screenshot of what that looks like by default:
 
-![pending email change](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pending-email-change.png)
+![pending email change](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pending-email-change.png?raw=true)
 
 > {tip} Like the edit email form, the cancel email change action requires sudo mode verification first, if you have sudo mode enabled.
 
@@ -49,7 +49,7 @@ If you want to completely remove this form from the page, please see [Features](
 
 In addition to [Sudo Mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode), we also require the user to enter their email address in as a confirmation that they are truly sure they want to delete their account. If you've ever deleted a repository on GitHub, this will seem familiar. Here is a screenshot of what this confirmation form will look like:
 
-![delete account confirmation](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/delete-account-confirm.png)
+![delete account confirmation](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/delete-account-confirm.png?raw=true)
 
 ### Customization
 

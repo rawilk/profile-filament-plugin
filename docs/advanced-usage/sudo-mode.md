@@ -42,7 +42,7 @@ Like with [mfa](/docs/profile-filament-plugin/{version}/advanced-usage/mfa#user-
 
 For any sensitive action required, a sudo challenge can be shown. It will appear as a modal which will prompt the user to verify their identity. Here is a screenshot of a challenge shown for a user with mfa enabled on their account:
 
-![sudo challenge](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/sudo-challenge.png)
+![sudo challenge](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/sudo-challenge.png?raw=true)
 
 When this challenge is shown to the user, we will dispatch the `SudoModeChallenged` event.
 

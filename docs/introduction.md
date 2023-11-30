@@ -3,7 +3,7 @@ title: Introduction
 sort: 1
 ---
 
-![social image](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/social-image.png)
+![social image](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/social-image.png?raw=true)
 
 This package provides a [Filament](https://filamentphp.com/) plugin for a user profile. The plugin acts as a starting point for your user profile, and provides
 multi-factor authentication, password management, session management, and more. A lot of the boilerplate code that is required for these functionalities

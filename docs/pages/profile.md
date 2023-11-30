@@ -10,11 +10,11 @@ to edit their name. This of course can be customized according to your applicati
 
 Here is a screenshot of what the base Profile page will look like:
 
-![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile.png)
+![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile.png?raw=true)
 
 And here is the default edit form:
 
-![base profile edit form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile-edit-form.png)
+![base profile edit form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile-edit-form.png?raw=true)
 
 ## Customization
 

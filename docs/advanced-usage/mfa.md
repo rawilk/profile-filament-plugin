@@ -210,7 +210,7 @@ public function boot(): void
 
 When either using the middleware, or your own authentication workflow, a user will be presented with a form to verify their identity with a second factor of authentication before they can proceed. Here is a screenshot of a challenge shown to the user when they have both authenticator apps and passkeys registered on their account:
 
-![mfa challenge](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/mfa-challenge.png)
+![mfa challenge](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/mfa-challenge.png?raw=true)
 
 The challenge method initially shown to the user is determined by how the package resolves a user's [preferred mfa method](#user-content-preferred-mfa-method).
 
@@ -361,7 +361,7 @@ This will create a full-width button that will initiate passkey login when click
 
 Here is a screenshot of what this could look like:
 
-![passkey login](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkey-login.png)
+![passkey login](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkey-login.png?raw=true)
 
 ## Preferred Mfa Method
 

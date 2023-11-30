@@ -19,7 +19,7 @@ The Update Password component provides a simple form for your users to update th
 
 Here is a screenshot of the default update password form:
 
-![update password form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/update-password-form.png)
+![update password form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/update-password-form.png?raw=true)
 
 ### Events
 
@@ -106,13 +106,13 @@ The Two-Factor authentication section allows a user to add either an authenticat
 
 Here is a screenshot of the base state of this section:
 
-![mfa overview](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/mfa-overview.png)
+![mfa overview](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/mfa-overview.png?raw=true)
 
 ### Authenticator Apps
 
 Authenticator apps are used to generate one-time passwords (totp) that are used as a second factor to verify a user's identity during sign-in. Here is a screenshot of the form used to register an authenticator app. When [Sudo Mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is enabled, we will prompt for identity verification prior to showing the registration form.
 
-![totp form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/totp-form.png)
+![totp form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/totp-form.png?raw=true)
 
 When an authenticator app is successfully registered, we will dispatch the `TwoFactorAppAdded` event from the `ConfirmTwoFactorAppAction`, which will receive the user and new authenticator app model instance. You may choose to listen for this event to alert a user when a new totp app is registered on their account.
 
@@ -193,11 +193,11 @@ Since this is a sensitive action, we will require a [sudo mode](/docs/profile-fi
 
 Here is a screenshot of what the registration form will look like for a webauthn key.
 
-![register webauthn key](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/register-webauthn-key.png)
+![register webauthn key](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/register-webauthn-key.png?raw=true)
 
 We will ask for a name for the new key, and then when "Add" is clicked, the security key prompt from the browser will open. Depending on your device's capabilities, you should see a prompt similar to this:
 
-![webauthn prompt](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/webauthn-prompt.png)
+![webauthn prompt](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/webauthn-prompt.png?raw=true)
 
 When a webauthn key is registered, we will dispatch the `WebauthnKeyRegistered` event from our `RegisterWebauthnKeyAction`, which will receive the user and webauthn key being registered. You may choose to listen to this event, so you can alert your users when a new key is registered to their account.
 
@@ -296,7 +296,7 @@ When you have [Passkeys](#user-content-passkeys) enabled, and a webauthn key is 
 
 [Sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is required (when enabled) to perform this action. Here is a screenshot of the prompt you will receive for this action:
 
-![upgrade passkey](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/upgrade-passkey.png)
+![upgrade passkey](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/upgrade-passkey.png?raw=true)
 
 Once the "Upgrade to passkey" button is clicked, you will receive the same prompt from the browser that you received when the key was first registered. When the passkey has been registered, we will dispatch the `WebauthnKeyUpgradeToPasskey` event from our `UpgradeToPasskeyAction`, which will receive the user, the newly created passkey, and the webauthn key that was upgraded.
 
@@ -361,7 +361,7 @@ When recovery codes are viewed, we will dispatch the `RecoveryCodesViewed` event
 
 Viewing the recovery codes is considered a sensitive action, so [sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is required (when enabled) to view them. Here is a screenshot of what the UI looks like when you're viewing them:
 
-![recovery codes](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/recovery-codes.png)
+![recovery codes](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/recovery-codes.png?raw=true)
 
 For convenience, we include actions to:
 
@@ -429,17 +429,17 @@ The Passkeys section allows a user to register a [Passkey](/docs/profile-filamen
 
 Here is what the UI will look like when a user has no passkeys registered to them yet:
 
-![passkeys empty ui](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkeys-empty.png)
+![passkeys empty ui](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkeys-empty.png?raw=true)
 
 When a user has passkeys registered to them, the UI will look like this:
 
-![passkeys ui](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkeys-list.png)
+![passkeys ui](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkeys-list.png?raw=true)
 
 The registration process is very similar to registering a webauthn key, except that we display the form in a modal instead, and only platform authenticators are allowed. This means that roaming authenticators, like YubiKeys or other hardware keys cannot be used as a passkey.
 
 Here is a screenshot of the passkey registration form:
 
-![passkeys registration form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkey-form.png)
+![passkeys registration form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkey-form.png?raw=true)
 
 When a passkey is registered, we will dispatch the `PasskeyRegistered` from our `RegisterPasskeyAction`, which will receive the passkey and the user. You may listen for this event to alert users of new passkeys registered on their account.
 
