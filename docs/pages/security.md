@@ -292,7 +292,7 @@ Now you just need to register your action in the config:
 
 #### Upgrading To Passkeys
 
-When you have [Passkeys](#user-content-passkeys) enabled, and a webauthn key is a platform (i.e. touch id on an iphone) key, it can be upgraded to a passkey, which can be used for userless authentication.
+When you have [Passkeys](#user-content-passkeys) enabled, and a webauthn key is a platform key (i.e. touch id on an iphone), it can be upgraded to a passkey, which can be used for userless authentication.
 
 [Sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is required (when enabled) to perform this action. Here is a screenshot of the prompt you will receive for this action:
 
