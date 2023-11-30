@@ -26,7 +26,7 @@ $panel->plugin(
             enabled: true,
             slug: 'profile',
             icon: 'heroicon-o-user-circle',
-            clasName: \Rawilk\ProfileFilament\Filament\Pages\Profile::class,
+            className: \Rawilk\ProfileFilament\Filament\Pages\Profile::class,
             components: [],
             sort: 0,
             group: null,
