@@ -13,6 +13,7 @@ use Rawilk\ProfileFilament\ProfileFilamentPluginServiceProvider;
 use Rawilk\ProfileFilament\Tests\Fixtures\Filament\AdminPanelProvider;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 use Rawilk\ProfileFilament\Tests\Fixtures\Support\InstantlyResolvingTimebox;
+use Throwable;
 
 class TestCase extends Orchestra
 {
@@ -29,14 +30,13 @@ class TestCase extends Orchestra
         );
 
         // copy icon sets over to vendor directory
-        if (File::exists(__DIR__ . '/../vendor/orchestra/testbench-core/laravel/vendor/rawilk/profile-filament-plugin/resources/svg')) {
-            return;
+        try {
+            File::copyDirectory(
+                directory: __DIR__ . '/../resources/svg',
+                destination: __DIR__ . '/../vendor/orchestra/testbench-core/laravel/vendor/rawilk/profile-filament-plugin/resources/svg',
+            );
+        } catch (Throwable) {
         }
-
-        File::copyDirectory(
-            directory: __DIR__ . '/../resources/svg',
-            destination: __DIR__ . '/../vendor/orchestra/testbench-core/laravel/vendor/rawilk/profile-filament-plugin/resources/svg',
-        );
     }
 
     public function getEnvironmentSetUp($app)
