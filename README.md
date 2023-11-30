@@ -4,7 +4,7 @@
 > without a major version bump until a stable release is made.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/rawilk/profile-filament-plugin.svg?style=flat-square)](https://packagist.org/packages/rawilk/profile-filament-plugin)
-![Tests](https://github.com/rawilk/profile-filament-plugin/workflows/Tests/badge.svg?style=flat-square)
+[![Tests](https://github.com/rawilk/profile-filament-plugin/actions/workflows/run-tests.yml/badge.svg)](https://github.com/rawilk/profile-filament-plugin/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/rawilk/profile-filament-plugin.svg?style=flat-square)](https://packagist.org/packages/rawilk/profile-filament-plugin)
 [![PHP from Packagist](https://img.shields.io/packagist/php-v/rawilk/profile-filament-plugin?style=flat-square)](https://packagist.org/packages/rawilk/profile-filament-plugin)
 [![License](https://img.shields.io/github/license/rawilk/profile-filament-plugin?style=flat-square)](https://github.com/rawilk/profile-filament-plugin/blob/main/LICENSE.md)
@@ -98,20 +98,20 @@ composer test
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+Please see [CHANGELOG](https://github.com/rawilk/profile-filament-plugin/blob/main/CHANGELOG.md) for more information on what has changed recently.
 
 ## Contributing
 
-Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](https://github.com/rawilk/profile-filament-plugin/blob/main/.github/CONTRIBUTING.md) for details.
 
 ## Security
 
-Please review [my security policy](.github/SECURITY.md) on how to report security vulnerabilities.
+Please review [my security policy](https://github.com/rawilk/profile-filament-plugin/blob/main/.github/SECURITY.md) on how to report security vulnerabilities.
 
 ## Credits
 
 -   [Randall Wilk](https://github.com/rawilk)
--   [All Contributors](../../contributors)
+-   [All Contributors](https://github.com/rawilk/profile-filament-plugin/graphs/contributors)
 
 `Agent` service class for browser/device detection is derived from:
 
@@ -124,4 +124,4 @@ Please review [my security policy](.github/SECURITY.md) on how to report securit
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](https://github.com/rawilk/profile-filament-plugin/blob/main/LICENSE.md) for more information.
