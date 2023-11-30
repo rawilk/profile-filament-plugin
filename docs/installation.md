@@ -111,20 +111,6 @@ With that contract added to the User model, whenever a user updates their email 
 
 > {tip} This contract can be used alongside the `MustVerifyEmail` contract provided by Laravel. This package doesn't handle initial email verification functionality however; that is on you to implement yourself in your application.
 
-## Two-Factor Authentication
-
-In addition to the [migrations](#user-content-migrations) that need to be run, your user model needs to use the `TwoFactorAuthenticatable` trait:
-
-```php
-use Rawilk\ProfileFilament\Concerns\TwoFactorAuthenticatable;
-
-class User extends BaseUser
-{
-    use TwoFactorAuthenticatable;
-    // ...
-}
-```
-
 ### Pending Email Verification Configuration
 
 There are also some configuration options you may define for pending email changes, such as how long a reversal link is valid for. We've provided some sensible defaults, however you are free to customize them in the config file:
@@ -140,6 +126,20 @@ There are also some configuration options you may define for pending email chang
 ```
 
 > {note} For security purposes, it's **not recommended** to automatically log a user in after they verify a new email address, so it's best to keep the `login_after_verification` value set to `false`.
+
+## Two-Factor Authentication
+
+In addition to the [migrations](#user-content-migrations) that need to be run, your user model needs to use the `TwoFactorAuthenticatable` trait:
+
+```php
+use Rawilk\ProfileFilament\Concerns\TwoFactorAuthenticatable;
+
+class User extends BaseUser
+{
+    use TwoFactorAuthenticatable;
+    // ...
+}
+```
 
 ## Actions
 
