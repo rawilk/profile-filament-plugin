@@ -29,6 +29,10 @@ class TestCase extends Orchestra
         );
 
         // copy icon sets over to vendor directory
+        if (File::exists(__DIR__ . '/../vendor/orchestra/testbench-core/laravel/vendor/rawilk/profile-filament-plugin/resources/svg')) {
+            return;
+        }
+
         File::copyDirectory(
             directory: __DIR__ . '/../resources/svg',
             destination: __DIR__ . '/../vendor/orchestra/testbench-core/laravel/vendor/rawilk/profile-filament-plugin/resources/svg',
