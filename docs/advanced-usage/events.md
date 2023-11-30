@@ -5,7 +5,7 @@ sort: 3
 
 ## Introduction
 
-There are a lot of events that are dispatched from this package. Listening for these events can help you perform additional logging or sent out security alerts to your users.
+There are a lot of events that are dispatched from this package. Listening for these events can help you perform additional logging or send out security alerts to your users.
 
 ## Available Events
 
