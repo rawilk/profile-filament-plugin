@@ -544,4 +544,4 @@ For convenience, we've included some render hooks in the mfa overview section to
 -   `profile-filament::mfa.settings.before`: This will render your view in the two-factor authentication section right before the two-factor methods are listed.
 -   `profile-filament::mfa.methods.after`: This will render your view right before the recovery codes section. Useful for adding additional mfa methods (note: this is not officially supported at this time, and may require additional work on your part to make it work correctly)
 
-For more information on render hooks, see: https://filamentphp.com/docs/3.x/support/render-hooks
+For more information on render hooks, see: [https://filamentphp.com/docs/3.x/support/render-hooks](https://filamentphp.com/docs/3.x/support/render-hooks)
