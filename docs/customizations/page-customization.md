@@ -42,7 +42,7 @@ Each parameter is optional, so you can specify only the ones you need to customi
 -   `className` - The class name of the page. This is useful if you want to extend the page or use your own implementation of it.
 -   `components` - An array of livewire components to register onto the page. These will be merged with the default components for the page. To remove certain components from a page, use the [Features](/docs/profile-filament-plugin/{version}/customizations/features) object on the plugin.
 -   `sort` - An integer value indicating where the page should appear in the profile inner navigation.
--   `group` - Should be the class name of a [Group](/docs/profile-filament/{version}/advanced-usage/groups) to render the page's navigation link under.
+-   `group` - Should be the class name of a [Group](/docs/profile-filament-plugin/{version}/advanced-usage/groups) to render the page's navigation link under.
 
 If you just want to edit the sort order for the profile page, for example, you could do it like this:
 
