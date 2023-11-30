@@ -89,3 +89,5 @@ $panel->plugin(
 If you defined your page like the example we provided above, your page should show up as the second navigation link on the user's profile.
 
 > {tip} To offer flexibility in custom page placement, we stagger the default page sorts from the package in increments of 10.
+
+> {note} Make sure your panel knows about your page. If your page isn't auto-discovered by your panel, you may need to add it to your panel's `pages`.
