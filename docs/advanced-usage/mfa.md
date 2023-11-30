@@ -329,6 +329,7 @@ For this example, we'll use the same login class we created earlier.
 
 ```php
 use Filament\Actions\Action;
+use Filament\Pages\Auth\Login;
 use Rawilk\ProfileFilament\Filament\Actions\PasskeyLoginAction;
 use Rawilk\ProfileFilament\Actions\Auth\PrepareUserSession;
 
