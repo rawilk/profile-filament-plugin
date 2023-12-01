@@ -46,6 +46,7 @@ use function Filament\Support\get_color_css_variables;
  * @property-read null|string $formLabel
  * @property-read null|\Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode $sudoChallengeModeEnum
  * @property-read User $user
+ * @property-read \Filament\Forms\Form $form
  */
 class SudoChallenge extends SimplePage
 {
@@ -265,11 +266,13 @@ class SudoChallenge extends SimplePage
             ->livewireClickHandlerEnabled(false)
             ->label(function () {
                 if ($this->hasWebauthnError) {
+                    /** @phpstan-ignore-next-line */
                     return $this->user->hasPasskeys()
                         ? __('profile-filament::messages.sudo_challenge.webauthn.retry_including_passkeys')
                         : __('profile-filament::messages.sudo_challenge.webauthn.retry');
                 }
 
+                /** @phpstan-ignore-next-line */
                 return $this->user->hasPasskeys()
                     ? __('profile-filament::messages.sudo_challenge.webauthn.submit_including_passkeys')
                     : __('profile-filament::messages.sudo_challenge.webauthn.submit');
@@ -348,7 +351,7 @@ class SudoChallenge extends SimplePage
                 return true;
 
             default:
-                throw new Exception('Sudo challenge mode "' . $livewire->sudoChallengeMode . '" is not supported by this package.');
+                throw new Exception('Sudo challenge mode "' . $this->sudoChallengeMode . '" is not supported by this package.');
         }
     }
 }

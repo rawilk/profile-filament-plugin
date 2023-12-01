@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Services;
 
 use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Authenticatable as User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\Macroable;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorAppServiceContract;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
@@ -74,7 +75,7 @@ class Mfa
                 ->exists();
     }
 
-    public function challengedUser(): User
+    public function challengedUser(): Model|User
     {
         if ($this->challengedUser) {
             return $this->challengedUser;
@@ -91,6 +92,7 @@ class Mfa
             __('profile-filament::messages.mfa_challenge.invalid_challenged_user'),
         );
 
+        /** @phpstan-ignore-next-line */
         return $this->challengedUser = $user;
     }
 
@@ -100,6 +102,7 @@ class Mfa
             return false;
         }
 
+        /** @phpstan-ignore-next-line */
         $validCode = collect($this->challengedUser()->recoveryCodes())
             ->first(fn (string $storedCode) => hash_equals($code, $storedCode) ? $code : null);
 
@@ -107,6 +110,7 @@ class Mfa
             return false;
         }
 
+        /** @phpstan-ignore-next-line */
         $newCode = $this->challengedUser()->replaceRecoveryCode($validCode);
 
         RecoveryCodeReplaced::dispatch($this->challengedUser(), $validCode, $newCode);
@@ -184,6 +188,7 @@ class Mfa
 
     protected function profilePlugin(): ProfileFilamentPlugin
     {
+        /** @phpstan-ignore-next-line */
         return Filament::getPlugin(ProfileFilamentPLugin::PLUGIN_ID);
     }
 

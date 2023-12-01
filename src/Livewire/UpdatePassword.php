@@ -19,6 +19,7 @@ use Rawilk\ProfileFilament\Features;
 /**
  * @property-read null|string $passwordResetUrl
  * @property-read \Rawilk\ProfileFilament\Features $pluginFeatures
+ * @property-read \Filament\Forms\Form $form
  */
 class UpdatePassword extends ProfileComponent
 {

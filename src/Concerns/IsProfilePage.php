@@ -43,6 +43,7 @@ trait IsProfilePage
 
     public function getBreadcrumb(): string
     {
+        /** @phpstan-ignore-next-line */
         return static::$breadcrumb ?? static::getNavigationLabel();
     }
 

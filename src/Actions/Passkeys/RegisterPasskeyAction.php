@@ -31,6 +31,7 @@ class RegisterPasskeyAction implements RegisterPasskeyActionContract
             $passkey->is_passkey = true;
             $passkey->save();
 
+            /** @phpstan-ignore-next-line */
             cache()->forget($user::hasPasskeysCacheKey($user));
 
             app(MarkTwoFactorEnabledAction::class)($user);

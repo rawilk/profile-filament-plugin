@@ -31,6 +31,7 @@ use Throwable;
 
 /**
  * @property-read User $user
+ * @property-read \Filament\Forms\Form $form
  */
 class PasskeyManager extends ProfileComponent
 {
@@ -61,7 +62,7 @@ class PasskeyManager extends ProfileComponent
     {
         $view->with([
             'headerId' => Str::uuid(),
-            'passkeys' => $this->user->passkeys,
+            'passkeys' => $this->user->passkeys, /** @phpstan-ignore-line */
         ]);
     }
 
@@ -115,6 +116,7 @@ class PasskeyManager extends ProfileComponent
 
             // Flag for our listener in the mfa overview component to know if recovery codes
             // should be shown or not.
+            /** @phpstan-ignore-next-line */
             $enabledMfa = ! filament()->auth()->user()->two_factor_enabled;
 
             if ($this->upgrading) {
@@ -208,6 +210,7 @@ class PasskeyManager extends ProfileComponent
             ->unique(
                 table: config('profile-filament.table_names.webauthn_key'),
                 modifyRuleUsing: function (Unique $rule) {
+                    /** @phpstan-ignore-next-line */
                     $rule->where('user_id', $this->user->id);
                 },
             )

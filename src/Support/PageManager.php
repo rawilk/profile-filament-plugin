@@ -154,11 +154,10 @@ final class PageManager
 
         collect($this->pages)
             ->merge($this->customPages)
-            ->map(fn (string $className) => app($className))
             ->filter(function ($page) {
                 throw_unless(
-                    in_array(IsProfilePage::class, class_uses_recursive($page::class), true),
-                    InvalidProfileNavigation::invalidPage($page::class),
+                    in_array(IsProfilePage::class, class_uses_recursive($page), true),
+                    InvalidProfileNavigation::invalidPage($page),
                 );
 
                 return $page::shouldRegisterInnerNav();
@@ -294,6 +293,8 @@ final class PageManager
             if (is_array($page)) {
                 throw_if($level > 0, InvalidProfileNavigation::tooManyNestedLevels());
 
+                /** @var \Rawilk\ProfileFilament\Filament\Pages\ProfilePageGroup $index */
+
                 // Only collapsible groups are allowed to be nested.
                 throw_unless($index::isCollapsible(), InvalidProfileNavigation::nestedStaticGroup($index));
 
@@ -310,7 +311,7 @@ final class PageManager
                 ->url($url)
                 ->sort($page::innerNavSort())
                 ->icon($page::getNavigationIcon())
-                ->isActiveWhen(fn () => request()?->url() === $url);
+                ->isActiveWhen(fn () => request()->url() === $url);
         });
     }
 

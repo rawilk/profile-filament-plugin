@@ -6,15 +6,15 @@ namespace Rawilk\ProfileFilament\Exceptions\Webauthn;
 
 use RuntimeException;
 
-class ResponseMismatch extends RuntimeException
+final class ResponseMismatch extends RuntimeException
 {
-    public static function attestation(): static
+    public static function attestation(): self
     {
-        return new static('Not an authenticator attestation response');
+        return new self('Not an authenticator attestation response');
     }
 
-    public static function assertion(): static
+    public static function assertion(): self
     {
-        return new static('Not an authenticator assertion response.');
+        return new self('Not an authenticator assertion response.');
     }
 }

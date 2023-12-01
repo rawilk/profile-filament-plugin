@@ -14,6 +14,17 @@ use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 use function Rawilk\ProfileFilament\wrapDateInTimeTag;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $name
+ * @property string $secret
+ * @property null|\Illuminate\Support\Carbon $last_used_at
+ * @property null|\Illuminate\Support\Carbon $created_at
+ * @property null|\Illuminate\Support\Carbon $updated_at
+ * @property-read \Illuminate\Support\HtmlString $last_used
+ * @property-read \Illuminate\Support\HtmlString $registered_at
+ */
 class AuthenticatorApp extends Model
 {
     use HasFactory;

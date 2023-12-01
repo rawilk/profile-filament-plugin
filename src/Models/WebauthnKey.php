@@ -19,6 +19,26 @@ use Webauthn\PublicKeyCredentialSource;
 
 use function Rawilk\ProfileFilament\wrapDateInTimeTag;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $name
+ * @property string $credential_id
+ * @property array $public_key
+ * @property null|string $attachment_type
+ * @property bool $is_passkey
+ * @property array $transports
+ * @property null|\Illuminate\Support\Carbon $last_used_at
+ * @property null|\Illuminate\Support\Carbon $created_at
+ * @property null|\Illuminate\Support\Carbon $updated_at
+ * @property-read \Webauthn\PublicKeyCredentialSource $public_key_credential_source
+ * @property-read \Illuminate\Support\HtmlString $last_used
+ * @property-read \Illuminate\Support\HtmlString $registered_at
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\WebauthnKey byCredentialId(string $id)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\WebauthnKey notPasskeys()
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\WebauthnKey passkeys()
+ */
 class WebauthnKey extends Model
 {
     use HasFactory;
@@ -49,7 +69,7 @@ class WebauthnKey extends Model
         User $user,
         string $keyName,
         string $attachmentType = null,
-    ): static {
+    ): WebauthnKey {
         throw_unless(
             static::getUserHandle($user) === $source->userHandle,
             WrongUserHandle::class,
@@ -70,6 +90,7 @@ class WebauthnKey extends Model
 
     public static function getUsername(User $user): string
     {
+        /** @phpstan-ignore-next-line */
         return $user->email;
     }
 

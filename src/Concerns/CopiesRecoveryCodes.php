@@ -19,6 +19,7 @@ trait CopiesRecoveryCodes
     #[Computed]
     public function recoveryCodes(): array
     {
+        /** @phpstan-ignore-next-line */
         return filament()->auth()->user()->recoveryCodes();
     }
 

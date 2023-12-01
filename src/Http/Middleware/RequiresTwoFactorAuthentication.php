@@ -64,6 +64,7 @@ class RequiresTwoFactorAuthentication
 
     protected function userHasMfaEnabled(User $user): bool
     {
+        /** @phpstan-ignore-next-line */
         return $user->two_factor_enabled === true;
     }
 

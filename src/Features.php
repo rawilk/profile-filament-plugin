@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament;
 
+use Illuminate\Validation\Rules\Password;
 use InvalidArgumentException;
 
 final class Features
@@ -71,7 +72,7 @@ final class Features
     /**
      * Set the default callback to be used for determining the default features.
      *
-     *  If no arguments are passed, the default features instance will be returned.
+     * If no arguments are passed, the default features instance will be returned.
      *
      * @return void|self
      */
@@ -81,8 +82,9 @@ final class Features
             return self::default();
         }
 
+        /** @phpstan-ignore-next-line */
         if (! is_callable($callback) && ! $callback instanceof self) {
-            throw new InvalidArgumentException('The given callback should be callable.');
+            throw new InvalidArgumentException('The given callback should be callable or an instance of ' . self::class);
         }
 
         self::$defaultCallback = $callback;

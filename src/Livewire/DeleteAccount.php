@@ -57,11 +57,13 @@ class DeleteAccount extends ProfileComponent
     protected function getEmailInput(): Component
     {
         return TextInput::make('email')
+            /** @phpstan-ignore-next-line */
             ->label(fn () => __('profile-filament::pages/settings.delete_account.actions.delete.email_label', ['email' => Filament::auth()->user()->email]))
             ->required()
             ->email()
             ->rules([
                 fn (): Closure => function (string $attribute, $value, Closure $fail) {
+                    /** @phpstan-ignore-next-line */
                     if (Str::lower($value) !== Str::lower(Filament::auth()->user()->email)) {
                         $fail(__('profile-filament::pages/settings.delete_account.actions.delete.incorrect_email'));
                     }

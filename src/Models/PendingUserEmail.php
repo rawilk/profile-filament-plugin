@@ -18,6 +18,17 @@ use Rawilk\ProfileFilament\Contracts\PendingUserEmail\StoreOldUserEmailAction;
 use Rawilk\ProfileFilament\Events\PendingUserEmails\NewUserEmailVerified;
 use Rawilk\ProfileFilament\Exceptions\PendingUserEmails\InvalidVerificationLinkException;
 
+/**
+ * @property int $id
+ * @property string $user_type
+ * @property int $user_id
+ * @property string $email
+ * @property string $token
+ * @property null|\Illuminate\Support\Carbon $created_at
+ * @property-read string $verification_url
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\OldUserEmail forUser(\Illuminate\Database\Eloquent\Model $user)
+ */
 class PendingUserEmail extends Model
 {
     use HasFactory;

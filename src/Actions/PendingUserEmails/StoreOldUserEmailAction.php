@@ -27,17 +27,17 @@ class StoreOldUserEmailAction implements StoreOldUserEmailActionContract
             'user_type' => $user->getMorphClass(),
             'user_id' => $user->getKey(),
             'email' => $email,
-            'token' => Password::broker()->getRepository()->createNewToken(),
+            'token' => Password::broker()->getRepository()->createNewToken(), /** @phpstan-ignore-line */
         ]);
 
         $mailable = config('profile-filament.mail.pending_email_verified');
 
         Mail::to($oldEmail->email)->send(
             new $mailable(
-                $user->email,
+                $user->email, /** @phpstan-ignore-line */
                 $oldEmail,
                 filament()->getCurrentPanel()?->getId(),
-                request()?->ip(),
+                request()?->ip(), /** @phpstan-ignore-line */
                 now()->tz(ProfileFilament::userTimezone($user)),
             ),
         );

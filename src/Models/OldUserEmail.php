@@ -17,6 +17,17 @@ use Illuminate\Support\Traits\Tappable;
 use Rawilk\ProfileFilament\Events\PendingUserEmails\EmailAddressReverted;
 use Rawilk\ProfileFilament\Exceptions\PendingUserEmails\InvalidRevertLinkException;
 
+/**
+ * @property int $id
+ * @property string $user_type
+ * @property int $user_id
+ * @property string $email
+ * @property string $token
+ * @property null|\Illuminate\Support\Carbon $created_at
+ * @property-read string $revert_url
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\OldUserEmail forUser(\Illuminate\Database\Eloquent\Model $user)
+ */
 class OldUserEmail extends Model
 {
     use HasFactory;

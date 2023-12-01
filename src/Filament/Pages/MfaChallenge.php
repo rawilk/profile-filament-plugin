@@ -41,6 +41,7 @@ use Throwable;
  * @property-read null|\Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode $mfaChallengeMode
  * @property-read string|null $modeIcon
  * @property-read bool $hasWebauthn
+ * @property-read \Filament\Forms\Form $form
  */
 class MfaChallenge extends SimplePage
 {
@@ -384,7 +385,7 @@ class MfaChallenge extends SimplePage
                 return true;
 
             default:
-                throw new Exception('Mfa method "' . $this->method . '" is not supported by this package.');
+                throw new Exception('Mfa method "' . $this->mode . '" is not supported by this package.');
         }
     }
 }
