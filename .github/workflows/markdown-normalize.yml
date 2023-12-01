@@ -3,7 +3,8 @@ name: Normalize Markdown
 on:
     push:
         paths:
-            - "*.md"
+            - '*.md'
+            - '.github/workflows/markdown-normalize.yml'
 
 permissions:
     contents: write
