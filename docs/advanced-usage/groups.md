@@ -78,10 +78,10 @@ use Rawilk\ProfileFilament\Filament\Pages\ProfilePageGroup;
 class TopLevelGroup extends ProfilePageGroup
 {
     protected static int $sort = 50;
-    
+
     // Important to set this to false
     protected static bool $collapsible = false;
-    
+
     public static function getLabel(): ?string
     {
         return 'Parent Group';
@@ -97,17 +97,17 @@ use Rawilk\ProfileFilament\Filament\Pages\ProfilePageGroup;
 class NestedGroup extends ProfilePageGroup
 {
     protected static int $sort = 2;
-    
+
     // Must be set to true
     protected static int $collapsible = true;
-    
+
     protected static string $icon = 'heroicon-o-credit-card';
-    
+
     public static function getLabel(): ?string
     {
         return 'Nested Group';
     }
-    
+
     public static function parentGroup(): ?string
     {
         return TopLevelGroup::class;
@@ -124,22 +124,22 @@ use Rawilk\ProfileFilament\Concerns\IsProfilePage;
 class TopLevelPage extends Page
 {
     use IsProfilePage;
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Parent Group Page';
     }
-    
+
     public static function getSlug(): string
     {
         return 'profile/page-1';
     }
-    
+
     public static function innerNavSort(): int
     {
         return 1;
     }
-    
+
     public static function innerNavGroup(): ?string
     {
         return TopLevelGroup::class;
@@ -151,22 +151,22 @@ class TopLevelPage extends Page
 class NestedGroupPage extends Page
 {
     use IsProfilePage;
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Nested Group Page';
     }
-    
+
     public static function getSlug(): string
     {
         return 'profile/page-2';
     }
-    
+
     public static function innerNavSort(): int
     {
         return 1;
     }
-    
+
     public static function innerNavGroup(): ?string
     {
         return NestedGroup::class;
