@@ -26,7 +26,7 @@ Route::name('filament.')
                     ->name("{$panelId}.")
                     ->prefix($panel->getPath())
                     ->group(function () use ($panel) {
-                        $plugin = filament(ProfileFilamentPlugin::PLUGIN_ID);
+                        $plugin = $panel->getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
 
                         if ($plugin->panelFeatures()->hasTwoFactorAuthentication()) {
                             // Two Factor Challenge
