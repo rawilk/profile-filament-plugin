@@ -1,15 +1,14 @@
-<div
-    x-ignore
-    ax-load="visible"
-    ax-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('webauthnForm', package: 'rawilk/profile-filament-plugin') }}"
+ <x-profile-filament::webauthn-script
     x-data="webauthnForm({
         mode: 'register',
         wireId: '{{ $this->getId() }}',
         registerPublicKeyUrl: '{{ route('profile-filament::webauthn.attestation_pk') }}',
 
         beforeRegister: instance => {
-            return @this.validate()
-                .then(() => ! instance.hasErrors(@this));
+            const component = window.Livewire.find('{{ $this->getId() }}');
+
+            return component.validate()
+                .then(() => ! instance.hasErrors(component));
         },
     })"
 >
@@ -57,4 +56,4 @@
             :message="__('profile-filament::pages/security.mfa.webauthn.actions.register.waiting')"
         />
     </x-filament-panels::form>
-</div>
+</x-profile-filament::webauthn-script>

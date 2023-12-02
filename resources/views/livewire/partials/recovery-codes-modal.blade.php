@@ -8,7 +8,7 @@
     :close-by-clicking-away="false"
 >
     @if ($showRecoveryInModal && filament()->auth()->user()->two_factor_enabled)
-        <div class="rounded-md border border-gray-300 dark:border-gray-500 pb-8">
+        <x-profile-filament::plugin-css class="rounded-md border border-gray-300 dark:border-gray-500 pb-8">
             <div class="px-4">
                 <div class="pt-4 sm:pl-4">
                     <div class="[&_a]:text-custom-600 [&_a]:fi-link [&_a:focus]:underline [&_a:hover]:underline dark:[&_a]:text-custom-400"
@@ -47,6 +47,6 @@
                     {{ $this->copyAction }}
                 </div>
             </div>
-        </div>
+        </x-profile-filament::plugin-css>
     @endif
 </x-filament::modal>

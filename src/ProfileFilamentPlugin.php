@@ -21,7 +21,7 @@ use Rawilk\ProfileFilament\Support\PageManager;
 
 class ProfileFilamentPlugin implements Plugin
 {
-    public const PLUGIN_ID = 'rawilk/filament-profile';
+    public const PLUGIN_ID = 'rawilk/profile-filament-plugin';
 
     protected array $defaults;
 

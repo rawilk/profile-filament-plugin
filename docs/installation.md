@@ -72,6 +72,24 @@ To override any of the views from this package, you can publish them with:
 php artisan vendor:publish --tag="profile-filament-views"
 ```
 
+## Styles
+
+The plugin uses several tailwind classes that are not used by Filament, so a custom stylesheet is necessary. Nothing is required from you, since we register the stylesheet automatically for you, and load it on demand from any views in the package that require it. If the stylesheet isn't being loaded correctly, you may need to [publish it](https://filamentphp.com/docs/3.x/notifications/installation#upgrading).
+
+A great way to ensure the latest assets are always loaded is to add the `filament:upgrade` script to your `composer.json` file.
+
+```json
+{
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
+        ]
+    }
+}
+```
+
 ## Routes
 
 Most routes required for the package are registered automatically for you. However, the routes required for [Webauthn](/docs/profile-filament-plugin/{version}/advanced-usage/mfa#user-content-webauthn) public key generation are not registered automatically. If you plan on using webauthn functionality, you will need to register these routes using our route macro in one of your route files:

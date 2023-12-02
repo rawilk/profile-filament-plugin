@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament;
 
 use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Filament\Support\Assets\AlpineComponent;
+use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Routing\Middleware\ValidateSignature;
@@ -121,7 +122,14 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         FilamentAsset::register([
             AlpineComponent::make('webauthnForm', __DIR__ . '/../resources/dist/webauthn.js')
                 ->loadedOnRequest(),
-        ], 'rawilk/profile-filament-plugin');
+        ], ProfileFilamentPlugin::PLUGIN_ID);
+
+        FilamentAsset::register(
+            assets: [
+                Css::make('profile-filament-plugin', __DIR__ . '/../resources/dist/plugin.css')->loadedOnRequest(),
+            ],
+            package: ProfileFilamentPlugin::PLUGIN_ID,
+        );
 
         $sets = $this->app['config']->get('blade-icons.sets');
         $sets['profile-filament'] = [

@@ -28,7 +28,7 @@
          }"
      @endif
 >
-    <div class="flex">
+    <x-profile-filament::plugin-css class="flex">
         <div @class(['flex', 'flex-1' => $dismiss])>
             @if ($icon)
                 <div class="flex-shrink-0">
@@ -66,5 +66,5 @@
                 </div>
             </div>
         @endif
-    </div>
+    </x-profile-filament::plugin-css>
 </div>

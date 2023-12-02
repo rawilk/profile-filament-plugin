@@ -1,8 +1,5 @@
 <div class="-mt-3" x-data="{ isUpgrading: @js(filled($upgrading)), exclude: @js([$upgrading?->id]) }">
-    <div
-        x-ignore
-        ax-load="visible"
-        ax-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('webauthnForm', package: 'rawilk/profile-filament-plugin') }}"
+    <x-profile-filament::webauthn-script
         x-data="webauthnForm({
             mode: 'register',
             wireId: '{{ $this->getId() }}',
@@ -14,8 +11,10 @@
                     return true;
                 }
 
-                return @this.validate()
-                    .then(() => ! instance.hasErrors(@this));
+                const component = window.Livewire.find('{{ $this->getId() }}');
+
+                return component.validate()
+                    .then(() => ! instance.hasErrors(component));
             },
         })"
         id="register-passkey-form"
@@ -117,5 +116,5 @@
                 :message="__('profile-filament::pages/security.mfa.webauthn.actions.register.waiting')"
             />
         </div>
-    </div>
+    </x-profile-filament::webauthn-script>
 </div>

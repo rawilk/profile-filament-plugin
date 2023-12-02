@@ -56,6 +56,8 @@
 
         {{ \Filament\Support\Facades\FilamentView::renderHook('panels::styles.after') }}
 
+        <link rel="stylesheet" href="{{ \Filament\Support\Facades\FilamentAsset::getStyleHref('profile-filament-plugin', package: \Rawilk\ProfileFilament\ProfileFilamentPlugin::PLUGIN_ID) }}">
+
         @filamentStyles
         {{ filament()->getTheme()->getHtml() }}
         {{ filament()->getFontHtml() }}

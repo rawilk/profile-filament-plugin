@@ -21,7 +21,7 @@
                 :color="$regenerated ? 'danger' : 'primary'"
                 icon="heroicon-o-exclamation-triangle"
                 alias="mfa::recovery-codes-notice"
-                class="rounded-none border-x-0"
+                class="!rounded-none !border-x-0"
             >
                 {{ \Rawilk\ProfileFilament\renderMarkdown(content: $regenerated ? __('profile-filament::pages/security.mfa.recovery_codes.regenerated_warning') : __('profile-filament::pages/security.mfa.recovery_codes.warning'), inline: false) }}
             </x-profile-filament::alert>
