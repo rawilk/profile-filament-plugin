@@ -67,7 +67,7 @@ class SudoChallengeAction extends Action
                     SudoModeChallenged::dispatch($this->user(), $request);
                 })
                 ->action(function (Component $livewire, Action $action, array $arguments, Request $request) {
-                    $this->parseSudoArguments($action, $livewire, $arguments);
+                    $this->parseSudoArguments($action, $livewire, [...$arguments, ...$this->extractArgumentsFromRequest($request)]);
 
                     // If we made it here, we can activate sudo mode.
                     Sudo::activate();
@@ -114,7 +114,12 @@ class SudoChallengeAction extends Action
 
                 $timebox->returnEarly();
             }, microseconds: 300 * 1000);
+
+            return;
         }
+
+        // If we've reached this point, something went wrong. Make sure sudo mode isn't accidentally activated.
+        $action->halt();
     }
 
     protected function getSudoViewData(Component $livewire): array
@@ -156,7 +161,7 @@ class SudoChallengeAction extends Action
             ->hint(
                 filament()->hasPasswordReset()
                     ? new HtmlString(Blade::render('<x-filament::link :href="filament()->getRequestPasswordResetUrl()">{{ __(\'filament-panels::pages/auth/login.actions.request_password_reset.label\') }}</x-filament::link>'))
-                    : null
+                    : null,
             )
             ->required()
             ->extraInputAttributes([
@@ -200,7 +205,7 @@ class SudoChallengeAction extends Action
                     Webauthn::verifyAssertion(
                         user: $this->user(),
                         assertionResponse: $data['assertion'],
-                        storedPublicKey: unserialize(session()->pull(SudoSession::WebauthnAssertionPk->value))
+                        storedPublicKey: unserialize(session()->pull(SudoSession::WebauthnAssertionPk->value)),
                     );
                 } catch (Throwable) {
                     $this->error = __('profile-filament::messages.sudo_challenge.webauthn.invalid');
@@ -231,5 +236,15 @@ class SudoChallengeAction extends Action
             in_array(UsesSudoChallengeAction::class, class_uses_recursive($livewire), true),
             new RuntimeException('The trait "' . UsesSudoChallengeAction::class . '" must be used on your livewire component to use this action.'),
         );
+    }
+
+    /**
+     * Something changed in 3.1.0 of filament that is breaking our sudo challenge action.
+     * Since Livewire sends the payloads of the requests, we should be able to rely
+     * on fetching our parameters we're sending the action for now.
+     */
+    protected function extractArgumentsFromRequest(Request $request): array
+    {
+        return Arr::get($request->all(), 'components.0.calls.0.params.0', []);
     }
 }
