@@ -364,6 +364,18 @@ Here is a screenshot of what this could look like:
 
 ![passkey login](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkey-login.png?raw=true)
 
+While publishing and modifying the login view from filament as shown above is a workable solution, it's generally not recommended to publish filament views. A better way to accomplish adding the passkey login action to the form would be to utilize the `panels::auth.login.form.after` [render hook](https://filamentphp.com/docs/3.x/support/render-hooks) instead.
+
+```php
+use Filament\Support\Facades\FilamentView;
+use Illuminate\Support\Facades\Blade;
+
+FilamentView::registerRenderHook(
+    name: 'panels::auth.login.form.after',
+    hook: fn () => Blade::render('<div class="mt-4">{{ $this->passkeyLoginAction }}</div>'),
+);
+```
+
 ## Preferred Mfa Method
 
 By default, we will use a user's first available mfa method registered them as their "preferred" method for authentication. This means that it will be the first method shown on the mfa challenge screen for the user.
