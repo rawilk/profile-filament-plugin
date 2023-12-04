@@ -368,12 +368,20 @@ While publishing and modifying the login view from filament as shown above is a 
 
 ```php
 use Filament\Support\Facades\FilamentView;
-use Illuminate\Support\Facades\Blade;
 
 FilamentView::registerRenderHook(
     name: 'panels::auth.login.form.after',
-    hook: fn () => Blade::render('<div class="mt-4">{{ $this->passkeyLoginAction }}</div>'),
+    hook: fn () => view('filament.hooks.login-after'),
 );
+```
+
+Now just create the view being referenced in the render hook:
+
+```html
+<!-- resources/views/filament/hooks/login-after.blade.php -->
+<div class="mt-4">
+    {{ $this->passkeyLoginAction }}
+</div>
 ```
 
 ## Preferred Mfa Method
