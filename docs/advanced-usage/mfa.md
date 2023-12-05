@@ -96,6 +96,7 @@ use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use App\Models\User;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
+use Rawilk\ProfileFilament\Facades\Mfa;
 
 // shown below
 use App\Responses\TwoFactorResponse;
@@ -111,12 +112,10 @@ class YourLoginPage extends Login
 
         if ($user->two_factor_enabled) {
             // verify password is correct before redirecting...
-            session()->put([
-                MfaSession::User->value => $user->id,
-                MfaSession::Remember->value => $data['remember'] ?? false,
-            ]);
-
-            TwoFactorAuthenticationChallenged::dispatch($user);
+            Mfa::pushChallengedUser(
+                user: $user,
+                remember: $data['remember'] ?? false,
+            );
 
             return app(TwoFactorResponse::class);
         }
@@ -136,6 +135,8 @@ class YourLoginPage extends Login
 As you can see, this is a very basic example. You will need to make sure you are verifying the user is found, the user's password is correct, and anything else required by your application before you redirect to the two-factor challenge page. If the user doesn't have mfa enabled, you can just handle the auth like normal. You can look at the base login class for how filament handles it if you need to.
 
 One of the most important things to take-away from this, is that if the user does have two-factor enabled, you need to push their id into the session so our mfa challenge page can identify them later.
+
+We are using the `pushChallengedUser` method on the `Mfa` facade in the code above to record the user's id in the session for our two-factor challenge to use later.
 
 To redirect to the two-factor challenge, you will need a custom response class, like this:
 
