@@ -32,10 +32,10 @@
         "web-auth/webauthn-lib": "^4.7.7"
     },
     "require-dev": {
+        "larastan/larastan": "^2.6",
         "laravel/pint": "^1.0",
         "livewire/livewire": "^3.1.0",
         "nunomaduro/collision": "^7.0",
-        "nunomaduro/larastan": "^2.6",
         "orchestra/testbench": "^8.15",
         "pestphp/pest": "^2.25",
         "pestphp/pest-plugin-arch": "^2.4",
