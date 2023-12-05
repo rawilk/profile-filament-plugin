@@ -12,6 +12,7 @@ use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorApp
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUsed;
 use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
+use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Symfony\Component\HttpFoundation\Response;
@@ -94,6 +95,16 @@ class Mfa
 
         /** @phpstan-ignore-next-line */
         return $this->challengedUser = $user;
+    }
+
+    public function pushChallengedUser(User $user, bool $remember = false): void
+    {
+        session()->put([
+            MfaSession::User->value => $user->getAuthIdentifier(),
+            MfaSession::Remember->value => $remember,
+        ]);
+
+        TwoFactorAuthenticationChallenged::dispatch($user);
     }
 
     public function isValidRecoveryCode(string $code): bool

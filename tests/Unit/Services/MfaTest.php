@@ -9,6 +9,7 @@ use PragmaRX\Google2FA\Google2FA;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUsed;
 use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
+use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Services\Mfa;
@@ -170,6 +171,17 @@ it('knows if a user has webauthn keys registered', function () {
     WebauthnKey::factory()->for($this->user)->create();
 
     expect($this->mfa->canUseWebauthnForChallenge($this->user))->toBeTrue();
+});
+
+it('can push a challenged user to the session', function () {
+    expect(session()->has(MfaSession::User->value))->toBeFalse();
+
+    $this->mfa->pushChallengedUser(user: $this->user, remember: true);
+
+    expect(session()->get(MfaSession::User->value))->toBe($this->user->id)
+        ->and(session()->get(MfaSession::Remember->value))->toBeTrue();
+
+    Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
 });
 
 function challengeUser(): void
