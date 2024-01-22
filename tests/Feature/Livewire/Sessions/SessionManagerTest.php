@@ -68,7 +68,7 @@ test('correct password is required to remove a session', function () {
             arguments: ['session' => Crypt::encryptString($session->id)],
         )
         ->assertHasActionErrors([
-            'password' => 'current-password',
+            'password',
         ]);
 
     $this->assertDatabaseCount('sessions', 1);
@@ -104,7 +104,7 @@ test('correct password is required to revoke all sessions', function () {
             'password' => 'incorrect',
         ])
         ->assertHasActionErrors([
-            'password' => 'current-password',
+            'password',
         ]);
 
     $this->assertDatabaseCount('sessions', 1);

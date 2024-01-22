@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Features;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
-use Rawilk\ProfileFilament\Filament\Pages\Profile;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
@@ -25,11 +25,11 @@ it('knows if sudo mode is enabled', function () {
 
 it('knows if a page is enabled', function () {
     // all pages are enabled by default
-    expect($this->plugin->isEnabled(Profile::class))->toBeTrue();
+    expect($this->plugin->isEnabled(ProfileInfo::class))->toBeTrue();
 
     $this->plugin->profile(enabled: false);
 
-    expect($this->plugin->isEnabled(Profile::class))->toBeFalse();
+    expect($this->plugin->isEnabled(ProfileInfo::class))->toBeFalse();
 });
 
 test('a custom action can be used for full-page sudo challenge', function () {
@@ -49,13 +49,13 @@ test('a custom action can be used for full-page mfa challenge', function () {
 });
 
 it('can get the slug for a page', function () {
-    expect($this->plugin->getSlug(Profile::class))->toBe('profile');
+    expect($this->plugin->getSlug(ProfileInfo::class))->toBe('user');
 
     $this->plugin->profile(slug: 'custom-profile');
 
-    expect($this->plugin->getSlug(Profile::class))->toBe('custom-profile');
+    expect($this->plugin->getSlug(ProfileInfo::class))->toBe('custom-profile');
 });
 
 it('can get the url for a page', function () {
-    expect($this->plugin->pageUrl(Profile::class))->toBe('https://acme.test/admin/profile');
+    expect($this->plugin->pageUrl(ProfileInfo::class))->toBe('https://acme.test/admin/profile/user');
 });

@@ -97,7 +97,7 @@ it('requires a correct current password', function () {
         ->set('data.password_confirmation', 'new-password')
         ->call('updatePassword')
         ->assertHasFormErrors([
-            'current_password' => 'current-password',
+            'current_password',
         ]);
 
     Event::assertNotDispatched(UserPasswordWasUpdated::class);

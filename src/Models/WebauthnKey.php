@@ -68,7 +68,7 @@ class WebauthnKey extends Model
         PublicKeyCredentialSource $source,
         User $user,
         string $keyName,
-        string $attachmentType = null,
+        ?string $attachmentType = null,
     ): WebauthnKey {
         throw_unless(
             static::getUserHandle($user) === $source->userHandle,

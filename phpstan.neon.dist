@@ -1,5 +1,5 @@
 includes:
-    - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/larastan/larastan/extension.neon
 
 parameters:
     level: 4
@@ -18,21 +18,11 @@ parameters:
                 - '#Call to an undefined method#'
             paths:
                 - src/Actions/TwoFactor/MarkTwoFactorDisabledAction.php
-                - src/Concerns/IsProfilePage.php
                 - src/Concerns/Sudo/UsesSudoChallengeAction.php
                 - src/Enums/Livewire/MfaChallengeMode.php
                 - src/Enums/Livewire/SudoChallengeMode.php
-                - src/Filament/Pages/Profile.php
-                - src/Filament/Pages/Security.php
-                - src/Filament/Pages/Sessions.php
-                - src/Filament/Pages/Settings.php
                 - src/Filament/Pages/MfaChallenge.php
                 - src/Http/Middleware/RequiresSudoMode.php
-        -
-            messages:
-                - '#Access to an undefined static property#'
-            paths:
-                - src/Filament/Pages/ProfilePageGroup.php
 
         -
             messages:

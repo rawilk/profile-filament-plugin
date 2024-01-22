@@ -31,7 +31,7 @@ enum MfaChallengeMode: string
         };
     }
 
-    public function formLabel(User $user = null): string
+    public function formLabel(?User $user = null): string
     {
         return match ($this) {
             self::App => __('profile-filament::pages/mfa.totp.label'),
@@ -51,7 +51,7 @@ enum MfaChallengeMode: string
         };
     }
 
-    public function linkLabel(User $user = null): string
+    public function linkLabel(?User $user = null): string
     {
         return match ($this) {
             self::App => __('profile-filament::pages/mfa.totp.use_label'),

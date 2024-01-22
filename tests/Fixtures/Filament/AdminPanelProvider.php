@@ -29,7 +29,8 @@ final class AdminPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->plugin(
-                ProfileFilamentPlugin::make()->useMfaMiddleware(false),
+                ProfileFilamentPlugin::make()
+                    ->useMfaMiddleware(false),
             )
             ->middleware([
                 EncryptCookies::class,
