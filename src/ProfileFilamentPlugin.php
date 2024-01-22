@@ -9,12 +9,8 @@ use Filament\Contracts\Plugin;
 use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Illuminate\Support\Collection;
-use Rawilk\FilamentInnerNav\InnerNav;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile as Clusters;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
-use Rawilk\ProfileFilament\Filament\Pages\Profile;
-use Rawilk\ProfileFilament\Filament\Pages\Security;
-use Rawilk\ProfileFilament\Filament\Pages\Sessions;
-use Rawilk\ProfileFilament\Filament\Pages\Settings;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\Http\Middleware\RequiresTwoFactorAuthentication;
 use Rawilk\ProfileFilament\Support\PageManager;
@@ -25,13 +21,16 @@ class ProfileFilamentPlugin implements Plugin
 
     protected array $defaults;
 
-    protected array $pages;
-
     protected bool $showInUserMenu = true;
 
     protected string $userMenuIcon = 'heroicon-o-cog-6-tooth';
 
-    protected string $rootProfilePage = Profile::class;
+    protected string $rootProfilePage = Clusters\ProfileInfo::class;
+
+    /**
+     * The root slug of the profile pages cluster.
+     */
+    protected string $clusterSlug = 'profile';
 
     protected ?Features $features = null;
 
@@ -65,10 +64,13 @@ class ProfileFilamentPlugin implements Plugin
             $this->features = Features::defaults();
         }
 
-        $this->pageManager()->withFeatures($this->features);
+        $this
+            ->pageManager()
+            ->withFeatures($this->features)
+            ->preparePages();
 
         $panel
-            ->pages($this->pageManager()->preparePages());
+            ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Rawilk\\ProfileFilament\\Filament\\Clusters');
 
         if ($this->showInUserMenu && $this->isEnabled($this->rootProfilePage)) {
             $panel->userMenuItems([
@@ -111,6 +113,13 @@ class ProfileFilamentPlugin implements Plugin
         return $this;
     }
 
+    public function usingClusterSlug(string $slug): self
+    {
+        $this->clusterSlug = $slug;
+
+        return $this;
+    }
+
     public function usingRootProfilePage(string $page): self
     {
         $this->rootProfilePage = $page;
@@ -118,7 +127,7 @@ class ProfileFilamentPlugin implements Plugin
         return $this;
     }
 
-    public function challengeMfaWith(string|Closure|array $action = null): self
+    public function challengeMfaWith(string|Closure|array|null $action = null): self
     {
         $this->mfaChallengeAction = $action;
 
@@ -130,7 +139,7 @@ class ProfileFilamentPlugin implements Plugin
         return $this->mfaChallengeAction ?? MfaChallenge::class;
     }
 
-    public function challengeSudoWith(string|Closure|array $action = null): self
+    public function challengeSudoWith(string|Closure|array|null $action = null): self
     {
         $this->sudoChallengeAction = $action;
 
@@ -152,6 +161,11 @@ class ProfileFilamentPlugin implements Plugin
         return $this->rootProfilePage;
     }
 
+    public function getClusterSlug(): string
+    {
+        return $this->clusterSlug;
+    }
+
     public function isRootProfilePage(string $page): bool
     {
         return $this->rootProfilePage === $page;
@@ -165,16 +179,16 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function profile(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Profile::class,
+            Clusters\ProfileInfo::class,
             $enabled,
             $slug,
             $icon,
@@ -188,16 +202,16 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function accountSecurity(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Security::class,
+            Clusters\Security::class,
             $enabled,
             $slug,
             $icon,
@@ -211,16 +225,16 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function accountSettings(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Settings::class,
+            Clusters\Settings::class,
             $enabled,
             $slug,
             $icon,
@@ -234,16 +248,16 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function sessions(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Sessions::class,
+            Clusters\Sessions::class,
             $enabled,
             $slug,
             $icon,
@@ -287,21 +301,6 @@ class ProfileFilamentPlugin implements Plugin
     public function pageGroup(string $page): ?string
     {
         return $this->pageManager()->pageGroup($page);
-    }
-
-    /**
-     * @param  class-string<\Filament\Pages\Page>  $className
-     */
-    public function addPage(string $className): self
-    {
-        $this->pageManager()->addPage($className);
-
-        return $this;
-    }
-
-    public function navigation(): InnerNav
-    {
-        return $this->pageManager()->toInnerNav();
     }
 
     public function componentsFor(string $page): Collection

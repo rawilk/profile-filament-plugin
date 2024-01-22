@@ -76,7 +76,7 @@ final class Features
      *
      * @return void|self
      */
-    public static function defaults(callable|Features $callback = null)
+    public static function defaults(callable|Features|null $callback = null)
     {
         if (is_null($callback)) {
             return self::default();
@@ -149,10 +149,10 @@ final class Features
     }
 
     public function twoFactorAuthentication(
-        bool $enabled = null,
-        bool $authenticatorApps = null,
-        bool $webauthn = null,
-        bool $passkeys = null,
+        ?bool $enabled = null,
+        ?bool $authenticatorApps = null,
+        ?bool $webauthn = null,
+        ?bool $passkeys = null,
     ): self {
         if (is_bool($enabled)) {
             $this->twoFactorAuthentication = $enabled;
