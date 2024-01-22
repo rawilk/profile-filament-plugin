@@ -35,7 +35,7 @@ function getPanelFeatures(): Features
     return filament()->getCurrentPanel()?->getPlugin(ProfileFilamentPLugin::PLUGIN_ID)->panelFeatures();
 }
 
-function login(Authenticatable $user = null): Authenticatable
+function login(?Authenticatable $user = null): Authenticatable
 {
     $user ??= User::factory()->create();
 
@@ -44,7 +44,7 @@ function login(Authenticatable $user = null): Authenticatable
     return $user;
 }
 
-function storeAttestationPublicKeyInSession(Authenticatable $user, string $sessionKey = null): void
+function storeAttestationPublicKeyInSession(Authenticatable $user, ?string $sessionKey = null): void
 {
     $publicKey = Webauthn::attestationObjectFor($user->email, $user->id);
     $sessionKey ??= MfaSession::AttestationPublicKey->value;
