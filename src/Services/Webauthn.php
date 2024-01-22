@@ -70,7 +70,7 @@ class Webauthn
         static::$generateChallengeCallback = $callback;
     }
 
-    public function attestationObjectFor(string $username, string|int $userId = null): PublicKeyCredentialCreationOptions
+    public function attestationObjectFor(string $username, string|int|null $userId = null): PublicKeyCredentialCreationOptions
     {
         // RP Entity i.e. the application
         $rpEntity = PublicKeyCredentialRpEntity::create(
@@ -102,7 +102,7 @@ class Webauthn
         );
     }
 
-    public function passkeyAttestationObjectFor(string $username, string|int $userId = null, array $excludeCredentials = []): PublicKeyCredentialCreationOptions
+    public function passkeyAttestationObjectFor(string $username, string|int|null $userId = null, array $excludeCredentials = []): PublicKeyCredentialCreationOptions
     {
         // RP Entity i.e. the application
         $rpEntity = PublicKeyCredentialRpEntity::create(
@@ -154,7 +154,7 @@ class Webauthn
         }
     }
 
-    public function assertionObjectFor(string|int $userId = null): PublicKeyCredentialRequestOptions
+    public function assertionObjectFor(string|int|null $userId = null): PublicKeyCredentialRequestOptions
     {
         return PublicKeyCredentialRequestOptions::create(
             challenge: $this->generateChallenge(),
