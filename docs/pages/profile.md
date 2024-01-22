@@ -60,14 +60,14 @@ Now, all you need to do is swap the component out in your panel's service provid
 
 ```php
 use App\Livewire\CustomProfileInfo;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo as ProfileInfoPage;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Filament\Pages\Profile;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
 $panel->plugin(
     ProfileFilamentPlugin::make()
         ->swapComponent(
-            page: Profile::class,
+            page: ProfileInfoPage::class,
             component: ProfileInfo::class,
             newComponent: CustomProfileInfo::class,
         )

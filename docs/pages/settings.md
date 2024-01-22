@@ -112,7 +112,7 @@ class DeleteAccount extends BaseDeleteAccount
 
 ```php
 use App\Livewire\DeleteAccount;
-use Rawilk\ProfileFilament\Filament\Pages\Settings;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile\Settings;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Rawilk\ProfileFilament\Livewire\DeleteAccount as BaseDeleteAccount;
 
