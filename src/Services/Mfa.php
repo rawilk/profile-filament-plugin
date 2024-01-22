@@ -148,7 +148,7 @@ class Mfa
         return false;
     }
 
-    public function canUseAuthenticatorAppsForChallenge(User $user = null): bool
+    public function canUseAuthenticatorAppsForChallenge(?User $user = null): bool
     {
         if (
             Filament::getCurrentPanel()
@@ -164,7 +164,7 @@ class Mfa
             ->exists();
     }
 
-    public function canUseWebauthnForChallenge(User $user = null): bool
+    public function canUseWebauthnForChallenge(?User $user = null): bool
     {
         if (
             Filament::getCurrentPanel()

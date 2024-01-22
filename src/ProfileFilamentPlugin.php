@@ -118,7 +118,7 @@ class ProfileFilamentPlugin implements Plugin
         return $this;
     }
 
-    public function challengeMfaWith(string|Closure|array $action = null): self
+    public function challengeMfaWith(string|Closure|array|null $action = null): self
     {
         $this->mfaChallengeAction = $action;
 
@@ -130,7 +130,7 @@ class ProfileFilamentPlugin implements Plugin
         return $this->mfaChallengeAction ?? MfaChallenge::class;
     }
 
-    public function challengeSudoWith(string|Closure|array $action = null): self
+    public function challengeSudoWith(string|Closure|array|null $action = null): self
     {
         $this->sudoChallengeAction = $action;
 
@@ -165,13 +165,13 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function profile(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
             Profile::class,
@@ -188,13 +188,13 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function accountSecurity(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
             Security::class,
@@ -211,13 +211,13 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function accountSettings(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
             Settings::class,
@@ -234,13 +234,13 @@ class ProfileFilamentPlugin implements Plugin
     }
 
     public function sessions(
-        bool $enabled = null,
-        string $slug = null,
-        string $icon = null,
-        string $className = null,
+        ?bool $enabled = null,
+        ?string $slug = null,
+        ?string $icon = null,
+        ?string $className = null,
         array $components = [],
-        int $sort = null,
-        string $group = null,
+        ?int $sort = null,
+        ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
             Sessions::class,

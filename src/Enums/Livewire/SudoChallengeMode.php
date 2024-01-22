@@ -13,7 +13,7 @@ enum SudoChallengeMode: string
     case App = 'app';
     case Webauthn = 'webauthn';
 
-    public function heading(User $user = null): ?string
+    public function heading(?User $user = null): ?string
     {
         return match ($this) {
             self::App => __('profile-filament::messages.sudo_challenge.totp.heading'),
@@ -33,7 +33,7 @@ enum SudoChallengeMode: string
         };
     }
 
-    public function linkLabel(User $user = null): string
+    public function linkLabel(?User $user = null): string
     {
         return match ($this) {
             self::Password => __('profile-filament::messages.sudo_challenge.password.use_label'),
@@ -44,7 +44,7 @@ enum SudoChallengeMode: string
         };
     }
 
-    public function actionButton(User $user = null): string
+    public function actionButton(?User $user = null): string
     {
         return match ($this) {
             self::Password => __('profile-filament::messages.sudo_challenge.password.submit'),

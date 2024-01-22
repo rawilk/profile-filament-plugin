@@ -12,7 +12,7 @@ class InvalidVerificationLinkException extends AuthenticationException
     public function __construct(
         string $message = 'Unauthenticated.',
         array $guards = [],
-        string $redirectTo = null,
+        ?string $redirectTo = null,
     ) {
         parent::__construct($message, $guards, $redirectTo);
     }

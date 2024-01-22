@@ -80,7 +80,7 @@ class ProfileFilament
     /**
      * Retrieve the authenticated user's timezone. Fallback on UTC if none found.
      */
-    public function userTimezone(User $user = null): string
+    public function userTimezone(?User $user = null): string
     {
         $user ??= auth()->user();
 
