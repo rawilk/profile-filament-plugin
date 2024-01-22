@@ -20,7 +20,7 @@ use Livewire\Attributes\Computed;
 use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
 use Rawilk\ProfileFilament\Contracts\PendingUserEmail\MustVerifyNewEmail;
 use Rawilk\ProfileFilament\Contracts\PendingUserEmail\UpdateUserEmailAction;
-use Rawilk\ProfileFilament\Filament\Pages\Security;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile\Security;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 use Rawilk\ProfileFilament\Models\PendingUserEmail;
 
