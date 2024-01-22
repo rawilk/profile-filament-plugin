@@ -58,7 +58,7 @@ class DeleteAccount extends ProfileComponent
     {
         return TextInput::make('email')
             /** @phpstan-ignore-next-line */
-            ->label(fn () => __('profile-filament::pages/settings.delete_account.actions.delete.email_label', ['email' => Filament::auth()->user()->email]))
+            ->label(fn () => __('profile-filament::pages/settings.delete_account.actions.delete.email_label', ['email' => Filament::auth()->user()?->email]))
             ->required()
             ->email()
             ->rules([
