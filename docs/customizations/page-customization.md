@@ -24,9 +24,9 @@ $panel->plugin(
     ProfileFilamentPlugin::make()
         ->profile(
             enabled: true,
-            slug: 'profile',
+            slug: 'user',
             icon: 'heroicon-o-user-circle',
-            className: \Rawilk\ProfileFilament\Filament\Pages\Profile::class,
+            className: \Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo::class,
             components: [],
             sort: 0,
             group: null,
@@ -42,7 +42,7 @@ Each parameter is optional, so you can specify only the ones you need to customi
 -   `className` - The class name of the page. This is useful if you want to extend the page or use your own implementation of it.
 -   `components` - An array of livewire components to register onto the page. These will be merged with the default components for the page. To remove certain components from a page, use the [Features](/docs/profile-filament-plugin/{version}/customizations/features) object on the plugin.
 -   `sort` - An integer value indicating where the page should appear in the profile inner navigation.
--   `group` - Should be the class name of a [Group](/docs/profile-filament-plugin/{version}/advanced-usage/groups) to render the page's navigation link under.
+-   `group` - Should be a string containing the name of the [navigation group](https://filamentphp.com/docs/3.x/panels/navigation#grouping-navigation-items) to render the page's navigation link under.
 
 If you just want to edit the sort order for the profile page, for example, you could do it like this:
 
@@ -57,25 +57,26 @@ $panel->plugin(
 
 ## Extended Pages
 
-For more control over a certain profile page offered by the package, you may choose to either extend the package's class for that page, or use your own class for it. If you opt to use your own class without extending the package's class, you need to make sure you use the `IsProfilePage` trait on your class. The class should also typically extend the `Filament\Pages\Page` class as well.
+For more control over a certain profile page offered by the package, you may choose to either extend the package's class for that page, or use your own class for it. The class should also typically extend the `Filament\Pages\Page` class.
+
+If you're using a completely custom page, make sure you're defining the `$cluster` property on the page as `Profile`.
 
 ```php
 use Filament\Pages\Page;
-use Rawilk\ProfileFilament\Concerns\IsProfilePage;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile;
 
 class MyCustomClass extends Page
 {
-    use IsProfilePage;
-    // ...
+    protected static ?string $cluster = Profile::class;
 }
 ```
 
-Here is an example on how you could override the `Profile` page with your own page class:
+Here is an example on how you could override the `ProfileInfo` page with your own page class:
 
 ```php
-use Rawilk\ProfileFilament\Filament\Pages\Profile;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo;
 
-class CustomProfile extends Profile
+class CustomProfile extends ProfileInfo
 {
     #[Computed]
     public function registeredComponents(): Collection
@@ -186,13 +187,13 @@ Now in your panel's service provider, you can swap out the component:
 use App\Livewire\CustomProfileInfo;
 use Rawilk\ProfileFilament\Features;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Filament\Pages\Profile;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo as ProfilePage;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
 $panel->plugin(
     ProfileFilamentPlugin::make()
         ->swapComponent(
-            page: Profile::class,
+            page: ProfilePage::class,
             component: ProfileInfo::class,
             newComponent: CustomProfileInfo::class,
         )
@@ -217,7 +218,7 @@ For example, by default on the account security page, we render the update passw
 
 ```php
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Filament\Pages\Security;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile\Security;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 

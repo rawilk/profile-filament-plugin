@@ -9,7 +9,7 @@ While the plugin offers a decent starting point, you may find yourself needing t
 
 ## Define Your Page
 
-First, you need to define a page class. Your page class should extend Filament's `Page` component, and use the `IsProfilePage` trait. This trait will help the plugin render your page's navigation link correctly.
+First, you need to define a page class. Your page class should extend Filament's `Page` component. In this package, we are making use of Filament's [Clusters](https://filamentphp.com/docs/3.x/panels/clusters) feature, so you'll need to define the `Profile::class` as your page's `$cluster` (see example below).
 
 Here's a simple example of a custom page you can define:
 
@@ -18,13 +18,13 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
-use Rawilk\ProfileFilament\Concerns\IsProfilePage;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile;
 
 class Notifications extends Page
 {
-    use IsProfilePage;
-
     protected static string $view = 'filament.pages.notifications';
+    
+    protected static ?string $cluster = Profile::class;
 
     public static function getNavigationLabel(): string
     {
@@ -38,55 +38,20 @@ class Notifications extends Page
 
     public static function getSlug(): string
     {
-        return 'profile/notifications';
-    }
-
-    // Define where your component will render in the navigation
-    public static function innerNavSort(): int
-    {
-        return 5;
+        // do not prefix with `profile`, since the cluster's
+        // slug will already be prefixed to this slug.
+        return 'notifications';
     }
 
     public static function getTitle(): string|Htmlable
     {
         return __('Notifications');
     }
-
-    // optional
-    // uncomment if you're using nav groups
-    // public static function innerNavGroup(): ?string
-    // {
-        // return YourGroup::class;
-    // }
-
-    // ...
 }
 ```
 
-In your page's view file, it's important to use the `layout` component provided by this component. Here's an example view file you can make for your page:
-
-```html
-<!-- livewire/notifications.blade.php -->
-<x-profile-filament::layout>
-    <div>Your content here.</div>
-</x-profile-filament::layout>
-```
-
-## Register Your Page
-
-Once you have a custom page defined, you can register it on the plugin in your panel's service provider:
-
-```php
-use App\Filament\Pages\Notifications;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-
-$panel->plugin(
-    ProfileFilamentPlugin::make()
-        ->addPage(className: Notifications::class)
-)
-```
-
-If you defined your page like the example we provided above, your page should show up as the second navigation link on the user's profile.
+As long as your page is registered correctly in your panel, the page should automatically be added to the profile's navigation items. If you want to group
+your pages together, you can provide a string to the `$navigationGroup` property on your page class.
 
 > {tip} To offer flexibility in custom page placement, we stagger the default page sorts from the package in increments of 10.
 
