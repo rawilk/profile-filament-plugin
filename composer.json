@@ -26,7 +26,7 @@
         "illuminate/contracts": "^10.10",
         "mobiledetect/mobiledetectlib": "^4.8",
         "pragmarx/google2fa": "^8.0",
-        "rawilk/filament-password-input": "^1.0",
+        "rawilk/filament-password-input": "^2.0",
         "spatie/laravel-package-tools": "^1.14",
         "web-auth/webauthn-lib": "^4.7.7"
     },
