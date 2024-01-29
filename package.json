@@ -12,7 +12,7 @@
         "build": "npm-run-all build:*"
     },
     "dependencies": {
-        "@simplewebauthn/browser": "^9.0.0"
+        "@simplewebauthn/browser": "^9.0.1"
     },
     "devDependencies": {
         "esbuild": "^0.19.11",
