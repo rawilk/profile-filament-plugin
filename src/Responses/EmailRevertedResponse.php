@@ -13,8 +13,15 @@ class EmailRevertedResponse implements EmailRevertedResponseContract
 {
     public function toResponse($request): RedirectResponse|Redirector
     {
-        session()->flash('success', __('profile-filament::pages/settings.email.email_reverted'));
+        return redirect()
+            ->intended($this->getIntendedUrl())
+            ->with('success', __('profile-filament::pages/settings.email.email_reverted'));
+    }
 
-        return redirect()->intended(Filament::getHomeUrl());
+    protected function getIntendedUrl(): ?string
+    {
+        return auth()->check()
+            ? (Filament::getHomeUrl() ?? Filament::getUrl())
+            : Filament::getLoginUrl();
     }
 }

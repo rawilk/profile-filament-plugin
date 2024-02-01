@@ -13,8 +13,16 @@ class PendingEmailVerifiedResponse implements PendingEmailVerifiedResponseContra
 {
     public function toResponse($request): RedirectResponse|Redirector
     {
-        session()->flash('success', __('profile-filament::pages/settings.email.email_verified'));
+        return redirect()
+            ->intended($this->getIntendedUrl())
+            ->with('success', __('profile-filament::pages/settings.email.email_verified'))
+            ->with('verified', true);
+    }
 
-        return redirect()->intended(Filament::getHomeUrl())->with('verified', true);
+    protected function getIntendedUrl(): ?string
+    {
+        return auth()->check()
+            ? (Filament::getHomeUrl() ?? Filament::getUrl())
+            : Filament::getLoginUrl();
     }
 }
