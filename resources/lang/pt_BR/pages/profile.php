@@ -1,17 +1,17 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 return [
-    'title'           => 'Perfil',
-    'heading'         => 'Seu perfil',
+    'title' => 'Perfil',
+    'heading' => 'Seu perfil',
     'user_menu_label' => 'Seu Perfil',
 
     'info' => [
         'heading' => 'Informações do perfil',
 
         'name' => [
-            'label'      => 'Nome',
+            'label' => 'Nome',
             'form_label' => 'Seu nome',
         ],
 
@@ -22,10 +22,10 @@ return [
         'actions' => [
 
             'edit' => [
-                'trigger'     => 'Editar',
+                'trigger' => 'Editar',
                 'modal_title' => 'Edite suas informações',
-                'submit'      => 'Salvar',
-                'success'     => 'Seu perfil foi atualizado.',
+                'submit' => 'Salvar',
+                'success' => 'Seu perfil foi atualizado.',
             ],
 
         ],
