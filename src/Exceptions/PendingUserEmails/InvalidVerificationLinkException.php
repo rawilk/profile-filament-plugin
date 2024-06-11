@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Exceptions\PendingUserEmails;
 
 use Filament\Facades\Filament;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
 
 class InvalidVerificationLinkException extends AuthenticationException
 {
@@ -22,7 +23,7 @@ class InvalidVerificationLinkException extends AuthenticationException
         session()->flash('error', $this->message);
     }
 
-    public function redirectTo(): string
+    public function redirectTo(Request $request): string
     {
         if ($this->redirectTo) {
             return $this->redirectTo;
