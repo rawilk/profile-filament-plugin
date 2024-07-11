@@ -38,7 +38,7 @@ You can publish the config file with:
 php artisan vendor:publish --tag="profile-filament-config"
 ```
 
-You can view the default configuration here: https://github.com/rawilk/profile-filament-plugin/blob/main/config/profile-filament-plugin.php
+You can view the default configuration here: https://github.com/rawilk/profile-filament-plugin/blob/main/config/profile-filament.php
 
 ## Usage
 
