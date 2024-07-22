@@ -10,7 +10,5 @@ use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 
 final class SudoModeChallenged extends ProfileFilamentEvent
 {
-    public function __construct(public User $user, public Request $request)
-    {
-    }
+    public function __construct(public User $user, public Request $request) {}
 }

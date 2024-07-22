@@ -16,9 +16,7 @@ use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorApp
 
 class AuthenticatorAppService implements AuthenticatorAppServiceContract
 {
-    public function __construct(protected Google2FA $engine, protected ?Cache $cache = null)
-    {
-    }
+    public function __construct(protected Google2FA $engine, protected ?Cache $cache = null) {}
 
     public function generateSecretKey(): string
     {
