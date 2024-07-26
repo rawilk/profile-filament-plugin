@@ -28,7 +28,7 @@
         "pragmarx/google2fa": "^8.0",
         "rawilk/filament-password-input": "^2.0",
         "spatie/laravel-package-tools": "^1.14",
-        "web-auth/webauthn-lib": "^4.7.7"
+        "web-auth/webauthn-lib": "^5.0.1"
     },
     "require-dev": {
         "larastan/larastan": "^2.6",
