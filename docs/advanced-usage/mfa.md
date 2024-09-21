@@ -380,9 +380,7 @@ Now just create the view being referenced in the render hook:
 
 ```html
 <!-- resources/views/filament/hooks/login-after.blade.php -->
-<div class="mt-4">
-    {{ $this->passkeyLoginAction }}
-</div>
+<div class="mt-4">{{ $this->passkeyLoginAction }}</div>
 ```
 
 ## Preferred Mfa Method

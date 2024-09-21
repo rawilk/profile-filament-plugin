@@ -23,7 +23,7 @@ use Rawilk\ProfileFilament\Filament\Clusters\Profile;
 class Notifications extends Page
 {
     protected static string $view = 'filament.pages.notifications';
-    
+
     protected static ?string $cluster = Profile::class;
 
     public static function getNavigationLabel(): string
