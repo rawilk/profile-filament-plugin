@@ -25,8 +25,7 @@ class PendingEmailVerifiedMail extends Mailable implements ShouldQueue
         public ?string $panelId = null,
         public ?string $ip = null,
         public ?DateTimeInterface $date = null,
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

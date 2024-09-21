@@ -38,9 +38,7 @@ class Mfa
     /**
      * @param  class-string<\Illuminate\Database\Eloquent\Model>  $userModel
      */
-    public function __construct(protected string $userModel)
-    {
-    }
+    public function __construct(protected string $userModel) {}
 
     public function usingChallengedUser(?User $user): self
     {

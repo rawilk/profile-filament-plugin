@@ -8,7 +8,5 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 
 final class UserDeletedAccount extends ProfileFilamentEvent
 {
-    public function __construct(public User $user)
-    {
-    }
+    public function __construct(public User $user) {}
 }

@@ -61,7 +61,7 @@ class TestCase extends Orchestra
         foreach ($migrations as $migration) {
             $migrationClass = require $migration;
 
-            (new $migrationClass())->up();
+            (new $migrationClass)->up();
         }
     }
 

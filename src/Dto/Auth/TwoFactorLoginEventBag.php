@@ -20,6 +20,5 @@ class TwoFactorLoginEventBag
         public ?Request $request,
         public MfaChallengeMode $mfaChallengeMode,
         public ?array $assertionResponse = null,
-    ) {
-    }
+    ) {}
 }

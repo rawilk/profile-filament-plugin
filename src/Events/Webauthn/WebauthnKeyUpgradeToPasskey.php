@@ -14,6 +14,5 @@ final class WebauthnKeyUpgradeToPasskey extends ProfileFilamentEvent
         public Authenticatable $user,
         public WebauthnKey $passkey,
         public WebauthnKey $upgradedFrom,
-    ) {
-    }
+    ) {}
 }

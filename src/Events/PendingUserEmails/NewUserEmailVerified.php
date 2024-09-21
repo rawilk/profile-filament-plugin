@@ -9,7 +9,5 @@ use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 
 final class NewUserEmailVerified extends ProfileFilamentEvent
 {
-    public function __construct(public User $user, public string $previousEmail)
-    {
-    }
+    public function __construct(public User $user, public string $previousEmail) {}
 }
