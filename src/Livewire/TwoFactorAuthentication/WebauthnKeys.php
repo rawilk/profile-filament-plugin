@@ -30,8 +30,8 @@ use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 use Throwable;
 
 /**
- * @property-read \Filament\Forms\Form $form
- * @property-read \Illuminate\Support\Collection $sortedWebauthnKeys
+ * @property-read Form $form
+ * @property-read Collection $sortedWebauthnKeys
  * @property-read User $user
  */
 class WebauthnKeys extends ProfileComponent

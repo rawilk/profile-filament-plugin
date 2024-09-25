@@ -10,5 +10,7 @@ use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
 final class TwoFactorAppUpdated extends ProfileFilamentEvent
 {
-    public function __construct(public AuthenticatorApp $authenticatorApp, public User $user) {}
+    public function __construct(public AuthenticatorApp $authenticatorApp, public User $user)
+    {
+    }
 }

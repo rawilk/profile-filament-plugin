@@ -32,7 +32,7 @@ function disableSudoMode(): void
 
 function getPanelFeatures(): Features
 {
-    return filament()->getCurrentPanel()?->getPlugin(ProfileFilamentPLugin::PLUGIN_ID)->panelFeatures();
+    return filament()->getCurrentPanel()?->getPlugin(ProfileFilamentPlugin::PLUGIN_ID)->panelFeatures();
 }
 
 function login(?Authenticatable $user = null): Authenticatable

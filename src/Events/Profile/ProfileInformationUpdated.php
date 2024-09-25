@@ -9,5 +9,7 @@ use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 
 final class ProfileInformationUpdated extends ProfileFilamentEvent
 {
-    public function __construct(public User $user) {}
+    public function __construct(public User $user)
+    {
+    }
 }

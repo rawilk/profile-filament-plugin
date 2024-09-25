@@ -25,30 +25,30 @@ return [
     |
     */
     'actions' => [
-        'update_password' => \Rawilk\ProfileFilament\Actions\UpdatePasswordAction::class,
-        'delete_account' => \Rawilk\ProfileFilament\Actions\DeleteAccountAction::class,
+        'update_password' => Rawilk\ProfileFilament\Actions\UpdatePasswordAction::class,
+        'delete_account' => Rawilk\ProfileFilament\Actions\DeleteAccountAction::class,
 
         // General two factor
-        'generate_new_recovery_codes' => \Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction::class,
-        'mark_two_factor_disabled' => \Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction::class,
-        'mark_two_factor_enabled' => \Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction::class,
+        'generate_new_recovery_codes' => Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction::class,
+        'mark_two_factor_disabled' => Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction::class,
+        'mark_two_factor_enabled' => Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction::class,
 
         // Authenticator apps
-        'confirm_authenticator_app' => \Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction::class,
-        'delete_authenticator_app' => \Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction::class,
+        'confirm_authenticator_app' => Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction::class,
+        'delete_authenticator_app' => Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction::class,
 
         // Webauthn
-        'delete_webauthn_key' => \Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction::class,
-        'register_webauthn_key' => \Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction::class,
+        'delete_webauthn_key' => Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction::class,
+        'register_webauthn_key' => Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction::class,
 
         // Passkeys
-        'delete_passkey' => \Rawilk\ProfileFilament\Actions\Passkeys\DeletePasskeyAction::class,
-        'register_passkey' => \Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction::class,
-        'upgrade_to_passkey' => \Rawilk\ProfileFilament\Actions\Passkeys\UpgradeToPasskeyAction::class,
+        'delete_passkey' => Rawilk\ProfileFilament\Actions\Passkeys\DeletePasskeyAction::class,
+        'register_passkey' => Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction::class,
+        'upgrade_to_passkey' => Rawilk\ProfileFilament\Actions\Passkeys\UpgradeToPasskeyAction::class,
 
         // Pending user emails
-        'store_old_user_email' => \Rawilk\ProfileFilament\Actions\PendingUserEmails\StoreOldUserEmailAction::class,
-        'update_user_email' => \Rawilk\ProfileFilament\Actions\PendingUserEmails\UpdateUserEmailAction::class,
+        'store_old_user_email' => Rawilk\ProfileFilament\Actions\PendingUserEmails\StoreOldUserEmailAction::class,
+        'update_user_email' => Rawilk\ProfileFilament\Actions\PendingUserEmails\UpdateUserEmailAction::class,
     ],
 
     /*
@@ -84,7 +84,7 @@ return [
          * This model is responsible for storing a user's verified authenticator apps
          * for 2fa.
          */
-        'authenticator_app' => \Rawilk\ProfileFilament\Models\AuthenticatorApp::class,
+        'authenticator_app' => Rawilk\ProfileFilament\Models\AuthenticatorApp::class,
 
         /**
          * Webauthn Key
@@ -92,7 +92,7 @@ return [
          * This model is responsible for storing webauthn keys for a user, such
          * as hardware security keys or passkeys.
          */
-        'webauthn_key' => \Rawilk\ProfileFilament\Models\WebauthnKey::class,
+        'webauthn_key' => Rawilk\ProfileFilament\Models\WebauthnKey::class,
 
         /**
          * Pending User Email
@@ -100,7 +100,7 @@ return [
          * This model is responsible for storing tokens for when a user wants to
          * change their email address.
          */
-        'pending_user_email' => \Rawilk\ProfileFilament\Models\PendingUserEmail::class,
+        'pending_user_email' => Rawilk\ProfileFilament\Models\PendingUserEmail::class,
 
         /**
          * Old User Email
@@ -108,7 +108,7 @@ return [
          * This model is responsible for storing a user's old email addresses, which
          * can be used to revert a change if it wasn't made by the user.
          */
-        'old_user_email' => \Rawilk\ProfileFilament\Models\OldUserEmail::class,
+        'old_user_email' => Rawilk\ProfileFilament\Models\OldUserEmail::class,
     ],
 
     /*
@@ -121,8 +121,8 @@ return [
     |
     */
     'mail' => [
-        'pending_email_verification' => \Rawilk\ProfileFilament\Mail\PendingEmailVerificationMail::class,
-        'pending_email_verified' => \Rawilk\ProfileFilament\Mail\PendingEmailVerifiedMail::class,
+        'pending_email_verification' => Rawilk\ProfileFilament\Mail\PendingEmailVerificationMail::class,
+        'pending_email_verified' => Rawilk\ProfileFilament\Mail\PendingEmailVerifiedMail::class,
     ],
 
     /*
@@ -135,8 +135,8 @@ return [
     |
     */
     'policies' => [
-        'authenticator_app' => \Rawilk\ProfileFilament\Policies\AuthenticatorAppPolicy::class,
-        'webauthn_key' => \Rawilk\ProfileFilament\Policies\WebauthnKeyPolicy::class,
+        'authenticator_app' => Rawilk\ProfileFilament\Policies\AuthenticatorAppPolicy::class,
+        'webauthn_key' => Rawilk\ProfileFilament\Policies\WebauthnKeyPolicy::class,
     ],
 
     /*
@@ -208,7 +208,7 @@ return [
          *
          * This shouldn't need to be changed in most cases.
          */
-        'attestation_conveyance' => env('WEBAUTHN_ATTESTATION_CONVEYANCE', \Webauthn\PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE),
+        'attestation_conveyance' => env('WEBAUTHN_ATTESTATION_CONVEYANCE', Webauthn\PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE),
 
         /**
          * You can indicate if the authenticator must be attached to the client (platform authenticator i.e.
@@ -216,7 +216,7 @@ return [
          *
          * By default, we'll allow for both platform (passkeys included), and cross-platform (hardware security keys).
          */
-        'authenticator_attachment' => env('WEBAUTHN_AUTHENTICATOR_ATTACHMENT', \Webauthn\AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE),
+        'authenticator_attachment' => env('WEBAUTHN_AUTHENTICATOR_ATTACHMENT', Webauthn\AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE),
 
         /**
          * You can indicate the user verification requirements (such as entering a PIN on a security key) during
@@ -225,7 +225,7 @@ return [
          * By default, we use the default value used by Webauthn, which is "preferred". You can change this value
          * to be either "discouraged" or "required" as well.
          */
-        'user_verification' => env('WEBAUTHN_USER_VERIFICATION', \Webauthn\AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED),
+        'user_verification' => env('WEBAUTHN_USER_VERIFICATION', Webauthn\AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED),
 
         /**
          * With this criterion, a Public Key Credential Source will be stored in the authenticator,
@@ -235,7 +235,7 @@ return [
          * Note: When set to "required" or "preferred", user verification will
          * always be required.
          */
-        'resident_key' => env('WEBAUTHN_RESIDENT_KEY', \Webauthn\AuthenticatorSelectionCriteria::RESIDENT_KEY_REQUIREMENT_PREFERRED),
+        'resident_key' => env('WEBAUTHN_RESIDENT_KEY', Webauthn\AuthenticatorSelectionCriteria::RESIDENT_KEY_REQUIREMENT_PREFERRED),
 
         /**
          * Timeout - the time that the caller is willing to wait for the call to complete.

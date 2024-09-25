@@ -20,7 +20,7 @@ use Rawilk\ProfileFilament\Features;
  * @property-read bool $canAuthenticatorApps
  * @property-read bool $canWebauthn
  * @property-read bool $hasMfaEnabled
- * @property-read \Rawilk\ProfileFilament\Features $panelFeatures
+ * @property-read Features $panelFeatures
  * @property-read \Illuminate\Support\Collection<int, \Rawilk\ProfileFilament\Models\WebauthnKey> $webauthnKeys
  */
 class MfaOverview extends ProfileComponent

@@ -33,12 +33,12 @@ use Rawilk\ProfileFilament\Facades\Webauthn;
 use Throwable;
 
 /**
- * @property-read \Illuminate\Support\Collection $alternativeChallengeOptions
+ * @property-read Collection $alternativeChallengeOptions
  * @property-read string $alternativesHeading
  * @property-read string $formLabel
  * @property-read bool $isTotp
  * @property-read bool $isWebauthn
- * @property-read null|\Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode $mfaChallengeMode
+ * @property-read null|MfaChallengeMode $mfaChallengeMode
  * @property-read string|null $modeIcon
  * @property-read bool $hasWebauthn
  * @property-read \Filament\Forms\Form $form
@@ -356,7 +356,6 @@ class MfaChallenge extends SimplePage
                 }
 
                 return true;
-
             case MfaChallengeMode::Webauthn->value:
                 try {
                     Webauthn::verifyAssertion(
@@ -374,7 +373,6 @@ class MfaChallenge extends SimplePage
                 session()->forget(MfaSession::AssertionPublicKey->value);
 
                 return true;
-
             case MfaChallengeMode::RecoveryCode->value:
                 if (! Mfa::isValidRecoveryCode($data['code'])) {
                     $this->addError('code', __('profile-filament::pages/mfa.recovery_code.invalid'));
@@ -383,7 +381,6 @@ class MfaChallenge extends SimplePage
                 }
 
                 return true;
-
             default:
                 throw new Exception('Mfa method "' . $this->mode . '" is not supported by this package.');
         }

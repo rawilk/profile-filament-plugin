@@ -39,12 +39,12 @@ use Throwable;
 use function Filament\Support\get_color_css_variables;
 
 /**
- * @property-read \Illuminate\Support\Collection $alternateChallengeOptions
+ * @property-read Collection $alternateChallengeOptions
  * @property-read bool $isTotp
  * @property-read bool $isWebauthn
  * @property-read null|string $formIcon
  * @property-read null|string $formLabel
- * @property-read null|\Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode $sudoChallengeModeEnum
+ * @property-read null|SudoChallengeMode $sudoChallengeModeEnum
  * @property-read User $user
  * @property-read \Filament\Forms\Form $form
  */
@@ -323,7 +323,6 @@ class SudoChallenge extends SimplePage
                 }
 
                 return true;
-
             case SudoChallengeMode::Webauthn->value:
                 try {
                     Webauthn::verifyAssertion(
@@ -338,7 +337,6 @@ class SudoChallenge extends SimplePage
                 }
 
                 return true;
-
             case SudoChallengeMode::Password->value:
                 if (! Hash::check($data['password'] ?? '', filament()->auth()->user()->getAuthPassword())) {
                     $this->error = __('profile-filament::messages.sudo_challenge.password.invalid');
@@ -347,7 +345,6 @@ class SudoChallenge extends SimplePage
                 }
 
                 return true;
-
             default:
                 throw new Exception('Sudo challenge mode "' . $this->sudoChallengeMode . '" is not supported by this package.');
         }

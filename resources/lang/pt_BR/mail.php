@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 return [
-
     'pending_email_verification' => [
         'subject' => 'Verifique seu endereço de e-mail',
         'greeting' => 'Olá,',

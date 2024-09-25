@@ -38,7 +38,9 @@ class Mfa
     /**
      * @param  class-string<\Illuminate\Database\Eloquent\Model>  $userModel
      */
-    public function __construct(protected string $userModel) {}
+    public function __construct(protected string $userModel)
+    {
+    }
 
     public function usingChallengedUser(?User $user): self
     {
@@ -194,7 +196,7 @@ class Mfa
 
     protected function profilePlugin(): ProfileFilamentPlugin
     {
-        return Filament::getPlugin(ProfileFilamentPLugin::PLUGIN_ID);
+        return Filament::getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
     }
 
     protected function hasWebauthnOrPasskeys(): bool

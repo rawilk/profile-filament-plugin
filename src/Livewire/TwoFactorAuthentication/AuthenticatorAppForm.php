@@ -29,11 +29,11 @@ use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 
 /**
- * @property-read \Rawilk\ProfileFilament\Contracts\AuthenticatorAppService $authenticatorService
+ * @property-read AuthenticatorAppService $authenticatorService
  * @property-read bool $showCodeError
- * @property-read \Illuminate\Contracts\Auth\Authenticatable $user
- * @property-read \Illuminate\Support\Collection $sortedAuthenticatorApps
- * @property-read \Filament\Forms\Form $form
+ * @property-read Authenticatable $user
+ * @property-read Collection $sortedAuthenticatorApps
+ * @property-read Form $form
  */
 class AuthenticatorAppForm extends ProfileComponent
 {

@@ -8,5 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 
 final class TwoFactorAuthenticationChallenged extends ProfileFilamentEvent
 {
-    public function __construct(public User $user) {}
+    public function __construct(public User $user)
+    {
+    }
 }

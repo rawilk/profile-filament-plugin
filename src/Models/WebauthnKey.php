@@ -31,9 +31,9 @@ use function Rawilk\ProfileFilament\wrapDateInTimeTag;
  * @property null|\Illuminate\Support\Carbon $last_used_at
  * @property null|\Illuminate\Support\Carbon $created_at
  * @property null|\Illuminate\Support\Carbon $updated_at
- * @property-read \Webauthn\PublicKeyCredentialSource $public_key_credential_source
- * @property-read \Illuminate\Support\HtmlString $last_used
- * @property-read \Illuminate\Support\HtmlString $registered_at
+ * @property-read PublicKeyCredentialSource $public_key_credential_source
+ * @property-read HtmlString $last_used
+ * @property-read HtmlString $registered_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\WebauthnKey byCredentialId(string $id)
  * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\WebauthnKey notPasskeys()

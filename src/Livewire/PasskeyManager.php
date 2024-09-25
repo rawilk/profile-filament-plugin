@@ -31,7 +31,7 @@ use Throwable;
 
 /**
  * @property-read User $user
- * @property-read \Filament\Forms\Form $form
+ * @property-read Form $form
  */
 class PasskeyManager extends ProfileComponent
 {

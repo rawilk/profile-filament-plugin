@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 return [
-
     // Fallback page title
     'heading' => 'Two-factor authentication',
 

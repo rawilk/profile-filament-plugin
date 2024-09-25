@@ -27,7 +27,7 @@ use Rawilk\ProfileFilament\Models\PendingUserEmail;
 /**
  * @property-read bool $mustVerifyEmail
  * @property-read null|string $securityUrl
- * @property-read \Illuminate\Contracts\Auth\Authenticatable $user
+ * @property-read User $user
  */
 class UserEmail extends ProfileComponent
 {

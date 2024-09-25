@@ -16,7 +16,7 @@ use Livewire\Component;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
- * @property-read \Rawilk\ProfileFilament\ProfileFilamentPlugin $profilePlugin
+ * @property-read ProfileFilamentPlugin $profilePlugin
  */
 abstract class ProfileComponent extends Component implements HasActions, HasForms
 {
@@ -28,7 +28,7 @@ abstract class ProfileComponent extends Component implements HasActions, HasForm
     #[Computed]
     public function profilePlugin(): FilamentManager|Plugin|ProfileFilamentPlugin
     {
-        return filament(ProfileFilamentPLugin::PLUGIN_ID);
+        return filament(ProfileFilamentPlugin::PLUGIN_ID);
     }
 
     public function render(): View

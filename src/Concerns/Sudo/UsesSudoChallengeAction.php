@@ -14,7 +14,7 @@ use Rawilk\ProfileFilament\Filament\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
- * @property-read null|\Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode $sudoChallengeModeEnum
+ * @property-read null|SudoChallengeMode $sudoChallengeModeEnum
  */
 trait UsesSudoChallengeAction
 {
@@ -58,6 +58,6 @@ trait UsesSudoChallengeAction
 
     protected function sudoModeIsAllowed(): bool
     {
-        return filament(ProfileFilamentPLugin::PLUGIN_ID)->hasSudoMode();
+        return filament(ProfileFilamentPlugin::PLUGIN_ID)->hasSudoMode();
     }
 }

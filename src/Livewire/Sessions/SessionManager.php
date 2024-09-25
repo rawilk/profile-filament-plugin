@@ -23,7 +23,7 @@ use Throwable;
 
 /**
  * @property-read bool $isUsingDatabaseDriver
- * @property-read \Illuminate\Support\Collection $sessions
+ * @property-read Collection $sessions
  */
 class SessionManager extends ProfileComponent
 {

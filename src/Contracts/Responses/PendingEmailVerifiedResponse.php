@@ -6,4 +6,6 @@ namespace Rawilk\ProfileFilament\Contracts\Responses;
 
 use Illuminate\Contracts\Support\Responsable;
 
-interface PendingEmailVerifiedResponse extends Responsable {}
+interface PendingEmailVerifiedResponse extends Responsable
+{
+}

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 return [
-
     // Título da página de fallback
     'heading' => 'Autenticação de dois fatores',
 

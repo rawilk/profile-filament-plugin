@@ -45,7 +45,7 @@ class RequiresSudoMode
     protected function shouldCheckForSudo(): bool
     {
         return rescue(
-            callback: fn () => filament(ProfileFilamentPLugin::PLUGIN_ID)->hasSudoMode(),
+            callback: fn () => filament(ProfileFilamentPlugin::PLUGIN_ID)->hasSudoMode(),
             rescue: fn () => true,
             report: false,
         );

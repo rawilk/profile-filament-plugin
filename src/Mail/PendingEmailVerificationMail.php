@@ -20,7 +20,8 @@ class PendingEmailVerificationMail extends Mailable implements ShouldQueue
     public function __construct(
         public PendingUserEmail $pendingUserEmail,
         public ?string $panelId = null,
-    ) {}
+    ) {
+    }
 
     public function envelope(): Envelope
     {

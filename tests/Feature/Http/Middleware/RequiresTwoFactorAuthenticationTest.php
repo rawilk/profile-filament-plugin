@@ -57,7 +57,7 @@ it('does nothing for guests', function () {
 });
 
 test('user must use the TwoFactorAuthenticatable trait', function () {
-    $userClass = new class extends \Illuminate\Foundation\Auth\User
+    $userClass = new class extends Illuminate\Foundation\Auth\User
     {
         protected $table = 'users';
 
