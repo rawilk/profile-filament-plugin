@@ -85,7 +85,7 @@ class ProfileFilament
         $user ??= auth()->user();
 
         $userTimezone = is_null(static::$findUserTimezoneUsingCallback)
-            ? $user?->timezone /** @phpstan-ignore-line */
+            ? $user?->timezone
             : call_user_func(static::$findUserTimezoneUsingCallback, $user);
 
         return $userTimezone ?? 'UTC';
@@ -127,7 +127,6 @@ class ProfileFilament
 
     public function preferredSudoChallengeMethodFor(User $user, array $availableMethods): string
     {
-        /** @phpstan-ignore-next-line */
         if (! $user->two_factor_enabled) {
             return SudoChallengeMode::Password->value;
         }

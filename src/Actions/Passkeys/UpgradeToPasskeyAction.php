@@ -32,7 +32,6 @@ class UpgradeToPasskeyAction implements UpgradeToPasskeyActionContract
 
             $webauthnKey->delete();
 
-            /** @phpstan-ignore-next-line */
             cache()->forget($user::hasPasskeysCacheKey($user));
 
             WebauthnKeyUpgradeToPasskey::dispatch($user, $passkey, $webauthnKey);

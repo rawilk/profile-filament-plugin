@@ -17,7 +17,6 @@ class DeletePasskeyAction implements DeletePasskeyActionContract
 
         $passkey->delete();
 
-        /** @phpstan-ignore-next-line */
         cache()->forget($user::hasPasskeysCacheKey($user));
 
         app(MarkTwoFactorDisabledAction::class)($user);

@@ -42,7 +42,6 @@ class MfaOverview extends ProfileComponent
     #[Computed]
     public function hasMfaEnabled(): bool
     {
-        /** @phpstan-ignore-next-line */
         return filament()->auth()->user()->two_factor_enabled;
     }
 

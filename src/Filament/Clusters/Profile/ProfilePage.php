@@ -26,26 +26,22 @@ abstract class ProfilePage extends Page
 
     public static function getNavigationIcon(): ?string
     {
-        /** @phpstan-ignore-next-line */
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->getIcon(static::class);
     }
 
     public static function getNavigationGroup(): ?string
     {
-        /** @phpstan-ignore-next-line */
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->pageGroup(static::class);
     }
 
     public static function getNavigationSort(): ?int
     {
-        /** @phpstan-ignore-next-line */
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->pageSort(static::class);
     }
 
     public static function getSlug(): string
     {
         return (string) rescue(
-            /** @phpstan-ignore-next-line */
             callback: fn (): string => filament(ProfileFilamentPlugin::PLUGIN_ID)->getSlug(static::class),
             rescue: fn (): string => '#',
             report: false,
@@ -54,19 +50,16 @@ abstract class ProfilePage extends Page
 
     public static function shouldRegisterNavigation(): bool
     {
-        /** @phpstan-ignore-next-line */
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->isEnabled(static::class);
     }
 
     public function getBreadcrumb(): ?string
     {
-        /** @phpstan-ignore-next-line */
         return static::$breadcrumb ?? static::getNavigationLabel();
     }
 
     public function getBreadcrumbs(): array
     {
-        /** @phpstan-ignore-next-line */
         $rootPage = filament(ProfileFilamentPlugin::PLUGIN_ID)->getRootProfilePage();
 
         $breadcrumb = $this->isRootProfilePage() ? null : $this->getBreadcrumb();
@@ -80,13 +73,11 @@ abstract class ProfilePage extends Page
     #[Computed]
     public function registeredComponents(): Collection
     {
-        /** @phpstan-ignore-next-line */
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->componentsFor(static::class);
     }
 
     protected function isRootProfilePage(): bool
     {
-        /** @phpstan-ignore-next-line */
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->isRootProfilePage(static::class);
     }
 }

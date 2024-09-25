@@ -266,13 +266,11 @@ class SudoChallenge extends SimplePage
             ->livewireClickHandlerEnabled(false)
             ->label(function () {
                 if ($this->hasWebauthnError) {
-                    /** @phpstan-ignore-next-line */
                     return $this->user->hasPasskeys()
                         ? __('profile-filament::messages.sudo_challenge.webauthn.retry_including_passkeys')
                         : __('profile-filament::messages.sudo_challenge.webauthn.retry');
                 }
 
-                /** @phpstan-ignore-next-line */
                 return $this->user->hasPasskeys()
                     ? __('profile-filament::messages.sudo_challenge.webauthn.submit_including_passkeys')
                     : __('profile-filament::messages.sudo_challenge.webauthn.submit');

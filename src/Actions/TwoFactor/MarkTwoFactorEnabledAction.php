@@ -15,7 +15,6 @@ class MarkTwoFactorEnabledAction implements MarkTwoFactorEnabledActionContract
 {
     public function __invoke(User $user)
     {
-        /** @phpstan-ignore-next-line  */
         if ($user->two_factor_enabled) {
             return;
         }

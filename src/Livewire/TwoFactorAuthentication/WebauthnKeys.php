@@ -136,7 +136,6 @@ class WebauthnKeys extends ProfileComponent
 
             // Flag for our listener in parent component to know if recovery codes
             // should be shown or not.
-            /** @phpstan-ignore-next-line */
             $enabledMfa = ! filament()->auth()->user()->two_factor_enabled;
 
             try {
@@ -182,7 +181,6 @@ class WebauthnKeys extends ProfileComponent
             ->unique(
                 table: config('profile-filament.table_names.webauthn_key'),
                 modifyRuleUsing: function (Unique $rule) {
-                    /** @phpstan-ignore-next-line */
                     $rule->where('user_id', $this->user->id);
                 },
             )

@@ -90,7 +90,6 @@ class WebauthnKey extends Model
 
     public static function getUsername(User $user): string
     {
-        /** @phpstan-ignore-next-line */
         return $user->email;
     }
 

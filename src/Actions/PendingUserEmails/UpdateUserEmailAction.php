@@ -22,7 +22,6 @@ class UpdateUserEmailAction implements UpdateUserEmailActionContract
 
     public function __invoke(User $user, string $email)
     {
-        /** @phpstan-ignore-next-line */
         if ($email === $user->email) {
             return;
         }
@@ -62,7 +61,7 @@ class UpdateUserEmailAction implements UpdateUserEmailActionContract
             'user_type' => $user->getMorphClass(),
             'user_id' => $user->getKey(),
             'email' => $email,
-            'token' => Password::broker()->getRepository()->createNewToken(), /** @phpstan-ignore-line */
+            'token' => Password::broker()->getRepository()->createNewToken(),
         ]);
 
         $verificationMailable = config('profile-filament.mail.pending_email_verification');

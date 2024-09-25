@@ -49,7 +49,6 @@ class ProfileFilamentPlugin implements Plugin
 
     public static function get(): static
     {
-        /** @phpstan-ignore-next-line */
         return filament(app(static::class)->getId());
     }
 

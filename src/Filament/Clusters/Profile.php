@@ -16,7 +16,6 @@ class Profile extends Cluster
 
     public static function getSlug(): string
     {
-        /** @phpstan-ignore-next-line */
         return rescue(
             fn () => filament(ProfileFilamentPlugin::PLUGIN_ID)->getClusterSlug(),
             fn () => '',

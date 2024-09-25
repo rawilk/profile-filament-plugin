@@ -107,7 +107,7 @@ class AuthenticatorAppForm extends ProfileComponent
         $this->secret = $this->authenticatorService->generateSecretKey();
         $this->qrCodeUrl = $this->authenticatorService->qrCodeUrl(
             companyName: config('app.name'),
-            companyEmail: $this->user->email, /** @phpstan-ignore-line */
+            companyEmail: $this->user->email,
             secret: $this->secret,
         );
 
@@ -138,7 +138,6 @@ class AuthenticatorAppForm extends ProfileComponent
 
             // Flag for our listener in parent component to know if recovery codes
             // should be shown to the user or not.
-            /** @phpstan-ignore-next-line */
             $enabledMfa = ! $this->user->two_factor_enabled;
 
             $action(filament()->auth()->user(), $data['name'], $this->secret);
