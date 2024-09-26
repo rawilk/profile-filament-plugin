@@ -26,7 +26,7 @@ $panel->plugin(
             enabled: true,
             slug: 'user',
             icon: 'heroicon-o-user-circle',
-            className: \Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo::class,
+            className: \Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo::class,
             components: [],
             sort: 0,
             group: null,
@@ -74,7 +74,7 @@ class MyCustomClass extends Page
 Here is an example on how you could override the `ProfileInfo` page with your own page class:
 
 ```php
-use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo;
 
 class CustomProfile extends ProfileInfo
 {
@@ -187,7 +187,7 @@ Now in your panel's service provider, you can swap out the component:
 use App\Livewire\CustomProfileInfo;
 use Rawilk\ProfileFilament\Features;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo as ProfilePage;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo as ProfilePage;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
 $panel->plugin(
@@ -218,7 +218,7 @@ For example, by default on the account security page, we render the update passw
 
 ```php
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile\Security;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\Security;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 

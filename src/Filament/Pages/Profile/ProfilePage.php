@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Filament\Clusters\Profile;
+namespace Rawilk\ProfileFilament\Filament\Pages\Profile;
 
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
@@ -39,6 +39,7 @@ abstract class ProfilePage extends Page
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->pageSort(static::class);
     }
 
+    // Fallback
     public static function getSlug(): string
     {
         return (string) rescue(

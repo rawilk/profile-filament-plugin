@@ -22,7 +22,7 @@ The callback you provide to `findUserTimezoneUsing` will receive a user model as
 
 ## User Menu
 
-The plugin automatically adds a root profile page entry to the user dropdown menu that Filament creates. By default, the root profile page is set to `\Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo::class`, however you are free to change it to something else.
+The plugin automatically adds a root profile page entry to the user dropdown menu that Filament creates. By default, the root profile page is set to `\Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo::class`, however you are free to change it to something else.
 
 ![user menu](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/user-menu.png?raw=true)
 
@@ -31,7 +31,7 @@ The plugin automatically adds a root profile page entry to the user dropdown men
 If you want to change the root profile page, you can use the `usingRootProfilePage` method on the plugin. The value you provide should be a class name to a page component.
 
 ```php
-use Rawilk\ProfileFilament\Filament\Clusters\Profile\Security;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\Security;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 ProfileFilamentPlugin::make()

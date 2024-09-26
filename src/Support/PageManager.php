@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Support;
 
+use Filament\Panel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Rawilk\ProfileFilament\Features;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile as Clusters;
+use Rawilk\ProfileFilament\Filament\Pages\Profile as ProfilePages;
 use Rawilk\ProfileFilament\Livewire as Components;
 
 final class PageManager
@@ -16,6 +17,8 @@ final class PageManager
     private array $defaults;
 
     private Features $features;
+
+    private Panel $panel;
 
     public function __construct()
     {
@@ -25,6 +28,13 @@ final class PageManager
     public static function make(): self
     {
         return new self;
+    }
+
+    public function setPanel(Panel $panel): self
+    {
+        $this->panel = $panel;
+
+        return $this;
     }
 
     public function withFeatures(Features $features): self
@@ -64,35 +74,53 @@ final class PageManager
         return Arr::get($this->defaults, "{$page}.group");
     }
 
-    public function preparePages(): void
+    public function preparePages(): self
     {
         if (! $this->features->hasProfileForm()) {
-            unset($this->defaults[Clusters\ProfileInfo::class]['components'][Components\Profile\ProfileInfo::class]);
+            unset($this->defaults[ProfilePages\ProfileInfo::class]['components'][Components\Profile\ProfileInfo::class]);
         }
 
         if (! $this->features->hasUpdateEmail()) {
-            unset($this->defaults[Clusters\Settings::class]['components'][Components\Emails\UserEmail::class]);
+            unset($this->defaults[ProfilePages\Settings::class]['components'][Components\Emails\UserEmail::class]);
         }
 
         if (! $this->features->hasDeleteAccount()) {
-            unset($this->defaults[Clusters\Settings::class]['components'][Components\DeleteAccount::class]);
+            unset($this->defaults[ProfilePages\Settings::class]['components'][Components\DeleteAccount::class]);
         }
 
         if (! $this->features->hasUpdatePassword()) {
-            unset($this->defaults[Clusters\Security::class]['components'][Components\UpdatePassword::class]);
+            unset($this->defaults[ProfilePages\Security::class]['components'][Components\UpdatePassword::class]);
         }
 
         if (! $this->features->hasPasskeys() || ! $this->features->hasWebauthn()) {
-            unset($this->defaults[Clusters\Security::class]['components'][Components\PasskeyManager::class]);
+            unset($this->defaults[ProfilePages\Security::class]['components'][Components\PasskeyManager::class]);
         }
 
         if (! $this->features->hasTwoFactorAuthentication() && ! $this->features->hasPasskeys()) {
-            unset($this->defaults[Clusters\Security::class]['components'][Components\MfaOverview::class]);
+            unset($this->defaults[ProfilePages\Security::class]['components'][Components\MfaOverview::class]);
         }
 
         if (! $this->features->hasSessionManager()) {
-            unset($this->defaults[Clusters\Sessions::class]['components'][Components\Sessions\SessionManager::class]);
+            unset($this->defaults[ProfilePages\Sessions::class]['components'][Components\Sessions\SessionManager::class]);
         }
+
+        return $this;
+    }
+
+    public function registerPages(): void
+    {
+        $panelId = $this->panel->getId();
+        $enabledPages = $this->getEnabledPages();
+
+        $enabledPages->each(function (string $implementation, string $pluginClass) use ($panelId) {
+            if (method_exists($implementation, 'registerPanelSlug')) {
+                $implementation::registerPanelSlug($panelId, $this->pageSlug($pluginClass));
+            }
+        });
+
+        $this->panel->pages(
+            $enabledPages->all()
+        );
     }
 
     public function setDefaultsFor(
@@ -183,13 +211,25 @@ final class PageManager
         return $this;
     }
 
+    private function getEnabledPages(): Collection
+    {
+        return collect([
+            ProfilePages\ProfileInfo::class => $this->pageIsEnabled(ProfilePages\ProfileInfo::class),
+            ProfilePages\Settings::class => $this->pageIsEnabled(ProfilePages\Settings::class),
+            ProfilePages\Security::class => $this->pageIsEnabled(ProfilePages\Security::class),
+            ProfilePages\Sessions::class => $this->pageIsEnabled(ProfilePages\Sessions::class),
+        ])
+            ->filter()
+            ->map(fn (bool $enabled, string $className) => $this->pageClassName($className));
+    }
+
     private function setPageDefaults(): void
     {
         $this->defaults = [
-            Clusters\ProfileInfo::class => $this->defaultsFor(Clusters\ProfileInfo::class),
-            Clusters\Settings::class => $this->defaultsFor(Clusters\Settings::class),
-            Clusters\Security::class => $this->defaultsFor(Clusters\Security::class),
-            Clusters\Sessions::class => $this->defaultsFor(Clusters\Sessions::class),
+            ProfilePages\ProfileInfo::class => $this->defaultsFor(ProfilePages\ProfileInfo::class),
+            ProfilePages\Settings::class => $this->defaultsFor(ProfilePages\Settings::class),
+            ProfilePages\Security::class => $this->defaultsFor(ProfilePages\Security::class),
+            ProfilePages\Sessions::class => $this->defaultsFor(ProfilePages\Sessions::class),
 
             ...$this->defaults ?? [],
         ];
@@ -198,11 +238,11 @@ final class PageManager
     private function defaultsFor(string $page): array
     {
         return match ($page) {
-            Clusters\ProfileInfo::class => [
+            ProfilePages\ProfileInfo::class => [
                 'enabled' => true,
                 'slug' => 'user',
                 'icon' => 'heroicon-o-user',
-                'className' => Clusters\ProfileInfo::class,
+                'className' => ProfilePages\ProfileInfo::class,
                 'components' => [
                     Components\Profile\ProfileInfo::class => ['class' => Components\Profile\ProfileInfo::class, 'sort' => 0],
                 ],
@@ -210,11 +250,11 @@ final class PageManager
                 'group' => null,
             ],
 
-            Clusters\Settings::class => [
+            ProfilePages\Settings::class => [
                 'enabled' => true,
                 'slug' => 'admin',
                 'icon' => 'heroicon-o-cog-6-tooth',
-                'className' => Clusters\Settings::class,
+                'className' => ProfilePages\Settings::class,
                 'components' => [
                     Components\Emails\UserEmail::class => ['class' => Components\Emails\UserEmail::class, 'sort' => 0],
                     Components\DeleteAccount::class => ['class' => Components\DeleteAccount::class, 'sort' => 15],
@@ -223,11 +263,11 @@ final class PageManager
                 'group' => null,
             ],
 
-            Clusters\Security::class => [
+            ProfilePages\Security::class => [
                 'enabled' => true,
                 'slug' => 'security',
                 'icon' => 'heroicon-o-shield-exclamation',
-                'className' => Clusters\Security::class,
+                'className' => ProfilePages\Security::class,
                 'sort' => 20,
                 'components' => [
                     Components\UpdatePassword::class => ['class' => Components\UpdatePassword::class, 'sort' => 0],
@@ -237,11 +277,11 @@ final class PageManager
                 'group' => null,
             ],
 
-            Clusters\Sessions::class => [
+            ProfilePages\Sessions::class => [
                 'enabled' => true,
                 'slug' => 'sessions',
                 'icon' => 'heroicon-o-signal',
-                'className' => Clusters\Sessions::class,
+                'className' => ProfilePages\Sessions::class,
                 'components' => [
                     Components\Sessions\SessionManager::class => ['class' => Components\Sessions\SessionManager::class, 'sort' => 0],
                 ],

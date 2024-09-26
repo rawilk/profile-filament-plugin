@@ -60,7 +60,7 @@ Now, all you need to do is swap the component out in your panel's service provid
 
 ```php
 use App\Livewire\CustomProfileInfo;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo as ProfileInfoPage;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo as ProfileInfoPage;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 

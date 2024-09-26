@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Features;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile\ProfileInfo;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 

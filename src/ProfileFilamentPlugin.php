@@ -9,8 +9,9 @@ use Filament\Contracts\Plugin;
 use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Illuminate\Support\Collection;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile as Clusters;
+use Rawilk\ProfileFilament\Filament\Clusters\Profile;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\Http\Middleware\RequiresTwoFactorAuthentication;
 use Rawilk\ProfileFilament\Support\PageManager;
@@ -25,7 +26,7 @@ class ProfileFilamentPlugin implements Plugin
 
     protected string $userMenuIcon = 'heroicon-o-cog-6-tooth';
 
-    protected string $rootProfilePage = Clusters\ProfileInfo::class;
+    protected string $rootProfilePage = ProfileInfo::class;
 
     /**
      * The root slug of the profile pages cluster.
@@ -63,10 +64,16 @@ class ProfileFilamentPlugin implements Plugin
             $this->features = Features::defaults();
         }
 
+        $panelId = $panel->getId();
+
+        Profile::registerPanelSlug($panelId, $this->getClusterSlug());
+
         $this
             ->pageManager()
+            ->setPanel($panel)
             ->withFeatures($this->features)
-            ->preparePages();
+            ->preparePages()
+            ->registerPages();
 
         $panel
             ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Rawilk\\ProfileFilament\\Filament\\Clusters');
@@ -187,7 +194,7 @@ class ProfileFilamentPlugin implements Plugin
         ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Clusters\ProfileInfo::class,
+            ProfileInfo::class,
             $enabled,
             $slug,
             $icon,
@@ -210,7 +217,7 @@ class ProfileFilamentPlugin implements Plugin
         ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Clusters\Security::class,
+            Filament\Pages\Profile\Security::class,
             $enabled,
             $slug,
             $icon,
@@ -233,7 +240,7 @@ class ProfileFilamentPlugin implements Plugin
         ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Clusters\Settings::class,
+            Filament\Pages\Profile\Settings::class,
             $enabled,
             $slug,
             $icon,
@@ -256,7 +263,7 @@ class ProfileFilamentPlugin implements Plugin
         ?string $group = null,
     ): self {
         $this->pageManager()->setDefaultsFor(
-            Clusters\Sessions::class,
+            Filament\Pages\Profile\Sessions::class,
             $enabled,
             $slug,
             $icon,
@@ -274,6 +281,11 @@ class ProfileFilamentPlugin implements Plugin
         return $this->pageManager()->pageSlug($page);
     }
 
+    public function getPageRouteName(string $page): string
+    {
+        return (string) str($this->getSlug($page))->replace('/', '.');
+    }
+
     public function getIcon(string $page): ?string
     {
         return $this->pageManager()->pageIcon($page);
@@ -284,7 +296,7 @@ class ProfileFilamentPlugin implements Plugin
         /** @var class-string<\Filament\Pages\Page> $className */
         $className = $this->pageManager()->pageClassName($page);
 
-        return $className::getUrl();
+        return $className::getUrl(panel: filament()->getId());
     }
 
     public function isEnabled(string $page): bool
