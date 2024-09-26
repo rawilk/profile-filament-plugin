@@ -18,29 +18,26 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
+use Rawilk\ProfileFilament\Concerns\HasPanelPageRoutes;
 use Rawilk\ProfileFilament\Filament\Clusters\Profile;
 
 class Notifications extends Page
 {
+    use HasPanelPageRoutes;
+
     protected static string $view = 'filament.pages.notifications';
 
     protected static ?string $cluster = Profile::class;
+    
+    protected static ?string $navigationIcon = 'heroicon-o-bell';
+    
+    // do not prefix with `profile`, since the cluster's
+    // slug will already be prefixed to this slug.
+    protected static ?string $slug = 'notifications';
 
     public static function getNavigationLabel(): string
     {
         return __('Notifications');
-    }
-
-    public static function getNavigationIcon(): ?string
-    {
-        return 'heroicon-o-bell';
-    }
-
-    public static function getSlug(): string
-    {
-        // do not prefix with `profile`, since the cluster's
-        // slug will already be prefixed to this slug.
-        return 'notifications';
     }
 
     public static function getTitle(): string|Htmlable
@@ -49,6 +46,8 @@ class Notifications extends Page
     }
 }
 ```
+
+> {note} If you have multiple panels and are using [different slugs for the profile cluster](/docs/profile-filament-plugin/{version}/customizations/misc#user-content-multiple-panels-notice), it is necessary to use the `HasPanelPageRoutes` trait on your page class, as shown in the example. You may omit this trait if you're not using different custom slugs for each panel.
 
 As long as your page is registered correctly in your panel, the page should automatically be added to the profile's navigation items. If you want to group
 your pages together, you can provide a string to the `$navigationGroup` property on your page class.
