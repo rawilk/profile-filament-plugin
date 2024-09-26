@@ -66,7 +66,7 @@ abstract class ProfilePage extends Page
         $breadcrumb = $this->isRootProfilePage() ? null : $this->getBreadcrumb();
 
         return [
-            ...(filled($rootPage) ? [$rootPage::getUrl() => app($rootPage)->getBreadcrumb()] : []),
+            ...(filled($rootPage) ? [$rootPage::getUrl(panel: filament()->getId()) => app($rootPage)->getBreadcrumb()] : []),
             ...(filled($breadcrumb) ? [$breadcrumb] : []),
         ];
     }
