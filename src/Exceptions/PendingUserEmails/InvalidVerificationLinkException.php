@@ -18,7 +18,7 @@ class InvalidVerificationLinkException extends AuthenticationException
         parent::__construct($message, $guards, $redirectTo);
     }
 
-    public function render()
+    public function render(): void
     {
         session()->flash('error', $this->message);
     }
@@ -29,13 +29,6 @@ class InvalidVerificationLinkException extends AuthenticationException
             return $this->redirectTo;
         }
 
-        if (Filament::auth()->check()) {
-            return Filament::getHomeUrl();
-        }
-
-        $panel = Filament::getCurrentPanel() ?? Filament::getDefaultPanel();
-        $panelId = $panel->getId();
-
-        return route("filament.{$panelId}.auth.login");
+        return Filament::getUrl();
     }
 }
