@@ -156,6 +156,10 @@ class Mfa
 
         $user ??= $this->challengedUser();
 
+        if (! $this->userHasMfaEnabled($user)) {
+            return false;
+        }
+
         return app(config('profile-filament.models.authenticator_app'))::query()
             ->where('user_id', $user->getAuthIdentifier())
             ->exists();
@@ -171,6 +175,10 @@ class Mfa
         }
 
         $user ??= $this->challengedUser();
+
+        if (! $this->userHasMfaEnabled($user)) {
+            return false;
+        }
 
         return app(config('profile-filament.models.webauthn_key'))::query()
             ->where('user_id', $user->getAuthIdentifier())
@@ -203,5 +211,10 @@ class Mfa
     {
         return $this->profilePlugin()->panelFeatures()->hasWebauthn()
             || $this->profilePlugin()->panelFeatures()->hasPasskeys();
+    }
+
+    protected function userHasMfaEnabled(?User $user): bool
+    {
+        return $user?->two_factor_enabled === true;
     }
 }
