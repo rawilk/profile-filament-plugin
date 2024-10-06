@@ -23,16 +23,18 @@ abstract class ProfileComponent extends Component implements HasActions, HasForm
     use InteractsWithActions;
     use InteractsWithForms;
 
-    abstract protected function view(): string;
-
     #[Computed]
     public function profilePlugin(): FilamentManager|Plugin|ProfileFilamentPlugin
     {
         return filament(ProfileFilamentPlugin::PLUGIN_ID);
     }
 
-    public function render(): View
+    public function render(): View|string
     {
-        return view($this->view());
+        if (method_exists($this, 'view')) {
+            return view($this->view());
+        }
+
+        return '';
     }
 }
