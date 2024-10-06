@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament;
 
+use BladeUI\Icons\Factory;
 use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
@@ -55,6 +56,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         $this->registerLivewireComponents();
+        $this->registerIcons();
 
         $this->app->scoped(
             Contracts\AuthenticatorAppService::class,
@@ -83,6 +85,16 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
                 expiration: $app['config']['profile-filament.sudo.expires'],
             ),
         );
+    }
+
+    private function registerIcons(): void
+    {
+        $this->callAfterResolving(Factory::class, function (Factory $factory) {
+            $factory->add('pf', [
+                'path' => __DIR__ . '/../resources/svg',
+                'prefix' => 'pf',
+            ]);
+        });
     }
 
     private function makeClassBindings(): void
@@ -130,14 +142,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
             ],
             package: ProfileFilamentPlugin::PLUGIN_ID,
         );
-
-        $sets = $this->app['config']->get('blade-icons.sets');
-        $sets['profile-filament'] = [
-            'path' => 'vendor/rawilk/profile-filament-plugin/resources/svg',
-            'prefix' => 'pf',
-        ];
-
-        $this->app['config']->set('blade-icons.sets', $sets);
     }
 
     private function registerRouteMacros(): void
@@ -181,6 +185,8 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         Livewire::component('passkey', PackageLivewire\Passkey::class);
         Livewire::component('mfa-challenge', MfaChallenge::class);
         Livewire::component('sudo-challenge', SudoChallenge::class);
+        Livewire::component('sudo-challenge-form', PackageLivewire\Sudo\SudoChallengeForm::class);
+        Livewire::component('sudo-challenge-action-form', PackageLivewire\Sudo\SudoChallengeActionForm::class);
 
         Livewire::component(PackageLivewire\Profile\ProfileInfo::class, PackageLivewire\Profile\ProfileInfo::class);
         Livewire::component(PackageLivewire\Emails\UserEmail::class, PackageLivewire\Emails\UserEmail::class);
