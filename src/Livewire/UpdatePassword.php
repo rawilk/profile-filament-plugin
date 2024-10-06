@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Livewire;
 
-use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Forms;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Computed;
 use Rawilk\FilamentPasswordInput\Password as PasswordInput;
@@ -41,24 +44,77 @@ class UpdatePassword extends ProfileComponent
         return $this->profilePlugin->panelFeatures();
     }
 
+    public function render(): string
+    {
+        return <<<'HTML'
+        <div>
+            <x-filament-panels::form
+                wire:submit="updatePassword"
+                :wire:key="$this->getId() . '.forms.data'"
+            >
+                {{ $this->form }}
+            </x-filament-panels::form>
+        </div>
+        HTML;
+    }
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                $this->getCurrentPasswordField(),
-                $this->getPasswordField(),
-                $this->getPasswordConfirmationField(),
+                Forms\Components\Section::make(__('profile-filament::pages/security.password.title'))
+                    ->schema([
+                        $this->getCurrentPasswordField(),
+                        $this->getPasswordField(),
+                        $this->getPasswordConfirmationField(),
+
+                        Forms\Components\Actions::make([
+                            $this->submitAction(),
+                            $this->forgotPasswordLinkAction(),
+                        ]),
+
+                        Forms\Components\Placeholder::make('help')
+                            ->label('')
+                            ->hiddenLabel()
+                            ->content(
+                                fn (): Htmlable => new HtmlString(Blade::render(<<<'HTML'
+                                <div class="text-xs gap-x-1 flex items-start">
+                                    <div class="shrink-0">
+                                        <x-filament::icon
+                                            alias="profile-filament::help"
+                                            icon="heroicon-o-question-mark-circle"
+                                            class="h-4 w-4"
+                                        />
+                                    </div>
+
+                                    <div class="flex-1">
+                                        {{ str(__('profile-filament::pages/security.password.form.form_info'))->markdown()->toHtmlString() }}
+                                    </div>
+                                </div>
+                                HTML)),
+                            ),
+                    ]),
             ])
             ->statePath('data');
     }
 
-    public function submitAction(): Action
+    public function submitAction(): Forms\Components\Actions\Action
     {
-        return Action::make('submit')
+        return Forms\Components\Actions\Action::make('submit')
             ->action('updatePassword')
             ->color('primary')
             ->submit('updatePassword')
             ->label(__('profile-filament::pages/security.password.form.save_button'));
+    }
+
+    public function forgotPasswordLinkAction(): Forms\Components\Actions\Action
+    {
+        return Forms\Components\Actions\Action::make('forgotPassword')
+            ->label(__('profile-filament::pages/security.password.form.forgot_password_link'))
+            ->link()
+            ->color('primary')
+            ->url($this->passwordResetUrl)
+            ->visible(fn (): bool => filled($this->passwordResetUrl));
     }
 
     public function updatePassword(UpdatePasswordAction $updater): void
@@ -67,15 +123,14 @@ class UpdatePassword extends ProfileComponent
 
         $this->form->fill();
 
-        Notification::make()
-            ->success()
-            ->title(__('profile-filament::pages/security.password.form.notification'))
-            ->send();
+        $this->getSuccessNotification()?->send();
     }
 
-    protected function view(): string
+    protected function getSuccessNotification(): ?Notification
     {
-        return 'profile-filament::livewire.update-password';
+        return Notification::make()
+            ->success()
+            ->title(__('profile-filament::pages/security.password.form.notification'));
     }
 
     protected function getCurrentPasswordField(): Component
