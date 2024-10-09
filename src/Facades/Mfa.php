@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool isValidRecoveryCode(string $code)
  * @method static bool isValidTotpCode(string $code)
  * @method static void pushChallengedUser(User $user, bool $remember = false)
+ * @method static bool userHasMfaEnabled(User|null $user = null)
  * @method static \Rawilk\ProfileFilament\Services\Mfa usingChallengedUser(?User $user)
  *
  * @see \Rawilk\ProfileFilament\Services\Mfa

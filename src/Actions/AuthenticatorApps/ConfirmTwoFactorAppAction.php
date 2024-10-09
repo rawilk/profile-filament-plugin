@@ -26,8 +26,11 @@ class ConfirmTwoFactorAppAction implements ConfirmTwoFactorAppActionContract
             $authenticator->fill([
                 'name' => $name,
                 'secret' => $secret,
-                'user_id' => $user->getAuthIdentifier(),
-            ])->save();
+            ]);
+
+            $authenticator->user()->associate($user);
+
+            $authenticator->save();
         });
 
         app(MarkTwoFactorEnabledAction::class)($user);

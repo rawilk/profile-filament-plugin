@@ -81,4 +81,9 @@ abstract class ProfilePage extends Page
     {
         return filament(ProfileFilamentPlugin::PLUGIN_ID)->isRootProfilePage(static::class);
     }
+
+    protected function needsSudoChallengeForm(): bool
+    {
+        return false;
+    }
 }

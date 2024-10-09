@@ -20,7 +20,7 @@ class PasskeysController
 
             session()->put(
                 MfaSession::PasskeyAssertionPk->value,
-                serialize($publicKey),
+                $publicKey,
             );
 
             $timebox->returnEarly();
@@ -28,22 +28,22 @@ class PasskeysController
             return $publicKey;
         }, microseconds: 300 * 1000);
 
-        return response()->json($publicKey->jsonSerialize());
+        return response()->json(
+            Webauthn::serializePublicKeyOptionsForRequest($publicKey),
+        );
     }
 
     public function attestationPublicKey(Request $request): Response
     {
         $publicKey = App::make(Timebox::class)->call(callback: function (Timebox $timebox) use ($request) {
-            $model = config('profile-filament.models.webauthn_key');
             $publicKey = Webauthn::passkeyAttestationObjectFor(
-                username: app($model)::getUsername(auth()->user()),
-                userId: app($model)::getUserHandle(auth()->user()),
-                excludeCredentials: $request->get('exclude', []),
+                user: auth()->user(),
+                excludeCredentials: $request->input('exclude', []),
             );
 
             session()->put(
                 MfaSession::PasskeyAttestationPk->value,
-                serialize($publicKey),
+                $publicKey,
             );
 
             $timebox->returnEarly();
@@ -51,6 +51,8 @@ class PasskeysController
             return $publicKey;
         }, microseconds: 300 * 1000);
 
-        return response()->json($publicKey->jsonSerialize());
+        return response()->json(
+            Webauthn::serializePublicKeyOptionsForRequest($publicKey)
+        );
     }
 }

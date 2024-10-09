@@ -20,7 +20,7 @@ class RegisterWebauthnKeyAction implements RegisterWebauthnKeyActionContract
         array $attestation,
         string $keyName,
     ): WebauthnKey {
-        $webauthnKey = WebauthnKey::fromPublicKeyCredentialSource(
+        $webauthnKey = app(config('profile-filament.models.webauthn_key'))::fromPublicKeyCredentialSource(
             source: $publicKeyCredentialSource,
             user: $user,
             keyName: $keyName,

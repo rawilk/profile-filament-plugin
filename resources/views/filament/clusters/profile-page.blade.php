@@ -6,4 +6,8 @@
             @livewire($component)
         @endforeach
     </x-profile-filament::plugin-css>
+
+    @if ($this->needsSudoChallengeForm())
+        @livewire(Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeForm::class)
+    @endif
 </x-filament-panels::page>

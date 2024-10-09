@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Concerns;
+namespace Rawilk\ProfileFilament\Livewire\Concerns;
 
 use Filament\Actions\Action;
 use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Js;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 
@@ -24,20 +23,17 @@ trait CopiesRecoveryCodes
 
     public function copyAction(): Action
     {
-        $copyMessage = Js::from(__('profile-filament::pages/security.mfa.recovery_codes.actions.copy.confirmation'));
-        $codes = Js::from(implode(PHP_EOL, $this->recoveryCodes));
-
         return Action::make('copy')
-            ->livewireClickHandlerEnabled(false)
             ->color('gray')
             ->label(__('profile-filament::pages/security.mfa.recovery_codes.actions.copy.label'))
             ->icon(FilamentIcon::resolve('mfa::recovery-codes.copy') ?? 'heroicon-o-document-duplicate')
-            ->extraAttributes([
-                'x-on:click' => new HtmlString(<<<JS
-                window.navigator.clipboard.writeText({$codes});
-                \$tooltip({$copyMessage}, { theme: \$store.theme });
-                JS),
-            ]);
+            ->alpineClickHandler(Blade::render(<<<'JS'
+                window.navigator.clipboard.writeText(@js(implode(PHP_EOL, $codes)));
+                $tooltip(@js($message), { theme: $store.theme });
+            JS, [
+                'message' => __('profile-filament::pages/security.mfa.recovery_codes.actions.copy.confirmation'),
+                'codes' => $this->recoveryCodes,
+            ]));
     }
 
     public function downloadAction(): Action
@@ -57,17 +53,13 @@ trait CopiesRecoveryCodes
 
     public function printAction(): Action
     {
-        $url = Js::from(route('filament.' . filament()->getCurrentPanel()->getId() . '.auth.mfa.recovery-codes.print'));
-
         return Action::make('print')
-            ->livewireClickHandlerEnabled(false)
             ->color('gray')
             ->label(__('profile-filament::pages/security.mfa.recovery_codes.actions.print.label'))
             ->icon(FilamentIcon::resolve('mfa::recovery-codes.print') ?? 'heroicon-o-printer')
-            ->extraAttributes([
-                'x-on:click' => new HtmlString(<<<JS
+            ->alpineClickHandler(Blade::render(<<<'JS'
                 const newTab = window.open('', '_blank');
-                const uri = {$url};
+                const uri = @js($url);
 
                 fetch(uri)
                     .then(response => response.text())
@@ -81,7 +73,8 @@ trait CopiesRecoveryCodes
                         }, 50);
                     })
                     .catch(() => alert('An error occurred while trying to print your recovery codes.'));
-                JS),
-            ]);
+            JS, [
+                'url' => route('filament.' . filament()->getId() . '.auth.mfa.recovery-codes.print'),
+            ]));
     }
 }

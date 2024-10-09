@@ -5,55 +5,27 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Concerns\Sudo;
 
 use Filament\Actions\Action;
-use Filament\Support\Exceptions\Halt;
-use Livewire\Attributes\Computed;
-use Livewire\Attributes\Locked;
-use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
 use Rawilk\ProfileFilament\Facades\Sudo;
-use Rawilk\ProfileFilament\Filament\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
-/**
- * @property-read null|SudoChallengeMode $sudoChallengeModeEnum
- */
 trait UsesSudoChallengeAction
 {
-    public array $sudoChallengeData = [];
-
-    #[Locked]
-    public ?string $sudoChallengeMode = null;
-
-    public bool $hasSudoWebauthnError = false;
-
-    #[Computed]
-    public function sudoChallengeModeEnum(): ?SudoChallengeMode
-    {
-        if (! $this->sudoChallengeMode) {
-            return null;
-        }
-
-        return SudoChallengeMode::tryFrom($this->sudoChallengeMode);
-    }
-
-    public function sudoChallengeAction(): Action
-    {
-        return SudoChallengeAction::make('sudoChallenge');
-    }
-
-    protected function ensureSudoIsActive(string $returnAction, array $arguments = []): void
+    protected function ensureSudoIsActive(?string $method = null, array $data = [], ?string $caller = null): bool
     {
         if (! $this->sudoModeIsAllowed()) {
-            return;
+            return true;
         }
 
-        if (! Sudo::isActive()) {
-            $this->replaceMountedAction('sudoChallenge', ['returnAction' => $returnAction, ...$arguments]);
+        if (Sudo::isActive()) {
+            // Simple extend it when performing another sensitive action while in sudo mode.
+            Sudo::extend();
 
-            throw new Halt;
+            return true;
         }
 
-        // Simply extend sudo mode when performing another sudo action in sudo mode.
-        Sudo::extend();
+        $this->dispatch('check-sudo', caller: $caller ?? $this::class, method: $method, data: $data);
+
+        return false;
     }
 
     protected function sudoModeIsAllowed(): bool

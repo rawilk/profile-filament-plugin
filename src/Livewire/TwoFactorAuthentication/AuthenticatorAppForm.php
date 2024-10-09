@@ -9,8 +9,7 @@ use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
-use Filament\Support\Exceptions\Halt;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
@@ -26,6 +25,8 @@ use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorApps\ConfirmTwoFactorAppAction;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
+use Rawilk\ProfileFilament\Facades\Mfa;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\AddTotpAction;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 
 /**
@@ -87,6 +88,29 @@ class AuthenticatorAppForm extends ProfileComponent
         return filled($this->code) && ! $this->codeValid;
     }
 
+    public function render(): string
+    {
+        return <<<'HTML'
+        <div>
+            @if ($show)
+                @includeWhen($authenticatorApps->isNotEmpty() && ! $showForm, 'profile-filament::livewire.partials.authenticator-app-list')
+
+                @includeWhen($showForm, 'profile-filament::livewire.partials.add-authenticator-app')
+            @endif
+        </div>
+        HTML;
+    }
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                $this->getSecretField(),
+                $this->getNameField(),
+                $this->getCodeField(),
+            ]);
+    }
+
     #[On(MfaEvent::ShowAppForm->value)]
     public function showApps(): void
     {
@@ -116,16 +140,10 @@ class AuthenticatorAppForm extends ProfileComponent
         $this->showForm = true;
     }
 
+    #[On('sudo-active')]
     public function confirm(ConfirmTwoFactorAppAction $action): void
     {
-        try {
-            $this->ensureSudoIsActive(returnAction: 'add');
-        } catch (Halt) {
-            Notification::make()
-                ->danger()
-                ->title(__('profile-filament::messages.sudo_challenge.expired'))
-                ->send();
-
+        if (! $this->ensureSudoIsActive()) {
             return;
         }
 
@@ -138,9 +156,9 @@ class AuthenticatorAppForm extends ProfileComponent
 
             // Flag for our listener in parent component to know if recovery codes
             // should be shown to the user or not.
-            $enabledMfa = ! $this->user->two_factor_enabled;
+            $enabledMfa = ! Mfa::userHasMfaEnabled($this->user);
 
-            $action(filament()->auth()->user(), $data['name'], $this->secret);
+            $action($this->user, $data['name'], $this->secret);
 
             $this->cancelForm();
 
@@ -148,16 +166,6 @@ class AuthenticatorAppForm extends ProfileComponent
 
             $timebox->returnEarly();
         }, microseconds: 300 * 1000);
-    }
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                $this->getSecretField(),
-                $this->getNameField(),
-                $this->getCodeField(),
-            ]);
     }
 
     #[On(MfaEvent::HideAppList->value)]
@@ -168,20 +176,15 @@ class AuthenticatorAppForm extends ProfileComponent
 
     public function addAction(): Action
     {
-        return Action::make('add')
-            ->color('gray')
-            ->action(fn () => $this->showAddForm())
-            ->label(__('profile-filament::pages/security.mfa.app.add_another_app_button'))
-            ->mountUsing(function () {
-                $this->ensureSudoIsActive(returnAction: 'add');
-            });
+        return AddTotpAction::make('add')
+            ->action(fn () => $this->showAddForm());
     }
 
     public function submitAction(): Action
     {
         return Action::make('submit')
             ->label(__('profile-filament::pages/security.mfa.app.submit_code_confirmation'))
-            ->disabled(fn () => ! $this->codeValid)
+            ->disabled(fn (): bool => ! $this->codeValid)
             ->submit('confirm');
     }
 
@@ -193,11 +196,6 @@ class AuthenticatorAppForm extends ProfileComponent
             ->action(fn () => $this->cancelForm());
     }
 
-    protected function view(): string
-    {
-        return 'profile-filament::livewire.two-factor-authentication.authenticator-app-form';
-    }
-
     protected function getNameField(): Component
     {
         return TextInput::make('name')
@@ -206,11 +204,11 @@ class AuthenticatorAppForm extends ProfileComponent
             ->required()
             ->maxlength(255)
             ->autocomplete('off')
-            ->maxWidth('xs')
+            ->maxWidth(MaxWidth::ExtraSmall)
             ->unique(
                 table: config('profile-filament.table_names.authenticator_app'),
                 modifyRuleUsing: function (Unique $rule) {
-                    $rule->where('user_id', filament()->auth()->id());
+                    $rule->where('user_id', $this->user->getAuthIdentifier());
                 },
             )
             ->helperText(__('profile-filament::pages/security.mfa.app.device_name_help'));
@@ -221,7 +219,7 @@ class AuthenticatorAppForm extends ProfileComponent
         return TextInput::make('code')
             ->label(__('profile-filament::pages/security.mfa.app.code_confirmation_input'))
             ->placeholder(__('profile-filament::pages/security.mfa.app.code_confirmation_placeholder'))
-            ->maxWidth('xs')
+            ->maxWidth(MaxWidth::ExtraSmall)
             ->autocomplete('off')
             ->debounce()
             ->required()
@@ -245,8 +243,11 @@ class AuthenticatorAppForm extends ProfileComponent
 
         return TextInput::make('secret')
             ->readOnly()
-            ->maxWidth('xs')
+            ->maxWidth(MaxWidth::ExtraSmall)
             ->hiddenLabel()
+            ->extraAttributes([
+                'class' => 'font-mono',
+            ])
             ->suffixAction(
                 FormAction::make('copySecretToClipboard')
                     ->livewireClickHandlerEnabled(false)

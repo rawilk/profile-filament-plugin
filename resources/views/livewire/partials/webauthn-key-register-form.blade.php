@@ -1,52 +1,28 @@
- <x-profile-filament::webauthn-script
-    x-data="webauthnForm({
-        mode: 'register',
-        wireId: '{{ $this->getId() }}',
-        registerPublicKeyUrl: '{{ route('profile-filament::webauthn.attestation_pk') }}',
-
-        beforeRegister: instance => {
-            const component = window.Livewire.find('{{ $this->getId() }}');
-
-            return component.validate()
-                .then(() => ! instance.hasErrors(component));
+<x-profile-filament::webauthn-script
+    mode="register"
+    x-data="registerWebauthn({
+        registerUrl: {{ Js::from(route('profile-filament::webauthn.attestation_pk')) }},
+        before: function() {
+            return $wire.validate()
+                .then(() => ! this.hasErrors());
         },
     })"
+    class="pr-2"
 >
     @include('profile-filament::livewire.partials.webauthn-unsupported')
 
-    <x-filament-panels::form x-show="browserSupported" wire:submit="verifyKey">
+    <x-filament-panels::form
+        wire:submit="verifyKey"
+        :wire:key="$this->getId() . '.forms.data'"
+        x-show="browserSupportsWebAuthn"
+    >
         {{ $this->form }}
 
-        <div class="flex flex-col items-center"
-             x-show="error && ! processing"
-             style="display: none;"
-             x-cloak
-             wire:ignore
-        >
-            <div class="flex items-center gap-x-2 text-danger-600 dark:text-danger-400">
-                <div>
-                    <x-filament::icon
-                        alias="profile-filament::webauthn-error"
-                        icon="heroicon-o-exclamation-triangle"
-                        class="h-4 w-4"
-                    />
-                </div>
-
-                <span class="text-sm">
-                    {{ __('profile-filament::pages/security.mfa.webauthn.actions.register.register_fail') }}
-                </span>
-            </div>
-
-            <div class="mt-3">
-                <x-filament::button
-                    color="gray"
-                    x-on:click="submit"
-                    size="sm"
-                >
-                    {{ __('profile-filament::pages/security.mfa.webauthn.actions.register.retry_button') }}
-                </x-filament::button>
-            </div>
-        </div>
+        <x-profile-filament::register-webauthn-errors>
+            <x-slot:button>
+                {{ $this->retryWebauthnAction }}
+            </x-slot:button>
+        </x-profile-filament::register-webauthn-errors>
 
         <x-profile-filament::webauthn-waiting-indicator
             x-show="processing"

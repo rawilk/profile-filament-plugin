@@ -7,7 +7,7 @@
         {{ __('profile-filament::pages/security.mfa.methods_title') }}
     </x-profile-filament::box-header>
 
-    @if ($this->canAuthenticatorApps)
+    @if ($this->canUseAuthenticatorApps)
         <x-profile-filament::box-row
             icon="heroicon-o-device-phone-mobile"
             icon-alias="mfa::totp"
@@ -21,14 +21,14 @@
                 {{ $this->toggleTotpAction }}
             </x-slot:button>
 
-            <livewire:authenticator-app-form
-                :show="$showAuthenticatorAppForm"
-                :authenticator-apps="$this->authenticatorApps"
-            />
+            @livewire(Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppForm::class, [
+                'show' => $showAuthenticatorAppForm,
+                'authenticatorApps' => $this->authenticatorApps,
+            ], key($this->getId() . 'totpManager'))
         </x-profile-filament::box-row>
     @endif
 
-    @if ($this->canWebauthn)
+    @if ($this->canUseWebauthn)
         <x-profile-filament::box-row
             icon="heroicon-o-shield-exclamation"
             icon-alias="mfa::webauthn"
@@ -42,13 +42,13 @@
                 {{ $this->toggleWebauthnAction }}
             </x-slot:button>
 
-            <livewire:webauthn-keys
-                :webauthn-keys="$this->webauthnKeys"
-            />
+            @livewire(\Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKeys::class, [
+                'webauthnKeys' => $this->webauthnKeys,
+            ], key($this->getId() . 'webauthnKeyManager'))
         </x-profile-filament::box-row>
     @endif
 
-    {{ \Filament\Support\Facades\FilamentView::renderHook('profile-filament::mfa.methods.after') }}
+    {{ \Filament\Support\Facades\FilamentView::renderHook(\Rawilk\ProfileFilament\Enums\RenderHook::MfaMethodsAfter->value) }}
 
     <x-profile-filament::box-header>
         {{ __('profile-filament::pages/security.mfa.recovery_title') }}
@@ -62,13 +62,24 @@
         id="recovery-codes-container"
     >
         <x-slot:button>
-            {{ $this->toggleRecoveryCodesAction }}
+            <span
+                @unless ($this->hasMfaEnabled)
+                    {{-- tooltips don't show up on disabled buttons, so we'll wrap it like this instead --}}
+                    x-tooltip="{
+                        content: @js(__('profile-filament::pages/security.mfa.recovery_codes.mfa_disabled')),
+                        theme: $store.theme,
+                        offset: [0, 20],
+                    }"
+                    class="cursor-not-allowed"
+                @endunless
+            >
+                {{ $this->toggleRecoveryCodesAction }}
+            </span>
         </x-slot:button>
 
         @if ($showRecoveryCodes)
-            <livewire:recovery-codes />
+            @livewire(\Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\RecoveryCodes::class, [
+            ], key($this->getId() . 'recoveryCodes'))
         @endif
     </x-profile-filament::box-row>
 </div>
-
-@include('profile-filament::livewire.partials.recovery-codes-modal')

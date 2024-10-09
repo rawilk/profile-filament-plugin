@@ -37,7 +37,7 @@
 
                 @if ($description)
                     <div class="mt-1">
-                        <p class="text-xs text-gray-500 dark:text-gray-300">
+                        <p class="text-xs text-gray-500 dark:text-gray-300 text-pretty">
                             {{ $description }}
                         </p>
                     </div>

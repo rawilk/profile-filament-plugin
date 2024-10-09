@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Services;
 
+use const PHP_URL_HOST;
+
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature;
 use Illuminate\Contracts\Auth\Authenticatable as User;
+use Illuminate\Support\Str;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Psr\Log\LoggerInterface;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUsed;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\AssertionFailed;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\AttestationFailed;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\ResponseMismatch;
+use Symfony\Component\Serializer\SerializerInterface;
 use Webauthn\AttestationStatement;
 use Webauthn\AttestationStatement\AttestationStatementSupportManager;
 use Webauthn\AuthenticationExtensions\ExtensionOutputCheckerHandler;
@@ -21,10 +25,12 @@ use Webauthn\AuthenticatorAssertionResponseValidator;
 use Webauthn\AuthenticatorAttestationResponse;
 use Webauthn\AuthenticatorAttestationResponseValidator;
 use Webauthn\AuthenticatorSelectionCriteria;
+use Webauthn\CeremonyStep\CeremonyStepManagerFactory;
+use Webauthn\Denormalizer\WebauthnSerializerFactory;
 use Webauthn\Exception\WebauthnException;
+use Webauthn\PublicKeyCredential;
 use Webauthn\PublicKeyCredentialCreationOptions;
 use Webauthn\PublicKeyCredentialDescriptor;
-use Webauthn\PublicKeyCredentialLoader;
 use Webauthn\PublicKeyCredentialParameters;
 use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialRpEntity;
@@ -33,20 +39,6 @@ use Webauthn\PublicKeyCredentialUserEntity;
 
 class Webauthn
 {
-    protected Manager $algorithmManager;
-
-    protected AttestationStatementSupportManager $attestationStatementSupportManager;
-
-    protected AttestationStatement\AttestationObjectLoader $attestationObjectLoader;
-
-    protected PublicKeyCredentialLoader $publicKeyCredentialLoader;
-
-    protected ExtensionOutputCheckerHandler $extensionOutputCheckerHandler;
-
-    protected AuthenticatorAttestationResponseValidator $authenticatorAttestationResponseValidator;
-
-    protected AuthenticatorAssertionResponseValidator $authenticatorAssertionResponseValidator;
-
     /**
      * A callback responsible for generating a challenge with. This is mostly useful
      * in testing scenarios.
@@ -59,7 +51,6 @@ class Webauthn
         protected string $model,
         protected LoggerInterface $logger,
     ) {
-        $this->initialize();
     }
 
     /**
@@ -70,25 +61,11 @@ class Webauthn
         static::$generateChallengeCallback = $callback;
     }
 
-    public function attestationObjectFor(string $username, string|int|null $userId = null): PublicKeyCredentialCreationOptions
+    public function attestationObjectFor(User $user): PublicKeyCredentialCreationOptions
     {
-        // RP Entity i.e. the application
-        $rpEntity = PublicKeyCredentialRpEntity::create(
-            name: config('profile-filament.webauthn.relying_party.name'),
-            id: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
-            icon: config('profile-filament.webauthn.relying_party.icon'),
-        );
-
-        // User Entity
-        $userEntity = PublicKeyCredentialUserEntity::create(
-            name: $username,
-            id: (string) ($userId ?? $username),
-            displayName: $username,
-        );
-
         return PublicKeyCredentialCreationOptions::create(
-            rp: $rpEntity,
-            user: $userEntity,
+            rp: $this->getRelyingParty(),
+            user: $this->getUserEntity($user),
             challenge: $this->generateChallenge(),
             pubKeyCredParams: $this->getPubKeyCredParams(),
             authenticatorSelection: AuthenticatorSelectionCriteria::create(
@@ -97,30 +74,16 @@ class Webauthn
                 residentKey: config('profile-filament.webauthn.resident_key', AuthenticatorSelectionCriteria::RESIDENT_KEY_REQUIREMENT_PREFERRED),
             ),
             attestation: config('profile-filament.webauthn.attestation_conveyance', PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE),
-            excludeCredentials: $this->getPublicKeyCredentialDescriptorsFor($userId),
+            excludeCredentials: $this->getPublicKeyCredentialDescriptorsFor($user),
             timeout: config('profile-filament.webauthn.timeout', 60_000),
         );
     }
 
-    public function passkeyAttestationObjectFor(string $username, string|int|null $userId = null, array $excludeCredentials = []): PublicKeyCredentialCreationOptions
+    public function passkeyAttestationObjectFor(?User $user = null, array $excludeCredentials = []): PublicKeyCredentialCreationOptions
     {
-        // RP Entity i.e. the application
-        $rpEntity = PublicKeyCredentialRpEntity::create(
-            name: config('profile-filament.webauthn.relying_party.name'),
-            id: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
-            icon: config('profile-filament.webauthn.relying_party.icon'),
-        );
-
-        // User Entity
-        $userEntity = PublicKeyCredentialUserEntity::create(
-            name: $username,
-            id: (string) ($userId ?? $username),
-            displayName: $username,
-        );
-
         return PublicKeyCredentialCreationOptions::create(
-            rp: $rpEntity,
-            user: $userEntity,
+            rp: $this->getRelyingParty(),
+            user: $this->getUserEntity($user),
             challenge: $this->generateChallenge(),
             pubKeyCredParams: $this->getPubKeyCredParams(),
             authenticatorSelection: AuthenticatorSelectionCriteria::create(
@@ -129,14 +92,19 @@ class Webauthn
                 userVerification: AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_REQUIRED,
                 residentKey: AuthenticatorSelectionCriteria::RESIDENT_KEY_REQUIREMENT_REQUIRED,
             ),
-            excludeCredentials: $this->getPublicKeyCredentialDescriptorsFor($userId, $excludeCredentials),
+            excludeCredentials: $this->getPublicKeyCredentialDescriptorsFor($user, $excludeCredentials),
             timeout: config('profile-filament.webauthn.passkey_timeout', 300_000),
         );
     }
 
     public function verifyAttestation(array $attestationResponse, PublicKeyCredentialCreationOptions $storedPublicKey): PublicKeyCredentialSource
     {
-        $publicKeyCredential = $this->publicKeyCredentialLoader->loadArray($attestationResponse);
+        /** @var PublicKeyCredential $publicKeyCredential */
+        $publicKeyCredential = $this->attestationSerializer()->deserialize(
+            json_encode($attestationResponse),
+            PublicKeyCredential::class,
+            'json',
+        );
 
         throw_unless(
             $publicKeyCredential->response instanceof AuthenticatorAttestationResponse,
@@ -144,22 +112,25 @@ class Webauthn
         );
 
         try {
-            return $this->authenticatorAttestationResponseValidator->check(
-                authenticatorAttestationResponse: $publicKeyCredential->response,
-                publicKeyCredentialCreationOptions: $storedPublicKey,
-                request: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
+            return $this->attestationResponseValidator()->check(
+                $publicKeyCredential->response,
+                $storedPublicKey,
+                host: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
             );
         } catch (WebauthnException $e) {
             throw AttestationFailed::fromWebauthnException($e);
         }
     }
 
-    public function assertionObjectFor(string|int|null $userId = null): PublicKeyCredentialRequestOptions
+    /**
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/authenticate-your-users
+     */
+    public function assertionObjectFor(User $user): PublicKeyCredentialRequestOptions
     {
         return PublicKeyCredentialRequestOptions::create(
             challenge: $this->generateChallenge(),
             rpId: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
-            allowCredentials: $this->getPublicKeyCredentialDescriptorsFor($userId),
+            allowCredentials: $this->getPublicKeyCredentialDescriptorsFor($user),
             userVerification: config('profile-filament.webauthn.user_verification', AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED),
             timeout: config('profile-filament.webauthn.timeout', 60_000),
         );
@@ -175,13 +146,21 @@ class Webauthn
         );
     }
 
+    /**
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/authenticate-your-users
+     */
     public function verifyAssertion(
         ?User $user,
         array $assertionResponse,
         PublicKeyCredentialRequestOptions $storedPublicKey,
         bool $requiresPasskey = false,
     ): array {
-        $publicKeyCredential = $this->publicKeyCredentialLoader->loadArray($assertionResponse);
+        /** @var PublicKeyCredential $publicKeyCredential */
+        $publicKeyCredential = $this->assertionSerializer()->deserialize(
+            json_encode($assertionResponse),
+            PublicKeyCredential::class,
+            'json',
+        );
 
         throw_unless(
             $publicKeyCredential->response instanceof AuthenticatorAssertionResponse,
@@ -192,7 +171,7 @@ class Webauthn
             ->when($user, fn ($query) => $query->where('user_id', $user->getAuthIdentifier()))
             ->byCredentialId($publicKeyCredential->rawId)
             ->with('user')
-            ->first(['id', 'user_id', 'is_passkey', 'public_key']);
+            ->first(['id', 'user_id', 'credential_id', 'is_passkey', 'public_key']);
 
         throw_unless(
             filled($authenticator) && filled($authenticator->user),
@@ -205,21 +184,29 @@ class Webauthn
         );
 
         try {
-            $publicKeyCredentialSource = $this->authenticatorAssertionResponseValidator->check(
-                credentialId: $authenticator->public_key_credential_source,
+            $publicKeyCredentialSource = $this->assertionResponseValidator()->check(
+                publicKeyCredentialSource: $authenticator->public_key_credential_source,
                 authenticatorAssertionResponse: $publicKeyCredential->response,
                 publicKeyCredentialRequestOptions: $storedPublicKey,
-                request: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
-                userHandle: $publicKeyCredential->response->userHandle,
+                host: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
+                userHandle: $user ? $publicKeyCredential->response->userHandle : null,
             );
         } catch (WebauthnException $e) {
             throw AssertionFailed::fromWebauthnException($e);
         }
 
-        // If we've gotten this far, the response is valid.
-        // We're updating the public_key on the credential in case the counter increased.
+        /**
+         * If we've gotten this far, the response is valid. We're updating the public_key
+         * on the credential in case the counter increased.
+         *
+         * If we don't set the publicKeyCredentialId to its raw value here, future
+         * checks with this key will fail. This is probably an indicator of a
+         * bug somewhere in this implementation...
+         */
+        $publicKeyCredentialSource->publicKeyCredentialId = $publicKeyCredential->rawId;
+
         $authenticator->fill([
-            'public_key' => $publicKeyCredentialSource->jsonSerialize(),
+            'public_key' => $this->serializePublicKeyCredentialSource($publicKeyCredentialSource),
             'last_used_at' => now(),
         ])->save();
 
@@ -236,19 +223,70 @@ class Webauthn
      *
      * @return array<int, PublicKeyCredentialDescriptor>
      */
-    public function getPublicKeyCredentialDescriptorsFor(string|int $userId, array $exclude = []): array
+    public function getPublicKeyCredentialDescriptorsFor(User $user, array $exclude = []): array
     {
-        return $this->model::query()
-            ->where('user_id', $userId)
-            ->when(filled($exclude), fn ($query) => $query->whereNotIn('id', $exclude))
-            ->pluck('public_key')
-            ->map(
-                fn (array $publicKey): PublicKeyCredentialSource => PublicKeyCredentialSource::createFromArray($publicKey)
-            )
-            ->map(
-                fn (PublicKeyCredentialSource $credential): PublicKeyCredentialDescriptor => $credential->getPublicKeyCredentialDescriptor()
-            )
+        return $user
+            ->webauthnKeys()
+            ->when(filled($exclude), fn ($query) => $query->whereKeyNot($exclude))
+            ->pluck('credential_id')
+            ->map(fn (string $credentialId) => PublicKeyCredentialDescriptor::create('public-key', $credentialId))
             ->toArray();
+    }
+
+    public function serializePublicKeyCredentialSource(PublicKeyCredentialSource $source): string
+    {
+        return $this->attestationSerializer()->serialize(
+            $source,
+            'json',
+        );
+    }
+
+    public function unserializeKeyData(string $json): PublicKeyCredentialSource
+    {
+        $source = $this->attestationSerializer()->deserialize(
+            $json,
+            PublicKeyCredentialSource::class,
+            'json',
+        );
+
+        return tap($source, function (PublicKeyCredentialSource $source) use ($json) {
+            $parsedJson = json_decode($json, true);
+
+            /**
+             * The serializer does some kind of encoding to the credential id, so we need
+             * set it to the un-encoded value, otherwise the credential id checks
+             * during the ceremony will fail...
+             */
+            $source->publicKeyCredentialId = data_get($parsedJson, 'publicKeyCredentialId');
+        });
+    }
+
+    public function serializePublicKeyOptionsForRequest(
+        PublicKeyCredentialCreationOptions|PublicKeyCredentialRequestOptions $options,
+    ): array {
+        $data = [
+            ...(array) $options,
+
+            /**
+             * We need to do this otherwise the challenge check will fail
+             * in the next step of the process...
+             *
+             * @see https://github.com/web-auth/webauthn-framework/blob/4.8.x/src/webauthn/src/PublicKeyCredentialCreationOptions.php#L314
+             */
+            'challenge' => Base64UrlSafe::encodeUnpadded($options->challenge),
+        ];
+
+        if ($options instanceof PublicKeyCredentialCreationOptions) {
+            $data['user'] = (array) $options->user;
+
+            data_set(
+                $data,
+                'user.id',
+                Base64UrlSafe::encodeUnpadded(data_get($data, 'user.id')),
+            );
+        }
+
+        return $data;
     }
 
     /**
@@ -256,7 +294,7 @@ class Webauthn
      */
     protected function getPubKeyCredParams(): array
     {
-        return collect($this->algorithmManager->list())
+        return collect($this->algorithmManager()->list())
             ->map(function (int $algorithm): PublicKeyCredentialParameters {
                 return PublicKeyCredentialParameters::create(
                     type: PublicKeyCredentialDescriptor::CREDENTIAL_TYPE_PUBLIC_KEY,
@@ -272,120 +310,159 @@ class Webauthn
             return call_user_func(static::$generateChallengeCallback);
         }
 
-        return random_bytes(32);
-    }
-
-    /**
-     * @see https://webauthn-doc.spomky-labs.com/pure-php/the-hard-way
-     */
-    protected function initialize(): void
-    {
-        $this->setAlgorithmManager();
-        $this->setAttestationStatementSupportManagers();
-        $this->setAttestationObjectLoader();
-        $this->setPublicKeyCredentialLoader();
-        $this->setExtensionOutputCheckerHandler();
-
-        $this->setAuthenticatorAttestationResponseValidator();
-        $this->setAuthenticatorAssertionResponseValidator();
+        return Str::random(32);
     }
 
     /**
      * The Webauthn data verification is based on cryptographic signatures, and thus you need
      * to provide cryptographic algorithms to perform those checks.
+     *
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/advanced-behaviours/authenticator-algorithms
      */
-    protected function setAlgorithmManager(): void
+    protected function algorithmManager(): Manager
     {
-        $this->algorithmManager = Manager::create()->add(
-            Signature\ECDSA\ES256::create(),
-            Signature\ECDSA\ES256K::create(),
-            Signature\ECDSA\ES384::create(),
-            Signature\ECDSA\ES512::create(),
-            Signature\RSA\RS256::create(),
-            Signature\RSA\RS384::create(),
-            Signature\RSA\RS512::create(),
-            Signature\RSA\PS256::create(),
-            Signature\RSA\PS384::create(),
-            Signature\RSA\PS512::create(),
-            Signature\EdDSA\Ed256::create(),
-            Signature\EdDSA\Ed512::create(),
-        );
-    }
-
-    protected function setAttestationStatementSupportManagers(): void
-    {
-        $this->attestationStatementSupportManager = AttestationStatementSupportManager::create();
-
-        $this->attestationStatementSupportManager->add(AttestationStatement\NoneAttestationStatementSupport::create());
-        $this->attestationStatementSupportManager->add(AttestationStatement\FidoU2FAttestationStatementSupport::create());
-        $this->attestationStatementSupportManager->add(AttestationStatement\AndroidKeyAttestationStatementSupport::create());
-        $this->attestationStatementSupportManager->add(
-            AttestationStatement\PackedAttestationStatementSupport::create($this->algorithmManager)
-        );
-        $this->attestationStatementSupportManager->add(AttestationStatement\AppleAttestationStatementSupport::create());
+        return once(function (): Manager {
+            return Manager::create()->add(
+                Signature\ECDSA\ES256::create(),
+                Signature\ECDSA\ES256K::create(),
+                Signature\ECDSA\ES384::create(),
+                Signature\ECDSA\ES512::create(),
+                Signature\RSA\RS256::create(),
+                Signature\RSA\RS384::create(),
+                Signature\RSA\RS512::create(),
+                Signature\RSA\PS256::create(),
+                Signature\RSA\PS384::create(),
+                Signature\RSA\PS512::create(),
+                Signature\EdDSA\Ed256::create(),
+                Signature\EdDSA\Ed512::create(),
+            );
+        });
     }
 
     /**
-     * This object will load the Attestation statements received from devices. It requires the
-     * Attestation Statement Support Manager object.
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/input-loading
      */
-    protected function setAttestationObjectLoader(): void
+    protected function attestationSupportManager(): AttestationStatementSupportManager
     {
-        $this->attestationObjectLoader = AttestationStatement\AttestationObjectLoader::create(
-            $this->attestationStatementSupportManager
-        );
+        return once(function (): AttestationStatementSupportManager {
+            $manager = AttestationStatementSupportManager::create();
 
-        $this->attestationObjectLoader->setLogger($this->logger);
+            $manager->add(AttestationStatement\NoneAttestationStatementSupport::create());
+            $manager->add(AttestationStatement\FidoU2FAttestationStatementSupport::create());
+            $manager->add(AttestationStatement\AndroidKeyAttestationStatementSupport::create());
+            $manager->add(
+                AttestationStatement\PackedAttestationStatementSupport::create($this->algorithmManager())
+            );
+
+            return $manager;
+        });
     }
 
     /**
-     * This object will load the Public Key used from the Attestation Object.
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/input-loading
      */
-    protected function setPublicKeyCredentialLoader(): void
+    protected function attestationSerializer(): SerializerInterface
     {
-        $this->publicKeyCredentialLoader = PublicKeyCredentialLoader::create(
-            $this->attestationObjectLoader
-        );
+        return once(function (): SerializerInterface {
+            return (new WebauthnSerializerFactory($this->attestationSupportManager()))->create();
+        });
+    }
 
-        $this->publicKeyCredentialLoader->setLogger($this->logger);
+    /**
+     * This is exactly the same as parsing an attestation response, however I'm aliasing
+     * it to this for readability.
+     *
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/authenticate-your-users#data-loading
+     */
+    protected function assertionSerializer(): SerializerInterface
+    {
+        return $this->attestationSerializer();
+    }
+
+    /**
+     * This object is responsible for receiving attestation responses (authenticator registration).
+     *
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/input-validation
+     */
+    protected function attestationResponseValidator(): AuthenticatorAttestationResponseValidator
+    {
+        return once(function () {
+            $factory = new CeremonyStepManagerFactory;
+            $factory->setExtensionOutputCheckerHandler($this->extensionChecker());
+            $factory->setAlgorithmManager($this->algorithmManager());
+
+            $csm = $factory->creationCeremony();
+
+            $validator = new AuthenticatorAttestationResponseValidator($csm);
+
+            $validator->setLogger($this->logger);
+
+            return $validator;
+        });
+    }
+
+    /**
+     * This object is responsible for validating assertion (login) responses.
+     *
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/input-validation
+     */
+    protected function assertionResponseValidator(): AuthenticatorAssertionResponseValidator
+    {
+        return once(function () {
+            $factory = new CeremonyStepManagerFactory;
+            $factory->setExtensionOutputCheckerHandler($this->extensionChecker());
+            $factory->setAlgorithmManager($this->algorithmManager());
+
+            $csm = $factory->requestCeremony();
+
+            $validator = new AuthenticatorAssertionResponseValidator($csm);
+
+            $validator->setLogger($this->logger);
+
+            return $validator;
+        });
     }
 
     /**
      * If extensions are used, the value may need to be checked by this object.
      * We are not using extensions at this time, so we'll just use a base object.
+     *
+     * @todo Add a way to register custom extension checkers through here.
+     *
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/advanced-behaviours/extensions
      */
-    protected function setExtensionOutputCheckerHandler(): void
+    protected function extensionChecker(): ExtensionOutputCheckerHandler
     {
-        $this->extensionOutputCheckerHandler = ExtensionOutputCheckerHandler::create();
+        return once(function () {
+            return ExtensionOutputCheckerHandler::create();
+        });
     }
 
     /**
-     * This object is responsible for receiving attestation responses (authenticator registration).
+     * The RP Entity i.e. the application.
+     *
+     * @see https://webauthn-doc.spomky-labs.com/prerequisites/the-relying-part
      */
-    protected function setAuthenticatorAttestationResponseValidator(): void
+    protected function getRelyingParty(): PublicKeyCredentialRpEntity
     {
-        $this->authenticatorAttestationResponseValidator = AuthenticatorAttestationResponseValidator::create(
-            attestationStatementSupportManager: $this->attestationStatementSupportManager,
-            publicKeyCredentialSourceRepository: null,
-            tokenBindingHandler: null,
-            extensionOutputCheckerHandler: $this->extensionOutputCheckerHandler,
+        return PublicKeyCredentialRpEntity::create(
+            name: config('profile-filament.webauthn.relying_party.name'),
+            id: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
+            icon: config('profile-filament.webauthn.relying_party.icon'),
         );
-
-        $this->authenticatorAttestationResponseValidator->setLogger($this->logger);
     }
 
     /**
-     * This object is responsible for receiving assertion responses (user authentication).
+     * A user entity represents a user in the Webauthn context.
+     *
+     * @see https://webauthn-doc.spomky-labs.com/prerequisites/user-entity-repository
      */
-    protected function setAuthenticatorAssertionResponseValidator(): void
+    protected function getUserEntity(User $user): PublicKeyCredentialUserEntity
     {
-        $this->authenticatorAssertionResponseValidator = AuthenticatorAssertionResponseValidator::create(
-            publicKeyCredentialSourceRepository: null,
-            tokenBindingHandler: null,
-            extensionOutputCheckerHandler: $this->extensionOutputCheckerHandler,
-            algorithmManager: $this->algorithmManager,
+        return PublicKeyCredentialUserEntity::create(
+            name: $username = $this->model::getUsername($user),
+            id: (string) ($this->model::getUserHandle($user) ?? $username),
+            displayName: $username,
         );
-
-        $this->authenticatorAssertionResponseValidator->setLogger($this->logger);
     }
 }

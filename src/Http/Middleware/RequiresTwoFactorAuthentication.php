@@ -64,7 +64,7 @@ class RequiresTwoFactorAuthentication
 
     protected function userHasMfaEnabled(User $user): bool
     {
-        return $user->two_factor_enabled === true;
+        return Mfa::userHasMfaEnabled($user);
     }
 
     protected function getRedirectUrl(Request $request): string

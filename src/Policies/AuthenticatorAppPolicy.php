@@ -13,17 +13,20 @@ class AuthenticatorAppPolicy
 {
     use HandlesAuthorization;
 
-    public function edit(User $user, AuthenticatorApp $authenticatorApp): Response
+    public function before(User $user, string $ability, string|AuthenticatorApp $authenticatorApp)
     {
-        return $user->id === $authenticatorApp->user_id
-            ? Response::allow()
-            : Response::deny();
+        if (! is_string($authenticatorApp) && $authenticatorApp->user()->isNot($user)) {
+            return Response::deny();
+        }
+    }
+
+    public function update(User $user, AuthenticatorApp $authenticatorApp): Response
+    {
+        return Response::allow();
     }
 
     public function delete(User $user, AuthenticatorApp $authenticatorApp): Response
     {
-        return $user->id === $authenticatorApp->user_id
-            ? Response::allow()
-            : Response::deny();
+        return Response::allow();
     }
 }

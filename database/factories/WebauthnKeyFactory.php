@@ -24,7 +24,6 @@ class WebauthnKeyFactory extends Factory
             'credential_id' => Str::random(10),
             'attachment_type' => Arr::random(['platform', 'cross-platform']),
             'is_passkey' => false,
-            'transports' => ['internal', 'hybrid'],
             'public_key' => FakeWebauthn::publicKey(),
         ];
     }

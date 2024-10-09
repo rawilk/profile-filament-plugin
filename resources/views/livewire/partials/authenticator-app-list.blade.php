@@ -1,9 +1,8 @@
 <div id="authenticator-apps-list" class="divide-y divide-gray-300 dark:divide-gray-600">
     @foreach ($this->sortedAuthenticatorApps as $registeredApp)
-        <livewire:authenticator-app-list-item
-            :app="$registeredApp"
-            :key="'authenticatorApp' . $registeredApp->id"
-        />
+        @livewire(\Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppListItem::class, [
+            'app' => $registeredApp,
+        ], key('authenticatorApp' . $registeredApp->getKey()))
     @endforeach
 
     <div class="py-3">

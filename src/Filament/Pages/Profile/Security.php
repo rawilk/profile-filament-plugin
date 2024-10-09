@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Filament\Pages\Profile;
 
 use Illuminate\Contracts\Support\Htmlable;
 use Rawilk\ProfileFilament\Concerns;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class Security extends ProfilePage
 {
@@ -19,5 +20,10 @@ class Security extends ProfilePage
     public function getTitle(): string|Htmlable
     {
         return __('profile-filament::pages/security.title');
+    }
+
+    protected function needsSudoChallengeForm(): bool
+    {
+        return filament(ProfileFilamentPlugin::PLUGIN_ID)->hasSudoMode();
     }
 }

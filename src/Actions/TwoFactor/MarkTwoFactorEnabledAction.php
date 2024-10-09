@@ -9,13 +9,14 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction as MarkTwoFactorEnabledActionContract;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
+use Rawilk\ProfileFilament\Facades\Mfa;
 use Rawilk\ProfileFilament\Support\RecoveryCode;
 
 class MarkTwoFactorEnabledAction implements MarkTwoFactorEnabledActionContract
 {
     public function __invoke(User $user)
     {
-        if ($user->two_factor_enabled) {
+        if (Mfa::userHasMfaEnabled($user)) {
             return;
         }
 

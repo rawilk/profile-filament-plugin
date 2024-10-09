@@ -7,15 +7,26 @@
     icon-alias="mfa::recovery-codes"
     :close-by-clicking-away="false"
 >
-    @if ($showRecoveryInModal && filament()->auth()->user()->two_factor_enabled)
+    @if ($showRecoveryInModal && \Rawilk\ProfileFilament\Facades\Mfa::userHasMfaEnabled())
         <x-profile-filament::plugin-css class="rounded-md border border-gray-300 dark:border-gray-500 pb-8">
             <div class="px-4">
                 <div class="pt-4 sm:pl-4">
-                    <div class="[&_a]:text-custom-600 [&_a]:fi-link [&_a:focus]:underline [&_a:hover]:underline dark:[&_a]:text-custom-400"
-                         style="{{ Arr::toCssStyles([\Filament\Support\get_color_css_variables('primary', [300, 400, 500, 600])]) }}"
+                    <div
+                        class="[&_a]:text-custom-600 [&_a]:fi-link [&_a:focus]:underline [&_a:hover]:underline dark:[&_a]:text-custom-400"
+                        @style([
+                            \Filament\Support\get_color_css_variables('primary', [300, 400, 500, 600]),
+                        ])
                     >
                         <p class="text-xs text-gray-500 dark:text-gray-300">
-                            {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.recommendation', ['1password' => 'https://1password.com/', 'authy' => 'https://authy.com/', 'keeper' => 'https://www.keepersecurity.com/'])) }}
+                            {{
+                                str(__('profile-filament::pages/security.mfa.recovery_codes.recommendation', [
+                                    '1password' => 'https://1password.com/',
+                                    'authy' => 'https://authy.com/',
+                                    'keeper' => 'https://www.keepersecurity.com/',
+                                ]))
+                                    ->inlineMarkdown()
+                                    ->toHtmlString()
+                            }}
                         </p>
                     </div>
                 </div>
@@ -26,9 +37,9 @@
                     color="primary"
                     icon="heroicon-o-exclamation-triangle"
                     icon-alias="mfa::recovery-codes-notice"
-                    class="rounded-none border-x-0"
+                    class="!rounded-none !border-x-0"
                 >
-                    {{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::pages/security.mfa.recovery_codes.warning')) }}
+                    {{ str(__('profile-filament::pages/security.mfa.recovery_codes.warning'))->markdown()->toHtmlString() }}
                 </x-profile-filament::alert>
             </div>
 

@@ -19,7 +19,7 @@ class UpgradeToPasskeyAction implements UpgradeToPasskeyActionContract
         array $attestation,
         WebauthnKey $webauthnKey,
     ): WebauthnKey {
-        $passkey = WebauthnKey::fromPublicKeyCredentialSource(
+        $passkey = app(config('profile-filament.models.webauthn_key'))::fromPublicKeyCredentialSource(
             source: $publicKeyCredentialSource,
             user: $user,
             keyName: $webauthnKey->name,

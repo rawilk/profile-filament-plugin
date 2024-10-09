@@ -197,6 +197,17 @@ class Mfa
         return $this->remember;
     }
 
+    public function userHasMfaEnabled(?User $user = null): bool
+    {
+        $user ??= auth()->user();
+
+        if (method_exists($user, 'hasTwoFactorEnabled')) {
+            return $user->hasTwoFactorEnabled();
+        }
+
+        return $user?->two_factor_enabled === true;
+    }
+
     protected function getUserConfirmedKey(User $user): string
     {
         return MfaSession::Confirmed->value . ".{$user->getAuthIdentifier()}";
@@ -211,10 +222,5 @@ class Mfa
     {
         return $this->profilePlugin()->panelFeatures()->hasWebauthn()
             || $this->profilePlugin()->panelFeatures()->hasPasskeys();
-    }
-
-    protected function userHasMfaEnabled(?User $user): bool
-    {
-        return $user?->two_factor_enabled === true;
     }
 }

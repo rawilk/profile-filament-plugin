@@ -6,29 +6,29 @@ namespace Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
+use Filament\Support\Enums\ActionSize;
 use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Js;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Unique;
+use Illuminate\Contracts\Auth\Authenticatable as User;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
-use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
-use Rawilk\ProfileFilament\Contracts\Webauthn\DeleteWebauthnKeyAction;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpdated;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\DeleteWebauthnKeyAction;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\EditWebauthnKeyAction;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 use Rawilk\ProfileFilament\Models\WebauthnKey as WebauthnKeyModel;
 
 /**
  * @property-read bool $hasPasskeys
+ * @property-read User $user
+ * @property-read null|WebauthnKeyModel $webauthnKey
  */
 class WebauthnKey extends ProfileComponent
 {
-    use UsesSudoChallengeAction;
-
-    public ?WebauthnKeyModel $webauthnKey;
+    #[Locked]
+    public int|string|null $id;
 
     #[Computed]
     public function hasPasskeys(): bool
@@ -36,126 +36,126 @@ class WebauthnKey extends ProfileComponent
         return $this->profilePlugin->panelFeatures()->hasPasskeys();
     }
 
-    public function messages(): array
+    #[Computed]
+    public function user(): User
     {
-        return [
-            'mountedActionsData.0.name.unique' => __('profile-filament::pages/security.passkeys.unique_validation_error'),
-        ];
+        return filament()->auth()->user();
+    }
+
+    #[Computed]
+    public function webauthnKey(): ?WebauthnKeyModel
+    {
+        if (blank($this->id)) {
+            return null;
+        }
+
+        return $this->user
+            ->nonPasskeyWebauthnKeys()
+            ->whereKey($this->id)
+            ->first([
+                'id',
+                'user_id',
+                'name',
+                'attachment_type',
+                'is_passkey',
+                'last_used_at',
+                'created_at',
+            ]);
+    }
+
+    public function render(): string
+    {
+        return <<<'HTML'
+        <div @class(['hidden' => ! $this->webauthnKey])>
+            @if ($this->webauthnKey)
+                <div class="py-3 flex justify-between items-center gap-x-3">
+                    <div>
+                        <div>
+                            <span>{{ $this->webauthnKey->name }}</span>
+                            <span class="text-gray-500 dark:text-gray-400 text-xs">
+                                {{ $this->webauthnKey->registered_at }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-500 dark:text-gray-400 text-xs">
+                                {{ $this->webauthnKey->last_used }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-x-2">
+                        @if ($this->hasPasskeys && Gate::allows('upgradeToPasskey', $this->webauthnKey))
+                            {{ $this->upgradeAction }}
+                        @endif
+
+                        @can('update', $this->webauthnKey)
+                            {{ $this->editAction }}
+                        @endcan
+
+                        {{ $this->deleteAction }}
+                    </div>
+                </div>
+
+                <x-filament-actions::modals />
+            @endif
+        </div>
+        HTML;
+    }
+
+    #[On(MfaEvent::WebauthnKeyUpgradedToPasskey->value)]
+    public function onUpgraded(int|string|null $upgradedFrom = null): void
+    {
+        if ($upgradedFrom === $this->id) {
+            $this->id = null;
+
+            unset($this->webauthnKey);
+        }
     }
 
     public function editAction(): EditAction
     {
-        return EditAction::make()
-            ->label(__('profile-filament::pages/security.mfa.webauthn.actions.edit.trigger_label', ['name' => e($this->webauthnKey->name)]))
-            ->record($this->webauthnKey)
-            ->icon(FilamentIcon::resolve('actions::edit-action') ?? 'heroicon-o-pencil')
-            ->button()
-            ->hiddenLabel()
-            ->color('primary')
-            ->size('sm')
-            ->outlined()
-            ->tooltip(__('profile-filament::pages/security.mfa.webauthn.actions.edit.trigger_tooltip'))
-            ->before(function (EditAction $action, WebauthnKeyModel $record) {
-                $this->authorize('edit', $record);
-            })
-            ->after(function (WebauthnKeyModel $record) {
-                WebauthnKeyUpdated::dispatch($record, filament()->auth()->user());
-            })
-            ->form([
-                TextInput::make('name')
-                    ->label(__('profile-filament::pages/security.mfa.webauthn.actions.edit.name'))
-                    ->placeholder(__('profile-filament::pages/security.mfa.webauthn.actions.edit.name_placeholder'))
-                    ->autofocus()
-                    ->required()
-                    ->unique(
-                        table: config('profile-filament.table_names.webauthn_key'),
-                        ignorable: $this->webauthnKey,
-                        modifyRuleUsing: function (Unique $rule) {
-                            $rule->where('user_id', filament()->auth()->id());
-                        },
-                    )
-                    ->maxlength(255)
-                    ->autocomplete('off'),
-            ])
-            ->modalHeading(__('profile-filament::pages/security.mfa.webauthn.actions.edit.title'))
-            ->successNotificationTitle(__('profile-filament::pages/security.mfa.webauthn.actions.edit.success_message'))
-            ->extraAttributes([
-                'title' => '',
-            ]);
+        return EditWebauthnKeyAction::make()
+            ->record($this->webauthnKey);
     }
 
     public function deleteAction(): Action
     {
-        return Action::make('delete')
-            ->label(__('profile-filament::pages/security.mfa.webauthn.actions.delete.trigger_label', ['name' => e($this->webauthnKey->name)]))
-            ->icon(FilamentIcon::resolve('actions::delete-action') ?? 'heroicon-o-trash')
-            ->button()
-            ->hiddenLabel()
-            ->tooltip(__('profile-filament::pages/security.mfa.webauthn.actions.delete.trigger_tooltip'))
-            ->color('danger')
-            ->size('sm')
-            ->outlined()
-            ->action(function () {
-                $this->ensureSudoIsActive(returnAction: 'delete');
-
-                $this->authorize('delete', $this->webauthnKey);
-
-                app(DeleteWebauthnKeyAction::class)($this->webauthnKey);
-
-                Notification::make()
-                    ->title(__('profile-filament::pages/security.mfa.webauthn.actions.delete.success_message', ['name' => e($this->webauthnKey->name)]))
-                    ->success()
-                    ->send();
-
+        return DeleteWebauthnKeyAction::make()
+            ->record($this->webauthnKey)
+            ->after(function (): void {
                 $this->dispatch(MfaEvent::WebauthnKeyDeleted->value, id: $this->webauthnKey->getKey());
 
-                $this->webauthnKey = null;
-            })
-            ->requiresConfirmation()
-            ->modalIcon(fn () => FilamentIcon::resolve('actions::delete-action.modal') ?? 'heroicon-o-trash')
-            ->modalHeading(__('profile-filament::pages/security.mfa.webauthn.actions.delete.title'))
-            ->modalDescription(
-                new HtmlString(
-                    Str::inlineMarkdown(__('profile-filament::pages/security.mfa.webauthn.actions.delete.description', ['name' => e($this->webauthnKey->name)]))
-                )
-            )
-            ->modalSubmitActionLabel(__('profile-filament::pages/security.mfa.webauthn.actions.delete.confirm'))
-            ->extraAttributes([
-                'title' => '',
-            ])
-            ->mountUsing(function () {
-                $this->ensureSudoIsActive(returnAction: 'delete');
+                $this->id = null;
+
+                unset($this->webauthnKey);
             });
     }
 
     public function upgradeAction(): Action
     {
-        $eventName = MfaEvent::StartPasskeyUpgrade->value;
-        $keyId = Js::from($this->webauthnKey->getKey());
-
         return Action::make('upgrade')
-            ->livewireClickHandlerEnabled(false)
             ->label(__('profile-filament::pages/security.passkeys.actions.upgrade.trigger_label', ['name' => e($this->webauthnKey->name)]))
             ->icon(fn () => FilamentIcon::resolve('mfa::upgrade-to-passkey') ?? 'heroicon-m-arrow-up')
             ->button()
             ->hiddenLabel()
             ->color('success')
-            ->size('sm')
+            ->size(ActionSize::Small)
             ->outlined()
             ->tooltip(__('profile-filament::pages/security.passkeys.actions.upgrade.trigger_tooltip'))
             ->visible(
-                fn () => $this->hasPasskeys && filament()->auth()->user()->can('upgradeToPasskey', $this->webauthnKey)
+                fn (): bool => $this->hasPasskeys && Gate::allows('upgradeToPasskey', $this->webauthnKey)
             )
             ->extraAttributes([
                 'title' => '',
-                'x-on:click' => new HtmlString(<<<JS
-                \$dispatch('{$eventName}', { id: {$keyId} });
-                JS),
-            ]);
-    }
-
-    protected function view(): string
-    {
-        return 'profile-filament::livewire.two-factor-authentication.webauthn-key';
+            ])
+            ->alpineClickHandler(
+                Blade::render(<<<'JS'
+                $dispatch(@js($event), @js(['id' => $id]));
+                JS, [
+                    'event' => MfaEvent::StartPasskeyUpgrade->value,
+                    'id' => $this->webauthnKey->getKey(),
+                ])
+            );
     }
 }

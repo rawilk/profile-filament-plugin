@@ -7,120 +7,117 @@ namespace Rawilk\ProfileFilament\Livewire;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Support\Facades\FilamentIcon;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Unique;
+use Livewire\Attributes\Locked;
 use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
 use Rawilk\ProfileFilament\Contracts\Passkeys\DeletePasskeyAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyUpdated;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\DeleteWebauthnKeyAction;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\EditWebauthnKeyAction;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
 class Passkey extends ProfileComponent
 {
     use UsesSudoChallengeAction;
 
+    #[Locked]
     public ?WebauthnKey $passkey;
 
-    public function messages(): array
+    public function render(): string
     {
-        return [
-            'mountedActionsData.0.name.unique' => __('profile-filament::pages/security.passkeys.unique_validation_error'),
-        ];
+        return <<<'HTML'
+        <div @class(['hidden' => ! $passkey])>
+            @if ($passkey)
+                <div class="flex justify-between gap-x-3">
+                    <div class="flex-1 flex items-start">
+                        <div class="shrink-0 text-gray-500 dark:text-white">
+                            <x-filament::icon
+                                class="w-6 h-6"
+                                icon="pf-passkey"
+                                alias="profile-filament::passkey-item-icon"
+                            />
+                        </div>
+
+                        <div class="flex-1 ml-4">
+                            <div>
+                                <span class="text-sm font-semibold">{{ $passkey->name }}</span>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs">
+                                    {{ $passkey->registered_at }}
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs">
+                                    {{ $passkey->last_used }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- actions --}}
+                    <div class="flex items-center gap-x-2 shrink-0">
+                        @can('update', $passkey)
+                            {{ $this->editAction }}
+                        @endcan
+
+                        {{ $this->deleteAction }}
+                    </div>
+                </div>
+
+                <x-filament-actions::modals />
+            @endif
+        </div>
+        HTML;
     }
 
     public function editAction(): EditAction
     {
-        return EditAction::make()
-            ->label(__('profile-filament::pages/security.passkeys.actions.edit.trigger_label', ['name' => e($this->passkey->name)]))
+        return EditWebauthnKeyAction::make()
             ->record($this->passkey)
-            ->icon(FilamentIcon::resolve('actions::edit-action') ?? 'heroicon-o-pencil')
-            ->button()
-            ->hiddenLabel()
-            ->color('primary')
-            ->size('sm')
-            ->outlined()
             ->tooltip(__('profile-filament::pages/security.passkeys.actions.edit.trigger_tooltip'))
-            ->before(function (EditAction $action, WebauthnKey $record) {
-                $this->authorize('edit', $record);
+            ->modalHeading(__('profile-filament::pages/security.passkeys.actions.edit.title'))
+            ->successNotificationTitle(__('profile-filament::pages/security.passkeys.actions.edit.success_notification'))
+            ->modifyNameInputUsing(function (TextInput $component): TextInput {
+                return $component
+                    ->label(__('profile-filament::pages/security.passkeys.actions.edit.name'))
+                    ->placeholder(__('profile-filament::pages/security.passkeys.actions.edit.name_placeholder'));
             })
             ->after(function (WebauthnKey $record) {
                 PasskeyUpdated::dispatch($record, filament()->auth()->user());
-            })
-            ->form([
-                TextInput::make('name')
-                    ->label(__('profile-filament::pages/security.passkeys.actions.edit.name'))
-                    ->placeholder(__('profile-filament::pages/security.passkeys.actions.edit.name_placeholder'))
-                    ->autofocus()
-                    ->required()
-                    ->maxlength(255)
-                    ->unique(
-                        table: config('profile-filament.table_names.webauthn_key'),
-                        ignorable: $this->passkey,
-                        modifyRuleUsing: function (Unique $rule) {
-                            $rule->where('user_id', filament()->auth()->id());
-                        },
-                    )
-                    ->autocomplete('off'),
-            ])
-            ->modalHeading(__('profile-filament::pages/security.passkeys.actions.edit.title'))
-            ->successNotificationTitle(__('profile-filament::pages/security.passkeys.actions.edit.success_notification'))
-            ->extraAttributes([
-                'title' => '',
-            ]);
+            });
     }
 
     public function deleteAction(): Action
     {
-        $description = Str::markdown(__('profile-filament::pages/security.passkeys.actions.delete.description', ['name' => e($this->passkey->name)]));
-
-        return Action::make('delete')
-            ->label(__('profile-filament::pages/security.passkeys.actions.delete.trigger_label', ['name' => e($this->passkey->name)]))
-            ->icon(FilamentIcon::resolve('actions::delete-action') ?? 'heroicon-o-trash')
-            ->button()
-            ->hiddenLabel()
+        return DeleteWebauthnKeyAction::make()
+            ->record($this->passkey)
             ->tooltip(__('profile-filament::pages/security.passkeys.actions.delete.trigger_tooltip'))
-            ->color('danger')
-            ->size('sm')
-            ->outlined()
-            ->action(function () {
-                $this->ensureSudoIsActive(returnAction: 'delete');
-                $this->authorize('delete', $this->passkey);
-
-                app(DeletePasskeyAction::class)($this->passkey);
-
-                Notification::make()
-                    ->title(__('profile-filament::pages/security.passkeys.actions.delete.success_message', ['name' => e($this->passkey->name)]))
-                    ->success()
-                    ->send();
-
-                $this->dispatch(MfaEvent::PasskeyDeleted->value, id: $this->passkey->id);
-
-                $this->passkey = null;
-            })
-            ->requiresConfirmation()
-            ->modalIcon(fn () => FilamentIcon::resolve('actions::delete-action.modal') ?? 'heroicon-o-trash')
             ->modalHeading(__('profile-filament::pages/security.passkeys.actions.delete.title'))
             ->modalDescription(
-                new HtmlString(<<<HTML
-                <div class="text-sm text-left space-y-2">
-                    {$description}
+                fn (WebauthnKey $record): Htmlable => new HtmlString(Blade::render(<<<'HTML'
+                <div class="fi-modal-description text-sm text-gray-500 dark:text-gray-400 text-left text-pretty space-y-3">
+                    {{
+                        str(__('profile-filament::pages/security.passkeys.actions.delete.description', [
+                            'name' => e($record->name),
+                        ]))
+                            ->markdown()
+                            ->toHtmlString()
+                    }}
                 </div>
-                HTML)
+                HTML, ['record' => $record]))
             )
-            ->modalSubmitActionLabel(__('profile-filament::pages/security.passkeys.actions.delete.confirm'))
-            ->extraAttributes([
-                'title' => '',
-            ])
-            ->mountUsing(function () {
-                $this->ensureSudoIsActive(returnAction: 'delete');
-            });
-    }
+            ->using(function (WebauthnKey $record, DeletePasskeyAction $deleter): bool {
+                $deleter($record);
 
-    protected function view(): string
-    {
-        return 'profile-filament::livewire.passkey';
+                return true;
+            })
+            ->after(function (WebauthnKey $record): void {
+                $this->dispatch(MfaEvent::PasskeyDeleted->value, id: $record->getKey());
+
+                $this->passkey = null;
+            });
     }
 }

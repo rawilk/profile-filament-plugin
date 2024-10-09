@@ -5,7 +5,7 @@
      */
 
     abort_unless(
-        filament()->auth()->user()?->two_factor_enabled,
+        \Rawilk\ProfileFilament\Facades\Mfa::userHasMfaEnabled(),
         \Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN,
     );
 
@@ -56,7 +56,8 @@
 
         {{ \Filament\Support\Facades\FilamentView::renderHook('panels::styles.after') }}
 
-        <link rel="stylesheet" href="{{ \Filament\Support\Facades\FilamentAsset::getStyleHref('profile-filament-plugin', package: \Rawilk\ProfileFilament\ProfileFilamentPlugin::PLUGIN_ID) }}">
+        <link rel="stylesheet"
+              href="{{ \Filament\Support\Facades\FilamentAsset::getStyleHref('profile-filament-plugin', package: \Rawilk\ProfileFilament\ProfileFilamentPlugin::PLUGIN_ID) }}">
 
         @filamentStyles
         {{ filament()->getTheme()->getHtml() }}
@@ -114,8 +115,8 @@
                 </ul>
             </div>
 
-
-            <div class="mt-6 rounded-b-md border-t border-gray-300 dark:border-gray-500 bg-gray-100 dark:bg-gray-800 text-gray-950 dark:text-gray-200 px-6 py-4">
+            <div
+                class="mt-6 rounded-b-md border-t border-gray-300 dark:border-gray-500 bg-gray-100 dark:bg-gray-800 text-gray-950 dark:text-gray-200 px-6 py-4">
                 <p class="text-sm">
                     {{ __('profile-filament::pages/security.mfa.recovery_codes.actions.print.print_page_description', ['app_name' => config('app.name')]) }}
                 </p>

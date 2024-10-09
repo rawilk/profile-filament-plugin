@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 use function Rawilk\ProfileFilament\wrapDateInTimeTag;
@@ -31,11 +30,6 @@ class AuthenticatorApp extends Model
 
     protected $hidden = [
         'secret',
-    ];
-
-    protected $casts = [
-        'secret' => 'encrypted',
-        'last_used_at' => 'immutable_datetime',
     ];
 
     protected $guarded = [];
@@ -62,7 +56,7 @@ class AuthenticatorApp extends Model
 
                 $translation = __('profile-filament::pages/security.mfa.method_last_used_date', ['date' => $date]);
 
-                return new HtmlString(Str::inlineMarkdown($translation));
+                return str($translation)->inlineMarkdown()->toHtmlString();
             },
         )->shouldCache();
     }
@@ -75,8 +69,16 @@ class AuthenticatorApp extends Model
 
                 $translation = __('profile-filament::pages/security.mfa.method_registration_date', ['date' => wrapDateInTimeTag($date)]);
 
-                return new HtmlString(Str::inlineMarkdown($translation));
+                return str($translation)->inlineMarkdown()->toHtmlString();
             },
         )->shouldCache();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'secret' => 'encrypted',
+            'last_used_at' => 'immutable_datetime',
+        ];
     }
 }
