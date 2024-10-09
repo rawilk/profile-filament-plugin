@@ -43,8 +43,22 @@ const defaultOptions = {
     }],
 };
 
-compile({
-    ...defaultOptions,
-    entryPoints: ['./resources/js/webauthn.js'],
-    outfile: './resources/dist/webauthn.js',
+const buildEntries = [
+    {
+        entry: './resources/js/webauthn/register.js',
+        output: './resources/dist/webauthn/register.js',
+    },
+    {
+        entry: './resources/js/webauthn/authenticate.js',
+        output: './resources/dist/webauthn/authenticate.js',
+    },
+];
+
+// Compile each entry point separately
+buildEntries.forEach(( { entry, output }) => {
+    compile({
+        ...defaultOptions,
+        entryPoints: [entry],
+        outfile: output,
+    });
 });
