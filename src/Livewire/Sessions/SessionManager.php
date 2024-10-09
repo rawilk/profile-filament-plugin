@@ -6,27 +6,29 @@ namespace Rawilk\ProfileFilament\Livewire\Sessions;
 
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Form;
-use Filament\Notifications\Notification;
+use Filament\Infolists;
+use Filament\Infolists\Concerns\InteractsWithInfolists;
+use Filament\Infolists\Contracts\HasInfolists;
+use Filament\Infolists\Infolist;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
-use Rawilk\FilamentPasswordInput\Password;
+use Rawilk\ProfileFilament\Filament\Actions\Sessions\RevokeAllSessionsInfolistAction;
+use Rawilk\ProfileFilament\Filament\Actions\Sessions\RevokeSessionAction;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 use Rawilk\ProfileFilament\Support\Agent;
-use Throwable;
 
 /**
  * @property-read bool $isUsingDatabaseDriver
  * @property-read Collection $sessions
  */
-class SessionManager extends ProfileComponent
+class SessionManager extends ProfileComponent implements HasInfolists
 {
+    use InteractsWithInfolists;
+
     #[Computed]
     public function isUsingDatabaseDriver(): bool
     {
@@ -55,118 +57,48 @@ class SessionManager extends ProfileComponent
         });
     }
 
-    public function revokeAction(): Action
+    public function render(): string
     {
-        return Action::make('revoke')
-            ->color('danger')
-            ->label(__('profile-filament::pages/sessions.manager.actions.revoke.trigger'))
-            ->size('sm')
-            ->form([
-                $this->getPasswordInput(),
-            ])
-            ->modalSubmitActionLabel(__('profile-filament::pages/sessions.manager.actions.revoke.submit_button'))
-            ->modalWidth('lg')
-            ->action(function (array $arguments, Form $form) {
-                /** @var string $sessionId */
-                $sessionId = rescue(fn () => Crypt::decryptString($arguments['session'] ?? ''));
+        return <<<'HTML'
+        <div>
+            {{ $this->infolist }}
 
-                if (! $sessionId) {
-                    return;
-                }
+            <x-filament-actions::modals />
+        </div>
+        HTML;
+    }
 
-                $this->deleteSessionById($sessionId, $form->getState()['password']);
+    public function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make(__('profile-filament::pages/sessions.manager.heading'))
+                    ->description(__('profile-filament::pages/sessions.manager.description'))
+                    ->schema([
+                        Infolists\Components\Actions::make([
+                            $this->revokeAllAction(),
+                        ]),
 
-                Notification::make()
-                    ->success()
-                    ->title(__('profile-filament::pages/sessions.manager.actions.revoke.success'))
-                    ->send();
+                        Infolists\Components\View::make('profile-filament::livewire.sessions.session-list')
+                            ->viewData([
+                                $this->sessions,
+                            ])
+                            ->hidden(fn (): bool => $this->sessions->isEmpty()),
+                    ]),
+            ]);
+    }
+
+    public function revokeSessionAction(): Action
+    {
+        return RevokeSessionAction::make();
+    }
+
+    public function revokeAllAction(): Infolists\Components\Actions\Action
+    {
+        return RevokeAllSessionsInfolistAction::make()
+            ->after(function () {
+                unset($this->sessions);
             });
-    }
-
-    public function revokeAllAction(): Action
-    {
-        return Action::make('revokeAll')
-            ->color('danger')
-            ->label(__('profile-filament::pages/sessions.manager.actions.revoke_all.trigger'))
-            ->size('sm')
-            ->form([
-                $this->getPasswordInput(),
-            ])
-            ->modalWidth('lg')
-            ->modalSubmitActionLabel(__('profile-filament::pages/sessions.manager.actions.revoke_all.submit_button'))
-            ->modalHeading(__('profile-filament::pages/sessions.manager.actions.revoke_all.modal_title'))
-            ->action(function (Form $form) {
-                Auth::logoutOtherDevices($form->getState()['password']);
-
-                $this->deleteOtherSessions();
-
-                session()->put([
-                    "password_hash_{$this->getGuard()}" => Filament::auth()->user()->getAuthPassword(),
-                ]);
-
-                Notification::make()
-                    ->success()
-                    ->title(__('profile-filament::pages/sessions.manager.actions.revoke_all.success'))
-                    ->send();
-            });
-    }
-
-    protected function getPasswordInput(): Component
-    {
-        return Password::make('password')
-            ->label(__('profile-filament::pages/sessions.manager.password_input_label'))
-            ->helperText(__('profile-filament::pages/sessions.manager.password_input_helper'))
-            ->currentPassword()
-            ->required();
-    }
-
-    protected function deleteSessionById(string $sessionId, string $password): void
-    {
-        if (! $this->isUsingDatabaseDriver) {
-            return;
-        }
-
-        Filament::auth()->user()->forceFill([
-            'password' => $password,
-        ])->save();
-
-        session()->put([
-            "password_hash_{$this->getGuard()}" => Filament::auth()->user()->getAuthPassword(),
-        ]);
-
-        $this->sessionsDb()
-            ->whereNotIn('id', [session()->getId(), $sessionId])
-            ->select(['id', 'payload'])
-            ->cursor()
-            ->each(function (object $session) {
-                try {
-                    $payload = unserialize(base64_decode($session->payload));
-
-                    $payload["password_hash_{$this->getGuard()}"] = Filament::auth()->user()->getAuthPassword();
-
-                    $this->sessionsDb()
-                        ->where('id', $session->id)
-                        ->update([
-                            'payload' => base64_encode(serialize($payload)),
-                        ]);
-                } catch (Throwable) {
-                }
-            });
-
-        $this->sessionsDb()
-            ->where('id', $sessionId)
-            ->delete();
-    }
-
-    protected function deleteOtherSessions(): void
-    {
-        if (! $this->isUsingDatabaseDriver) {
-            return;
-        }
-
-        $this->sessionsDb()
-            ->where('id', '!=', session()->getId())
-            ->delete();
     }
 
     protected function createAgent(object $session): Agent
@@ -174,21 +106,10 @@ class SessionManager extends ProfileComponent
         return tap(new Agent, fn (Agent $agent) => $agent->setUserAgent($session->user_agent));
     }
 
-    protected function view(): string
-    {
-        return 'profile-filament::livewire.sessions.session-manager';
-    }
-
     protected function sessionsDb(): Builder
     {
         return DB::connection(config('session.connection'))
             ->table(config('session.table', 'sessions'))
             ->where('user_id', Filament::auth()->id());
-    }
-
-    protected function getGuard(): string
-    {
-        return Filament::getCurrentPanel()?->getAuthGuard()
-            ?? Auth::getDefaultDriver();
     }
 }
