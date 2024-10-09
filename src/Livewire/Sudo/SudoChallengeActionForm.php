@@ -36,7 +36,7 @@ class SudoChallengeActionForm extends Component implements HasActions, HasForms
     {
         return <<<'HTML'
         <div>
-            <x-profile-filament::sudo.modal-form
+            <x-profile-filament::sudo.form
                 :user="$this->user"
                 :user-handle="$this->userHandle()"
                 :challenge-mode="$this->challengeMode"

@@ -88,7 +88,7 @@ class SudoChallengeForm extends Component implements HasActions, HasForms
             ->modalCancelAction(false)
             ->modalWidth(MaxWidth::Large)
             ->modalContent(
-                fn () => view('profile-filament::components.sudo.modal-form', [
+                fn () => view('profile-filament::components.sudo.form', [
                     'user' => $this->user,
                     'userHandle' => $this->userHandle(),
                     'challengeMode' => $this->challengeMode,
