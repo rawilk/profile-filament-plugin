@@ -106,22 +106,26 @@ class RevokeSessionAction extends Action
     protected function deleteById(string $sessionId): void
     {
         defer(function () use ($sessionId) {
+            $newPasswordHash = Filament::auth()->user()->getAuthPassword();
+            $guard = $this->getGuard();
+
             $this->table()
                 ->whereNotIn('id', [session()->getId(), $sessionId])
                 ->select(['id', 'payload'])
-                ->cursor()
-                ->each(function (object $session) {
-                    try {
-                        $payload = unserialize(base64_decode($session->payload));
+                ->chunkById(100, function ($sessions) use ($newPasswordHash, $guard) {
+                    foreach ($sessions as $session) {
+                        try {
+                            $payload = unserialize(base64_decode($session->payload));
 
-                        $payload["password_hash_{$this->getGuard()}"] = Filament::auth()->user()->getAuthPassword();
+                            $payload["password_hash_{$guard}"] = $newPasswordHash;
 
-                        $this->table()
-                            ->where('id', $session->id)
-                            ->update([
-                                'payload' => base64_encode(serialize($payload)),
-                            ]);
-                    } catch (Throwable) {
+                            $this->table()
+                                ->where('id', $session->id)
+                                ->update([
+                                    'payload' => base64_encode(serialize($payload)),
+                                ]);
+                        } catch (Throwable) {
+                        }
                     }
                 });
         });
