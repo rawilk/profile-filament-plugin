@@ -131,14 +131,11 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
     private function registerAssets(): void
     {
-        FilamentAsset::register([
-            AlpineComponent::make('webauthnForm', __DIR__ . '/../resources/dist/webauthn.js')
-                ->loadedOnRequest(),
-        ], ProfileFilamentPlugin::PLUGIN_ID);
-
         FilamentAsset::register(
             assets: [
                 Css::make('profile-filament-plugin', __DIR__ . '/../resources/dist/plugin.css')->loadedOnRequest(),
+                AlpineComponent::make('registerWebauthn', __DIR__ . '/../resources/dist/webauthn/register.js')->loadedOnRequest(),
+                AlpineComponent::make('authenticateWebauthn', __DIR__ . '/../resources/dist/webauthn/authenticate.js')->loadedOnRequest(),
             ],
             package: ProfileFilamentPlugin::PLUGIN_ID,
         );
@@ -193,6 +190,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         Livewire::component(PackageLivewire\DeleteAccount::class, PackageLivewire\DeleteAccount::class);
         Livewire::component(PackageLivewire\UpdatePassword::class, PackageLivewire\UpdatePassword::class);
         Livewire::component(PackageLivewire\PasskeyManager::class, PackageLivewire\PasskeyManager::class);
+        Livewire::component(PackageLivewire\PasskeyRegistrationForm::class, PackageLivewire\PasskeyRegistrationForm::class);
         Livewire::component(PackageLivewire\MfaOverview::class, PackageLivewire\MfaOverview::class);
         Livewire::component(PackageLivewire\Sessions\SessionManager::class, PackageLivewire\Sessions\SessionManager::class);
     }
