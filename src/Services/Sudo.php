@@ -13,9 +13,7 @@ class Sudo
 {
     use Macroable;
 
-    public function __construct(protected DateInterval $expiration)
-    {
-    }
+    public function __construct(protected DateInterval $expiration) {}
 
     public function deactivate(): void
     {

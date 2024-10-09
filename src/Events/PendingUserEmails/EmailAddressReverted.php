@@ -13,6 +13,5 @@ final class EmailAddressReverted extends ProfileFilamentEvent
         public User $user,
         public string $revertedFrom,
         public string $revertedTo,
-    ) {
-    }
+    ) {}
 }

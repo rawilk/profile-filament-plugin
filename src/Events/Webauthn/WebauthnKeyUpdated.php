@@ -10,7 +10,5 @@ use Rawilk\ProfileFilament\Models\WebauthnKey;
 
 final class WebauthnKeyUpdated extends ProfileFilamentEvent
 {
-    public function __construct(public WebauthnKey $webauthnKey, public User $user)
-    {
-    }
+    public function __construct(public WebauthnKey $webauthnKey, public User $user) {}
 }
