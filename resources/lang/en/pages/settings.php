@@ -15,6 +15,7 @@ return [
         'email_reverted' => 'Your email address has been reverted back to what it was and can now be used to sign-in with.',
 
         'heading' => 'Email address',
+        'label' => 'Email',
         'change_pending_badge' => 'Change pending',
         'email_description' => 'This email will be used for sign-in, account-related notifications and can also be used for password resets.',
 

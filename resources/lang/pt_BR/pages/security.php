@@ -64,7 +64,6 @@ return [
                     'title' => 'Excluir Aplicativo Autenticador',
                     'confirm' => 'Excluir',
                     'description' => 'Você não poderá mais usar o aplicativo **:name** como um segundo método de autenticação.',
-                    'success_message' => 'Aplicativo autenticador ":name" excluído.',
                 ],
 
                 'edit' => [
@@ -107,7 +106,6 @@ return [
                     'title' => 'Excluir Chave de Segurança',
                     'confirm' => 'Excluir',
                     'description' => 'Você não poderá mais usar a chave de segurança **:name** como um segundo método de autenticação.',
-                    'success_message' => 'Chave de segurança ":name" excluída.',
                 ],
 
                 'edit' => [
@@ -170,7 +168,6 @@ return [
         'unique_validation_error' => 'Você já tem um dispositivo com este nome.',
 
         'list' => [
-            'title' => 'Suas chaves de acesso',
             'description' => 'As chaves de acesso são uma substituição de senha que valida sua identidade usando toque, reconhecimento facial, senha do dispositivo ou PIN.',
         ],
 
@@ -209,7 +206,6 @@ return [
                 'title' => 'Excluir chave de acesso',
                 'confirm' => 'Excluir',
                 'description' => "Tem certeza de que deseja excluir sua chave de acesso **:name**?\n\nAo remover essa chave de acesso, você não poderá mais usá-la para fazer login na sua conta de nenhum dos dispositivos em que ela foi sincronizada.\n\n**Nota:** Você pode continuar vendo esta chave de acesso como uma opção durante o login até excluí-la também do seu navegador, dispositivo ou configurações de gerenciamento de senhas da conta associada.",
-                'success_message' => 'Chave de acesso ":name" excluída',
             ],
 
             'upgrade' => [

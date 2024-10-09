@@ -64,7 +64,6 @@ return [
                     'title' => 'Delete Authenticator App',
                     'confirm' => 'Delete',
                     'description' => 'You will no longer be able to use the **:name** app as a second form of authentication.',
-                    'success_message' => 'Authenticator app ":name" deleted.',
                 ],
 
                 'edit' => [
@@ -107,7 +106,6 @@ return [
                     'title' => 'Delete Security Key',
                     'confirm' => 'Delete',
                     'description' => 'You will no longer be able to use the **:name** security key as a second form of authentication.',
-                    'success_message' => 'Security key ":name" deleted.',
                 ],
 
                 'edit' => [
@@ -170,7 +168,6 @@ return [
         'unique_validation_error' => 'You already have a device with this name.',
 
         'list' => [
-            'title' => 'Your passkeys',
             'description' => 'Passkeys are a password replacement that validates your identity using touch, facial recognition, a device password, or a PIN.',
         ],
 
@@ -209,14 +206,13 @@ return [
                 'title' => 'Delete passkey',
                 'confirm' => 'Delete',
                 'description' => "Are you sure you want to delete your \`**:name**\` passkey?\n\nBy removing this passkey you will no longer be able to use it to sign-in to your account from any of the devices on which it has been synced.\n\n**Note:** You may continue to see this passkey as an option during sign-in until you also delete it from your browser, device or associated account's password management settings.",
-                'success_message' => 'Passkey ":name" was deleted',
             ],
 
             'upgrade' => [
                 'trigger_label' => 'Upgrade :name to a passkey',
                 'trigger_tooltip' => 'Upgrade to passkey',
                 'modal_title' => 'Upgrade your security key registration to a passkey',
-                'intro' => 'Your security key **\`:name\`** can be upgrade to a passkey.',
+                'intro' => 'Your security key **\`:name\`** can be upgraded to a passkey.',
                 'prompt_button' => 'Upgrade to passkey',
                 'cancel_upgrade' => 'Register a different passkey',
 
