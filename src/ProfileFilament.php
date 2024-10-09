@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Actions\Auth\PrepareUserSession;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode;
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
+use Rawilk\ProfileFilament\Facades\Mfa;
 
 class ProfileFilament
 {
@@ -127,7 +128,7 @@ class ProfileFilament
 
     public function preferredSudoChallengeMethodFor(User $user, array $availableMethods): string
     {
-        if (! $user->two_factor_enabled) {
+        if (! Mfa::userHasMfaEnabled($user)) {
             return SudoChallengeMode::Password->value;
         }
 
