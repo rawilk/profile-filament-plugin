@@ -23,18 +23,18 @@
         "php": "^8.2|^8.3",
         "bacon/bacon-qr-code": "^3.0",
         "filament/filament": "^3.2",
-        "illuminate/contracts": "^10.10|^11.0",
+        "illuminate/contracts": "^11.0",
         "mobiledetect/mobiledetectlib": "^4.8",
         "pragmarx/google2fa": "^8.0",
         "rawilk/filament-password-input": "^2.0",
         "spatie/laravel-package-tools": "^1.14",
-        "web-auth/webauthn-lib": "^4.7.7"
+        "web-auth/webauthn-lib": "^5.0"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
         "livewire/livewire": "^3.1.0",
-        "nunomaduro/collision": "^7.0|^8.0",
-        "orchestra/testbench": "^8.15|^9.0",
+        "nunomaduro/collision": "^8.0",
+        "orchestra/testbench": "^9.0",
         "pestphp/pest": "^2.25",
         "pestphp/pest-plugin-arch": "^2.4",
         "pestphp/pest-plugin-laravel": "^2.2",
@@ -63,7 +63,7 @@
         "analyse": "vendor/bin/phpstan analyse",
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint"
+        "format": "vendor/bin/pint --dirty"
     },
     "config": {
         "sort-packages": true,
