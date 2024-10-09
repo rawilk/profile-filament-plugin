@@ -114,11 +114,11 @@ class ProfileFilament
         }
 
         // By default, return the first mfa method we find.
-        if (in_array(MfaChallengeMode::App->value, $availableMethods, true)) {
+        if (in_array(MfaChallengeMode::App, $availableMethods, true)) {
             return MfaChallengeMode::App->value;
         }
 
-        if (in_array(MfaChallengeMode::Webauthn->value, $availableMethods, true)) {
+        if (in_array(MfaChallengeMode::Webauthn, $availableMethods, true)) {
             return MfaChallengeMode::Webauthn->value;
         }
 
