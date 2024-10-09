@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Services;
 
-use const PHP_URL_HOST;
-
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature;
 use Illuminate\Contracts\Auth\Authenticatable as User;
