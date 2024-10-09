@@ -12,18 +12,16 @@ use Filament\Infolists\Contracts\HasInfolists;
 use Filament\Infolists\Infolist;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
+use Rawilk\ProfileFilament\Dto\Sessions\Session;
 use Rawilk\ProfileFilament\Filament\Actions\Sessions\RevokeAllSessionsInfolistAction;
 use Rawilk\ProfileFilament\Filament\Actions\Sessions\RevokeSessionAction;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
-use Rawilk\ProfileFilament\Support\Agent;
 
 /**
  * @property-read bool $isUsingDatabaseDriver
- * @property-read Collection $sessions
+ * @property-read Collection<int, Session> $sessions
  */
 class SessionManager extends ProfileComponent implements HasInfolists
 {
@@ -46,15 +44,7 @@ class SessionManager extends ProfileComponent implements HasInfolists
             $this->sessionsDb()
                 ->orderBy('last_activity', 'desc')
                 ->get(),
-        )->map(function ($session) {
-            return (object) [
-                'id' => Crypt::encryptString($session->id),
-                'agent' => $this->createAgent($session),
-                'ip_address' => $session->ip_address,
-                'is_current_device' => $session->id === session()->getId(),
-                'last_active' => Date::createFromTimestamp($session->last_activity)->diffForHumans(),
-            ];
-        });
+        )->mapInto(Session::class);
     }
 
     public function render(): string
@@ -99,11 +89,6 @@ class SessionManager extends ProfileComponent implements HasInfolists
             ->after(function () {
                 unset($this->sessions);
             });
-    }
-
-    protected function createAgent(object $session): Agent
-    {
-        return tap(new Agent, fn (Agent $agent) => $agent->setUserAgent($session->user_agent));
     }
 
     protected function sessionsDb(): Builder
