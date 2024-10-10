@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool shouldCheckForMfa(Request $request, User $user)
  * @method static bool shouldShowProfileSection(string $section)
  * @method static string userTimezone(\Illuminate\Contracts\Auth\Authenticatable $user = null)
+ *
+ * @see \Rawilk\ProfileFilament\ProfileFilament
  */
 class ProfileFilament extends Facade
 {

@@ -4,38 +4,40 @@
     'error' => null,
     'form' => null,
     'user' => null,
-    'userHandle' => null,
 ])
 
 @php
-    use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
-    use Rawilk\ProfileFilament\Enums\Session\SudoSession;
+    use Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode;
+    use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 
-    /** @var SudoChallengeMode $challengeMode */
+    /** @var MfaChallengeMode $challengeMode */
 @endphp
 
-<x-profile-filament::plugin-css :attributes="$attributes->class(['pf-sudo-form pf-sudo-modal-content'])">
-    <div class="-mt-3" wire:key="{{ $this->getId() }}sudo.{{ $challengeMode->value }}">
-        <x-profile-filament::sudo.signed-in-as :user-handle="$userHandle" />
+<x-profile-filament::plugin-css :attributes="$attributes->class(['pf-mfa-challenge'])">
+    <div wire:key="{{ $this->getId() }}.mfa.{{ $challengeMode->value }}">
 
-        <div class="mt-4 px-4 py-3 border dark:border-gray-500 rounded-md bg-gray-50 dark:bg-gray-800">
-            @if ($heading = $challengeMode?->heading($user))
-                <div class="gap-y-2 flex flex-col mb-4">
-                    @if ($icon = $challengeMode?->icon())
-                        <div class="flex justify-center">
-                            <x-filament::icon
-                                :icon="$icon"
-                                class="fi-mda-mode-icon h-8 w-8 text-gray-600 dark:text-white"
-                            />
-                        </div>
-                    @endif
-
-                    <h2 class="fi-sudo-form-label text-xl tracking-tight text-center text-gray-950 dark:text-white">
-                        {{ $heading }}
-                    </h2>
+        {{-- heading --}}
+        <div class="gap-y-2 flex flex-col">
+            @if ($icon = $challengeMode->icon())
+                <div class="shrink-0 flex justify-center">
+                    <x-filament::icon
+                        :icon="$icon"
+                        class="fi-mfa-mode-icon h-8 w-8 text-gray-600 dark:text-white"
+                    />
                 </div>
             @endif
 
+            <h2 class="fi-mfa-form-label text-xl tracking-tight text-center text-gray-950 dark:text-white flex-1">
+                {{ $challengeMode->formLabel($user) }}
+            </h2>
+        </div>
+
+        {{ \Filament\Support\Facades\FilamentView::renderHook(\Rawilk\ProfileFilament\Enums\RenderHook::MfaChallengeStart->value) }}
+
+        {{-- form --}}
+        <div class="mt-4">
+
+            {{-- error --}}
             @if ($error)
                 <div>
                     <x-profile-filament::alert
@@ -48,24 +50,23 @@
                 </div>
             @endif
 
-            @if ($challengeMode === SudoChallengeMode::Webauthn)
+            @if ($challengeMode === MfaChallengeMode::Webauthn)
                 <x-profile-filament::webauthn-script
                     mode="authenticate"
                     x-data="authenticateWebauthn({
                         publicKeyUrl: {{ Js::from($this->webauthnOptionsUrl()) }},
-                        loginMethod: 'confirm',
                     })"
                     :id="$this->getId() . '.webauthnAuthenticate'"
                 >
                     @include('profile-filament::livewire.partials.webauthn-unsupported')
 
                     <div x-show="browserSupportsWebAuthn" x-cloak>
-                        <p class="text-center text-sm text-gray-950 dark:text-white mb-4" wire:ignore>{{ __('profile-filament::messages.sudo_challenge.webauthn.hint') }}</p>
+                        <p class="text-center text-sm text-gray-950 dark:text-white mb-4">{{ __('profile-filament::pages/mfa.webauthn.hint') }}</p>
 
                         <div x-show="error" wire:ignore>
                             <template x-if="error">
                                 <p class="text-danger-500 mb-4 text-center" role="alert">
-                                    {{ __('profile-filament::messages.sudo_challenge.webauthn.failed') }}
+                                    {{ __('profile-filament::pages/mfa.webauthn.failed') }}
                                 </p>
                             </template>
                         </div>
@@ -79,7 +80,7 @@
                             style="display: none;"
                             x-cloak
                             wire:ignore
-                            :message="__('profile-filament::messages.sudo_challenge.webauthn.waiting')"
+                            :message="__('profile-filament::pages/mfa.webauthn.waiting')"
                         />
                     </div>
                 </x-profile-filament::webauthn-script>
@@ -92,16 +93,21 @@
                     </div>
                 </div>
             @endif
+
         </div>
 
+        {{-- alternate challenges --}}
         @if ($alternateChallengeOptions->isNotEmpty())
             <div class="border dark:border-gray-500 rounded-md py-3 px-2.5 mt-4">
-                <p class="text-sm text-gray-950 dark:text-white">{{ __('profile-filament::messages.sudo_challenge.alternative_heading') }}</p>
+                <p class="text-sm text-gray-950 dark:text-white">{{ $challengeMode->alternativeHeading() }}</p>
 
-                <ul class="mt-2 list-disc list-inside pl-2 text-sm" role="list">
+                <ul
+                    class="mt-2 list-disc list-inside pl-2 text-sm"
+                    role="list"
+                >
                     @foreach ($alternateChallengeOptions as $option)
                         <li
-                            wire:key="sudoAlt.{{ $option['mode']->value }}"
+                            wire:key="mfaAlt.{{ $option['mode']->value }}"
                         >
                             <x-filament::link
                                 color="primary"
@@ -115,9 +121,5 @@
                 </ul>
             </div>
         @endif
-
-        <div class="pf-sudo-tip mt-4 text-left text-xs">
-            {{ str(__('profile-filament::messages.sudo_challenge.tip'))->inlineMarkdown()->toHtmlString() }}
-        </div>
     </div>
 </x-profile-filament::plugin-css>

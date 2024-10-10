@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Timebox;
 use Livewire\Attributes\Computed;
@@ -197,6 +198,18 @@ trait HasSudoChallengeForm
         ];
     }
 
+    protected function webauthnOptionsUrl(): string
+    {
+        return URL::temporarySignedRoute(
+            name: 'profile-filament::webauthn.assertion_pk',
+            expiration: now()->addHour(),
+            parameters: [
+                'user' => $this->user->getRouteKey(),
+                's' => SudoSession::WebauthnAssertionPk->value,
+            ],
+        );
+    }
+
     protected function confirmIdentity(?array $assertion = null): void
     {
         $this->error = null;
@@ -241,6 +254,9 @@ trait HasSudoChallengeForm
                     }
 
                     break;
+
+                default:
+                    throw new Halt;
             }
 
             $timebox->returnEarly();

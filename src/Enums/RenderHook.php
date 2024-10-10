@@ -8,4 +8,5 @@ enum RenderHook: string
 {
     case MfaSettingsBefore = 'profile-filament::mfa.settings.before';
     case MfaMethodsAfter = 'profile-filament::mfa.methods.after';
+    case MfaChallengeStart = 'profile-filament::mfa-challenge.start';
 }
