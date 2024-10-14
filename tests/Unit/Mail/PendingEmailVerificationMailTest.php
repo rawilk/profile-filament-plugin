@@ -7,6 +7,8 @@ use Rawilk\ProfileFilament\Models\PendingUserEmail;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 it('can be sent', function () {
+    $this->freezeSecond();
+
     $pendingEmail = PendingUserEmail::factory()->for(User::factory())->create([
         'email' => 'email@example.test',
     ]);
