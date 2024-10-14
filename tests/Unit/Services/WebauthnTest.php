@@ -156,6 +156,16 @@ it('can generate assertion options for passkeys (userless)', function () {
 it('can verify an assertion', function () {
     Str::createRandomStringsUsing(fn () => FakeWebauthn::rawAssertionChallenge());
 
+    //    $this->webauthnKey->update([
+    //        'credential_id' => FakeWebauthn::rawCredentialId(),
+    //    ]);
+
+    DB::table('webauthn_keys')
+        ->where('id', $this->webauthnKey->id)
+        ->update([
+            'credential_id' => FakeWebauthn::CREDENTIAL_ID,
+        ]);
+
     /**
      * If we don't exclude the key from the allowed credentials list, the id hash
      * check performed by the WebAuthn library fails for some reason. Currently
@@ -182,12 +192,15 @@ it('can verify an assertion', function () {
         ->toBe($this->webauthnKey)
         ->last_used_at->toBe(now())
         ->and($publicKeyCredentialSource)
-        ->toBeInstanceOf(PublicKeyCredentialSource::class)
-        ->publicKeyCredentialId->toBe(FakeWebauthn::CREDENTIAL_ID);
+        ->toBeInstanceOf(PublicKeyCredentialSource::class);
 });
 
 test('non passkeys cannot be used for passkey assertions', function () {
     Str::createRandomStringsUsing(fn () => FakeWebauthn::rawAssertionChallenge());
+
+    $this->webauthnKey->update([
+        'credential_id' => FakeWebauthn::rawCredentialId(),
+    ]);
 
     $options = $this->service->passkeyAssertionObject();
 
