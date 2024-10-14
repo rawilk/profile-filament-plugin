@@ -48,7 +48,7 @@ Our macro also accepts parameters to customize the url paths, as well as the mid
 Route::webauthn(
     prefix: 'sessions/webauthn',
     assertionMiddleware: [\Illuminate\Routing\Middleware\ValidateSignature::class],
-    attestationMiddleware: [\Filament\Http\Middleware\Authenticate::class],
+    attestationMiddleware: [\Illuminate\Auth\Middleware\Authenticate::class],
 );
 
 // Wrapping in your own group
@@ -381,6 +381,17 @@ Now just create the view being referenced in the render hook:
 ```html
 <!-- resources/views/filament/hooks/login-after.blade.php -->
 <div class="mt-4">{{ $this->passkeyLoginAction }}</div>
+```
+
+### Custom Passkey Auth Flow
+
+If you need more control over how the user is authenticated when passkey login is used, you may define a custom callback using `authenticateUsing` on the passkey login action. The action will provide the passkey and the `publicKeyCredentialSource` object that was obtained from verifying the webauthn assertion. From there, you can log your user in and handle the redirect yourself.
+
+```php
+PasskeyLoginAction::make()
+    ->authenticateUsing(function (WebauthnKey $passkey, PublicKeyCredentialSource $publicKeyCredentialSource) {
+        // Handle login and redirect here.
+    });
 ```
 
 ## Preferred Mfa Method

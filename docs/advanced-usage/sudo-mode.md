@@ -48,13 +48,83 @@ When this challenge is shown to the user, we will dispatch the `SudoModeChalleng
 
 ### Use Sudo Challenge Action
 
-To show a sudo challenge for your own sensitive actions, you need to do the following:
+To show a sudo challenge for your own sensitive actions, you have two options: create a custom action class, or include a trait in a livewire component to enforce sudo mode for you. Below is a basic overview of how to implement each strategy:
 
-1. Use the `UsesSudoChallengeAction` trait on your livewire component:
+#### Custom Action Class
+
+With this strategy, a custom filament action will check for and enforce sudo mode before its action is executed. This is typically what you'll want to reach for when requiring sudo mode for actions.
+
+1. First, create a new filament action and pull the `RequiresSudo` trait on the class. Here is a basic example of what you'll need to include inside of your action's `setup` method:
 
 ```php
-use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
+use Filament\Actions\Action;
 use Livewire\Component;
+
+class SensitiveAction extends Action
+{
+    use RequiresSudo;
+    
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        $this->before(function (Component $livewire) {
+            $this->ensureSudoIsActive($livewire);
+        });
+        
+        $this->mountUsing(function (Component $livewire) {
+            $this->mountSudoAction($livewire);
+        });
+        
+        $this->registerModalActions([
+            $this->getSudoChallengeAction(),
+        ]);
+    }
+}
+```
+
+> {tip} You should only need to include the `before` hook if your action requires confirmation. This is to ensure sudo mode is still active in the event of the user entering sudo mode but waiting too long to perform the action.
+
+2. With the sensitive action defined, you just need to define and use it like you normally would in your livewire component:
+
+```php
+use Filament\Actions\Action;
+use Livewire\Component;
+
+class YourComponent extends Component
+{
+    // ...
+    
+    public function sensitiveAction(): Action
+    {
+        return SensitiveAction::make();
+    }
+}
+```
+
+> {tip} This will also work with infolist and table actions as well. The `RequiresSudo` trait will handle everything for you.
+
+#### From Livewire Component
+
+In cases where the user needs to perform a sensitive action but a filament action class doesn't make sense, you may check for and enforce sudo mode directly from your livewire component.
+
+1. Include the `SudoChallengeForm` livewire component in your component's markup.
+
+```html
+<div>
+    <!-- your component markup -->
+    
+    @livewire(\Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeForm::class)
+</div>
+```
+
+> {note} If you have multiple components on the same page that will check for sudo mode this way, you should include our livewire component on the page itself, outside your livewire component definitions.
+
+2. Use the `UsesSudoChallengeAction` trait on your livewire component:
+
+```php
+use Livewire\Component;
+use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
 
 class YourComponent extends Component
 {
@@ -62,35 +132,34 @@ class YourComponent extends Component
 }
 ```
 
-2. Enforce sudo mode in the `mountUsing` function on your action.
+3. Enforce sudo mode by calling `$this->ensureSudoIsActive()` in your action method. You should also listen for the `sudo-active` livewire event on your method as well to continue processing once the user has entered sudo mode.
 
 ```php
-public function sensitiveAction(): Action
+use Livewire\Attributes\On;
+
+#[On('sudo-active')]
+public function sensitiveAction(): void
 {
-    return Action::make('sensitiveActionName')
-        // ...
-        ->mountUsing(function () {
-            $this->ensureSudoIsActive(returnAction: 'sensitiveActionName');
-        });
+    if (! $this->ensureSudoIsActive()) {
+        return;
+    }
+
+    // Sudo is active, continue processing.
 }
 ```
 
-Make sure the `returnAction` parameter is the name of your action name, so it can be re-mounted by our action when sudo mode is entered.
+The `ensureSudoIsActive` method in our trait will dispatch an event to our `SudoChallengeForm`, which will take care of enforcing sudo mode for you. Once sudo mode has been entered, our component will dispatch the `sudo-active` event, which you should listen to as shown above. 
 
-You can optionally check that sudo mode is still active in your `action`, in the case the user entered sudo mode, but left the page idle long enough for sudo mode to expire.
+If you have multiple sensitive actions in the same component, you can pass the method name as an argument to `ensureSudoIsActive`, which will then be included in the payload of the `sudo-active` event once it is dispatched.
 
 ```php
-public function sensitiveAction(): Action
-{
-    return Action::make('sensitiveActionName')
-        // ...
-        ->action(function () {
-            $this->ensureSudoIsActive(returnAction: 'sensitiveActionName');
-        })
-        ->mountUsing(function () {
-            // ...
-        });
-}
+$this->ensureSudoIsActive(method: 'mySensitiveAction');
+```
+
+If you have data that you will need to access across requests, you can include that as an argument to the `ensureSudoIsActive` method as well.
+
+```php
+$this->ensureSudoIsActive(data: ['foo' => 'bar']);
 ```
 
 ## Middleware

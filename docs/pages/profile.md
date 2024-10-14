@@ -29,7 +29,7 @@ To accomplish this, the two main methods we need to override are the `infolistSc
 namespace App\Livewire;
 
 use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\Section;use Filament\Infolists\Components\TextEntry;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
 class CustomProfileInfo extends ProfileInfo
@@ -37,9 +37,15 @@ class CustomProfileInfo extends ProfileInfo
     protected function infolistSchema(): array
     {
         return [
-            $this->nameTextEntry(),
-            TextEntry::make('timezone'),
-            $this->createdAtTextEntry(),
+            Section::make('Your information')
+                ->headerActions([
+                    $this->editAction(),
+                ])
+                ->schema([
+                    $this->nameTextEntry(),
+                    TextEntry::make('timezone'),
+                    $this->createdAtTextEntry(),
+                ])
         ];
     }
 

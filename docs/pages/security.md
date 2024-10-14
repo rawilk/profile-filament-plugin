@@ -116,7 +116,7 @@ Authenticator apps are used to generate one-time passwords (totp) that are used 
 
 When an authenticator app is successfully registered, we will dispatch the `TwoFactorAppAdded` event from the `ConfirmTwoFactorAppAction`, which will receive the user and new authenticator app model instance. You may choose to listen for this event to alert a user when a new totp app is registered on their account.
 
-We will also mark mfa as enable on the user if it isn't already, and then also generate a set of [Recovery Codes](#user-content-recovery-codes) for the user.
+We will also mark mfa as enabled on the user if it isn't already, and then also generate a set of [Recovery Codes](#user-content-recovery-codes) for the user.
 
 #### Customize Confirm Action
 
