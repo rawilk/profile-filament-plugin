@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Filament\Actions;
 
+use Closure;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Filament\Actions\Action;
@@ -11,8 +12,8 @@ use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Pipeline\Pipeline;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Timebox;
 use Rawilk\ProfileFilament\Actions\Auth\PrepareUserSession;
 use Rawilk\ProfileFilament\Dto\Auth\TwoFactorLoginEventBag;
@@ -30,13 +31,15 @@ class PasskeyLoginAction extends Action
 
     protected ?array $pipes = null;
 
+    protected ?Closure $authenticateUsing = null;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Set some basic defaults...
         $this->name('passkeyLogin');
-        $this->livewireClickHandlerEnabled(false);
+
+        $this->alpineClickHandler('login');
 
         $this->defaultView('profile-filament::filament.actions.passkey-login');
 
@@ -44,34 +47,32 @@ class PasskeyLoginAction extends Action
 
         $this->label(__('profile-filament::pages/mfa.webauthn.passkey_login_button'));
 
+        $this->failureNotification(
+            fn (): Notification => Notification::make()
+                ->danger()
+                ->title(__('profile-filament::pages/mfa.webauthn.assert.failure_title'))
+                ->body($this->error ?? __('profile-filament::pages/mfa.webauthn.assert.failure'))
+                ->persistent()
+        );
+
         $this->action(function (array $arguments, Request $request) {
             try {
                 $this->rateLimit(5);
             } catch (TooManyRequestsException $exception) {
-                Notification::make()
-                    ->title(__('filament-panels::pages/auth/login.notifications.throttled.title', [
-                        'seconds' => $exception->secondsUntilAvailable,
-                        'minutes' => ceil($exception->secondsUntilAvailable / 60),
-                    ]))
-                    ->body(array_key_exists('body', __('filament-panels::pages/auth/login.notifications.throttled') ?: []) ? __('filament-panels::pages/auth/login.notifications.throttled.body', [
-                        'seconds' => $exception->secondsUntilAvailable,
-                        'minutes' => ceil($exception->secondsUntilAvailable / 60),
-                    ]) : null)
-                    ->danger()
-                    ->send();
+                $this->getRateLimitedNotification($exception)?->send();
 
-                return;
+                $this->cancel();
             }
 
-            if (! Arr::has($arguments, 'assertion')) {
-                return;
+            if (! $assertion = data_get($arguments, 'assertion')) {
+                $this->cancel();
             }
 
-            $response = App::make(Timebox::class)->call(callback: function (Timebox $timebox) use ($arguments) {
+            $response = App::make(Timebox::class)->call(callback: function (Timebox $timebox) use ($assertion) {
                 try {
                     $response = Webauthn::verifyAssertion(
                         user: null,
-                        assertionResponse: $arguments['assertion'],
+                        assertionResponse: $assertion,
                         storedPublicKey: session()->pull(MfaSession::PasskeyAssertionPk->value),
                         requiresPasskey: true,
                     );
@@ -89,13 +90,17 @@ class PasskeyLoginAction extends Action
             }, microseconds: 300 * 1000);
 
             if (! $response) {
-                Notification::make()
-                    ->danger()
-                    ->title(__('profile-filament::pages/mfa.webauthn.assert.failure_title'))
-                    ->body($this->error ?? __('profile-filament::pages/mfa.webauthn.assert.failure'))
-                    ->send();
+                $this->failure();
 
-                return;
+                $this->cancel();
+            }
+
+            if (is_callable($this->authenticateUsing)) {
+                return $this->evaluate($this->authenticateUsing, [
+                    'passkey' => $response['authenticator'],
+                    'publicKeyCredentialSource' => $response['publicKeyCredentialSource'],
+                    'request' => $request,
+                ]);
             }
 
             /** @var \Rawilk\ProfileFilament\Models\WebauthnKey $authenticator */
@@ -107,7 +112,7 @@ class PasskeyLoginAction extends Action
                 data: [],
                 request: $request,
                 mfaChallengeMode: MfaChallengeMode::Webauthn,
-                assertionResponse: $arguments['assertion'],
+                assertionResponse: $assertion,
             );
 
             return app(Pipeline::class)
@@ -117,7 +122,14 @@ class PasskeyLoginAction extends Action
         });
     }
 
-    public function pipeThrough(array $pipes): self
+    public function authenticateUsing(?Closure $callback = null): static
+    {
+        $this->authenticateUsing = $callback;
+
+        return $this;
+    }
+
+    public function pipeThrough(array $pipes): static
     {
         $this->pipes = $pipes;
 
@@ -129,6 +141,14 @@ class PasskeyLoginAction extends Action
         return 'mountAction';
     }
 
+    public function passkeyOptionsUrl(): string
+    {
+        return URL::temporarySignedRoute(
+            name: 'profile-filament::webauthn.passkey_assertion_pk',
+            expiration: now()->addHour(),
+        );
+    }
+
     protected function getAuthenticationPipes(): array
     {
         if (is_array($this->pipes)) {
@@ -136,5 +156,19 @@ class PasskeyLoginAction extends Action
         }
 
         return [PrepareUserSession::class];
+    }
+
+    protected function getRateLimitedNotification(TooManyRequestsException $exception): Notification
+    {
+        return Notification::make()
+            ->title(__('filament-panels::pages/auth/login.notifications.throttled.title', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => ceil($exception->secondsUntilAvailable / 60),
+            ]))
+            ->body(array_key_exists('body', __('filament-panels::pages/auth/login.notifications.throttled') ?: []) ? __('filament-panels::pages/auth/login.notifications.throttled.body', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => ceil($exception->secondsUntilAvailable / 60),
+            ]) : null)
+            ->danger();
     }
 }
