@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament;
 
 use BladeUI\Icons\Factory;
-use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
@@ -148,7 +148,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
             macro: function (
                 string $prefix = 'sessions/webauthn',
                 array $assertionMiddleware = [ValidateSignature::class],
-                array $attestationMiddleware = [FilamentAuthenticate::class],
+                array $attestationMiddleware = [Authenticate::class],
             ) {
                 Route::as('profile-filament::')
                     ->group(function () use ($prefix, $assertionMiddleware, $attestationMiddleware) {
