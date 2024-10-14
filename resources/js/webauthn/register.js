@@ -67,7 +67,7 @@ const registerWebauthn = ({
             return this.notifyPublicKeyError();
         }
 
-        return startRegistration(publicKey)
+        return startRegistration({ optionsJSON: publicKey })
             .then(resp => this.$wire.call(this.verifyKeyMethod, resp))
             .catch(error => this.error = error?.response?.data?.message ?? error)
             .finally(() => this.processing = false);

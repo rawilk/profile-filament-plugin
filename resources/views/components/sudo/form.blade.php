@@ -56,6 +56,7 @@
                         loginMethod: 'confirm',
                     })"
                     :id="$this->getId() . '.webauthnAuthenticate'"
+                    wire:ignore.self
                 >
                     @include('profile-filament::livewire.partials.webauthn-unsupported')
 

@@ -48,7 +48,7 @@ const authenticateWebauthn = ({
             return this.notifyPublicKeyError();
         }
 
-        return startAuthentication(publicKey)
+        return startAuthentication({ optionsJSON: publicKey })
             .then(async answer => {
                 if (isFunction(this.loginUsing)) {
                     const callback = this.loginUsing.bind(this);
