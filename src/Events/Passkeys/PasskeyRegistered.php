@@ -8,7 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
-final class PasskeyRegistered extends ProfileFilamentEvent
+class PasskeyRegistered extends ProfileFilamentEvent
 {
     public function __construct(public WebauthnKey $passkey, public User $user)
     {

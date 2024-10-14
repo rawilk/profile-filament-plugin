@@ -6,7 +6,6 @@ namespace Rawilk\ProfileFilament\Filament\Pages;
 
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
-use Filament\Facades\Filament;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\SimplePage;
@@ -38,7 +37,7 @@ class SudoChallenge extends SimplePage
     public function mount(): void
     {
         if ($this->sudoModeIsActive()) {
-            redirect()->intended(Filament::getHomeUrl());
+            redirect()->intended(filament()->getHomeUrl() ?? filament()->getUrl());
         }
 
         $this->mode = ProfileFilament::preferredSudoChallengeMethodFor($this->user, $this->challengeOptions);
@@ -101,7 +100,7 @@ class SudoChallenge extends SimplePage
         Sudo::activate();
         SudoModeActivated::dispatch($this->user, $request);
 
-        redirect()->intended(Filament::getHomeUrl());
+        redirect()->intended(filament()->getHomeUrl() ?? filament()->getUrl());
     }
 
     protected function sudoModeIsActive(): bool

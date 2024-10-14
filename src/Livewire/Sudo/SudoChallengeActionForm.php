@@ -9,14 +9,10 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Support\Exceptions\Halt;
-use Illuminate\Http\Request;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
-use Rawilk\ProfileFilament\Facades\Sudo;
 
 class SudoChallengeActionForm extends Component implements HasActions, HasForms
 {
@@ -59,17 +55,8 @@ class SudoChallengeActionForm extends Component implements HasActions, HasForms
             });
     }
 
-    public function confirm(Request $request, ?array $assertion = null): void
+    protected function onConfirmed(): void
     {
-        try {
-            $this->confirmIdentity($assertion);
-        } catch (Halt) {
-            return;
-        }
-
-        Sudo::activate();
-        SudoModeActivated::dispatch($this->user, $request);
-
         $this->dispatch('sudo-active');
     }
 }

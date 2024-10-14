@@ -54,8 +54,8 @@ it('can get the preferred mfa method for a user', function () {
     $user = User::factory()->make();
 
     expect($this->service->preferredMfaMethodFor($user, []))->toBe(MfaChallengeMode::RecoveryCode->value)
-        ->and($this->service->preferredMfaMethodFor($user, [MfaChallengeMode::App->value, MfaChallengeMode::Webauthn->value]))->toBe(MfaChallengeMode::App->value)
-        ->and($this->service->preferredMfaMethodFor($user, [MfaChallengeMode::Webauthn->value]))->toBe(MfaChallengeMode::Webauthn->value);
+        ->and($this->service->preferredMfaMethodFor($user, [MfaChallengeMode::App, MfaChallengeMode::Webauthn->value]))->toBe(MfaChallengeMode::App->value)
+        ->and($this->service->preferredMfaMethodFor($user, [MfaChallengeMode::Webauthn]))->toBe(MfaChallengeMode::Webauthn->value);
 
     ProfileFilament::getPreferredMfaMethodUsing(fn (): string => 'foo');
 

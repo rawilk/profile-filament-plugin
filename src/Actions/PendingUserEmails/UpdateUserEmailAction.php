@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Actions\PendingUserEmails;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Rawilk\ProfileFilament\Contracts\PendingUserEmail\MustVerifyNewEmail;
@@ -13,6 +14,7 @@ use Rawilk\ProfileFilament\Contracts\PendingUserEmail\UpdateUserEmailAction as U
 
 class UpdateUserEmailAction implements UpdateUserEmailActionContract
 {
+    /** @var class-string<Model> */
     protected string $pendingUserEmailModel;
 
     public function __construct()
@@ -57,12 +59,14 @@ class UpdateUserEmailAction implements UpdateUserEmailActionContract
     {
         $this->clearPendingEmails($user);
 
-        $pendingEmail = app($this->pendingUserEmailModel)::create([
-            'user_type' => $user->getMorphClass(),
-            'user_id' => $user->getKey(),
+        $pendingEmail = $this->pendingUserEmailModel::make([
             'email' => $email,
             'token' => Password::broker()->getRepository()->createNewToken(),
         ]);
+
+        $pendingEmail->user()->associate($user);
+
+        $pendingEmail->save();
 
         $verificationMailable = config('profile-filament.mail.pending_email_verification');
 
@@ -73,7 +77,7 @@ class UpdateUserEmailAction implements UpdateUserEmailActionContract
 
     protected function clearPendingEmails(User $user): void
     {
-        app($this->pendingUserEmailModel)::query()
+        $this->pendingUserEmailModel::query()
             ->forUser($user)
             ->cursor()
             ->each->delete();

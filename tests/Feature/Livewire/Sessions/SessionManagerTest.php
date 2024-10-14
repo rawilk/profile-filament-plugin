@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Rawilk\ProfileFilament\Livewire\Sessions\SessionManager;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -18,102 +15,111 @@ beforeEach(function () {
     $migration = require __DIR__ . '/../../../Fixtures/database/migrations/create_sessions_table.php';
     (new $migration)->up();
 
-    $this->user = User::factory()->create(['password' => 'secret']);
+    login($this->user = User::factory()->create(['password' => 'secret']));
+});
+
+it('renders', function () {
+    config([
+        'session.driver' => 'file',
+    ]);
+
+    livewire(SessionManager::class)
+        ->assertSuccessful();
 });
 
 it('lists active user sessions when using the database driver', function () {
-    login($this->user);
-
-    makeSession($this->user);
+    makeSession();
+    makeSession();
 
     livewire(SessionManager::class)
         ->assertSuccessful()
         ->assertSeeText('Chrome')
-        ->assertSeeText('127.0.0.1');
+        ->assertSeeText('127.0.0.1')
+        ->assertActionVisible('revokeSession');
 });
 
 it('can remove a session by id', function () {
-    login($this->user);
-
-    makeSession($this->user);
-    makeSession($this->user);
+    makeSession();
+    makeSession();
 
     $session = DB::table('sessions')->first();
 
     livewire(SessionManager::class)
-        ->callAction(
-            name: 'revoke',
-            data: ['password' => 'secret'],
-            arguments: ['session' => Crypt::encryptString($session->id)],
-        )
+        ->callAction('revokeSession', data: [
+            'password' => 'secret',
+        ], arguments: [
+            'record' => Crypt::encryptString($session->id),
+        ])
         ->assertSuccessful()
         ->assertHasNoActionErrors()
         ->assertNotified();
 
-    // Current session is not being inserted into our testing db, so count should be 1 now.
+    // Test session does not get inserted into the testing db, so count should be 1 now.
     $this->assertDatabaseCount('sessions', 1);
+
+    $this->assertDatabaseMissing('sessions', [
+        'id' => $session->id,
+    ]);
 });
 
 test('correct password is required to remove a session', function () {
-    login($this->user);
-
-    makeSession($this->user);
+    makeSession();
 
     $session = DB::table('sessions')->first();
 
     livewire(SessionManager::class)
-        ->callAction(
-            name: 'revoke',
-            data: ['password' => 'incorrect'],
-            arguments: ['session' => Crypt::encryptString($session->id)],
-        )
+        ->callAction('revokeSession', data: [
+            'password' => 'invalid',
+        ], arguments: [
+            'record' => Crypt::encryptString($session->id),
+        ])
         ->assertHasActionErrors([
-            'password',
+            'password' => ['current_password'],
         ]);
 
-    $this->assertDatabaseCount('sessions', 1);
+    $this->assertDatabaseHas('sessions', [
+        'id' => $session->id,
+    ]);
 });
 
 it('can revoke all other sessions', function () {
-    login($this->user);
-
-    makeSession($this->user);
-    makeSession($this->user);
+    makeSession();
+    makeSession();
 
     livewire(SessionManager::class)
-        ->callAction('revokeAll', [
+        ->callInfolistAction('.revokeAllSessionsAction', 'revokeAllSessions', data: [
             'password' => 'secret',
         ])
-        ->assertSuccessful()
-        ->assertHasNoActionErrors()
-        ->assertNotified();
+        ->assertHasNoInfolistActionErrors();
 
-    // Current session is not inserted into the testing db...
+    // Test session is not inserted into our test db, so the count should be 0.
     $this->assertDatabaseCount('sessions', 0);
 
-    expect(auth()->check())->toBeTrue();
+    $this->assertAuthenticated();
 });
 
-test('correct password is required to revoke all sessions', function () {
-    login($this->user);
-
-    makeSession($this->user);
+test('current password is required to revoke all sessions', function () {
+    makeSession();
 
     livewire(SessionManager::class)
-        ->callAction('revokeAll', [
-            'password' => 'incorrect',
+        ->callInfolistAction('.revokeAllSessionsAction', 'revokeAllSessions', data: [
+            'password' => 'invalid',
         ])
-        ->assertHasActionErrors([
-            'password',
+        ->assertHasInfolistActionErrors([
+            'password' => ['current_password'],
         ]);
 
     $this->assertDatabaseCount('sessions', 1);
 });
 
-function makeSession(User $user): void
+// Helpers
+
+function makeSession(?User $user = null): void
 {
+    $user ??= test()->user;
+
     $payload = [
-        'password_hash_web' => $user->password,
+        'password_hash_web' => $user->getAuthPassword(),
     ];
 
     DB::table('sessions')

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL;
 use Rawilk\ProfileFilament\Events\PendingUserEmails\EmailAddressReverted;
 use Rawilk\ProfileFilament\Models\OldUserEmail;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -22,21 +22,16 @@ beforeEach(function () {
 });
 
 it('reverts an email change for a user', function () {
-    Date::setTestNow('2023-01-01 10:00:00');
+    $record = OldUserEmail::factory()->for($this->user)->create(['email' => 'old@example.test']);
 
-    $oldEmail = OldUserEmail::factory()->for($this->user)->create(['email' => 'old@example.test']);
-
-    get($oldEmail->revert_url)
+    get($record->revert_url)
         ->assertRedirect('/admin/login');
 
-    $this->travelTo(now()->addMinutes(5));
+    $this->assertGuest();
 
-    expect(auth()->check())->toBeFalse()
-        ->and($this->user->refresh())->email->toBe('old@example.test');
+    expect($this->user->refresh())->email->toBe('old@example.test');
 
-    $this->assertDatabaseMissing(OldUserEmail::class, [
-        'email' => 'changed@example.test',
-    ]);
+    $this->assertModelMissing($record);
 
     Event::assertDispatched(function (EmailAddressReverted $event) {
         expect($event->user)->toBe($this->user)
@@ -48,30 +43,37 @@ it('reverts an email change for a user', function () {
 });
 
 it('rejects invalid tokens', function () {
-    $oldEmail = OldUserEmail::factory()->for($this->user)->create();
-    $oldEmail->token = 'foo';
+    $record = OldUserEmail::factory()->for($this->user)->create();
+    $record->token = 'invalid';
 
-    get($oldEmail->revert_url)
+    get($record->revert_url)
         ->assertRedirect('/admin/login');
 
     Event::assertNotDispatched(EmailAddressReverted::class);
 
     expect($this->user->refresh())->email->toBe('changed@example.test');
 
-    $this->assertDatabaseHas(OldUserEmail::class, [
-        'id' => $oldEmail->id,
-    ]);
+    $this->assertModelExists($record);
 });
 
-it('blocks expired links', function () {
-    Date::setTestNow('2023-01-01 10:00:00');
-    $oldEmail = OldUserEmail::factory()->for($this->user)->create();
-    $url = $oldEmail->revert_url;
+it('rejects expired links', function () {
+    $this->freezeSecond();
+
+    $record = OldUserEmail::factory()->for($this->user)->create();
+
+    $url = URL::signedRoute(
+        'filament.admin.pending_email.revert',
+        [
+            'token' => $record->token,
+        ]
+    );
 
     $this->travelTo(now()->addMinutes(5)->addSecond());
 
     get($url)
-        ->assertForbidden();
+        ->assertRedirect('/admin/login');
+
+    Event::assertNotDispatched(EmailAddressReverted::class);
 
     expect($this->user->refresh())->email->toBe('changed@example.test');
 });

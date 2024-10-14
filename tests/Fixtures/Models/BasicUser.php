@@ -14,14 +14,17 @@ final class BasicUser extends BaseUser
 
     protected $table = 'users';
 
-    protected $casts = [
-        'password' => 'hashed',
-    ];
-
     protected $guarded = [];
 
     protected static function newFactory(): BasicUserFactory
     {
         return BasicUserFactory::new();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
     }
 }

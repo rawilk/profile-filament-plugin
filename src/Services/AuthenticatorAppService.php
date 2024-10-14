@@ -52,7 +52,7 @@ class AuthenticatorAppService implements AuthenticatorAppServiceContract
         $timestamp = $this->engine->verifyKeyNewer(
             secret: $secret,
             key: $code,
-            oldTimestamp: $this->cache?->get($key = 'profile-filament:totp_codes.' . hash('xx128', $code)),
+            oldTimestamp: $this->cache?->get($key = 'profile-filament:totp_codes.' . hash('xxh128', $code)),
         );
 
         if ($timestamp !== false) {

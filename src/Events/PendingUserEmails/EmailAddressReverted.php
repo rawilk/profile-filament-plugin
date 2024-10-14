@@ -7,7 +7,7 @@ namespace Rawilk\ProfileFilament\Events\PendingUserEmails;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 
-final class EmailAddressReverted extends ProfileFilamentEvent
+class EmailAddressReverted extends ProfileFilamentEvent
 {
     public function __construct(
         public User $user,

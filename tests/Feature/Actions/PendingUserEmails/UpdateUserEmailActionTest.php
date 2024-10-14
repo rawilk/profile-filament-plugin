@@ -24,7 +24,7 @@ beforeEach(function () {
     ]);
 });
 
-it('updates a user email address', function () {
+it('updates a users email address', function () {
     $user = BasicUser::factory()->create(['email' => 'original@example.test']);
 
     app(UpdateUserEmailAction::class)($user, 'new@example.test');
@@ -44,7 +44,7 @@ it('stores a pending email change for MustVerifyNewEmail users', function () {
 
     $this->assertDatabaseHas(PendingUserEmail::class, [
         'email' => 'new@example.test',
-        'user_id' => $user->id,
+        'user_id' => $user->getKey(),
     ]);
 
     Mail::assertQueued(function (PendingEmailVerificationMail $mail) {
@@ -56,7 +56,7 @@ it('stores a pending email change for MustVerifyNewEmail users', function () {
         return true;
     });
 
-    // Make sure the VerifyEmail notification is not being sent as well.
+    // Make sure the VerifyEmail notification is not sent as well.
     Notification::assertNotSentTo($user, VerifyEmail::class);
 });
 
@@ -68,6 +68,8 @@ it('invalidates an email verification for MustVerifyEmail users', function () {
     expect($user->refresh())
         ->email->toBe('new@example.test')
         ->email_verified_at->toBeNull();
+
+    $this->assertDatabaseCount(PendingUserEmail::class, 0);
 
     Notification::assertSentTo($user, VerifyEmail::class);
 });

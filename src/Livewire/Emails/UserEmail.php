@@ -90,7 +90,8 @@ class UserEmail extends ProfileComponent implements HasInfolists
         return $infolist
             ->record($this->user)
             ->schema([
-                Infolists\Components\Section::make(__('profile-filament::pages/settings.email.heading'))
+                Infolists\Components\Section::make()
+                    ->key('email')
                     ->heading(function (): Htmlable {
                         return new HtmlString(Blade::render(<<<'HTML'
                         <span class="flex items-center gap-x-2">
@@ -154,7 +155,7 @@ class UserEmail extends ProfileComponent implements HasInfolists
                 $mailable = config('profile-filament.mail.pending_email_verification');
 
                 Mail::to($this->pendingEmail->email)->send(
-                    new $mailable($this->pendingEmail, filament()->getCurrentPanel()?->getId()),
+                    new $mailable($this->pendingEmail->refresh()->withoutRelations(), filament()->getCurrentPanel()?->getId()),
                 );
 
                 Notification::make()

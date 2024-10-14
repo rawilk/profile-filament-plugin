@@ -8,7 +8,7 @@ use Rawilk\ProfileFilament\Actions\UpdatePasswordAction;
 use Rawilk\ProfileFilament\Events\UserPasswordWasUpdated;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
-it("updates a user's password", function () {
+it('updates a users password', function () {
     Event::fake();
     $user = User::factory()->create(['password' => 'first_pass']);
 
@@ -16,7 +16,5 @@ it("updates a user's password", function () {
 
     Event::assertDispatched(UserPasswordWasUpdated::class);
 
-    $user->refresh();
-
-    expect(Hash::check('new_pass', $user->getAuthPassword()))->toBeTrue();
+    expect(Hash::check('new_pass', $user->refresh()->getAuthPassword()))->toBeTrue();
 });

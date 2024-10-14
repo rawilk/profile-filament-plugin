@@ -20,7 +20,5 @@ it('deletes a user account', function () {
         return true;
     });
 
-    $this->assertDatabaseMissing('users', [
-        'id' => $user->id,
-    ]);
+    $this->assertModelMissing($user);
 });

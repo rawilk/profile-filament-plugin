@@ -47,7 +47,7 @@ class ProfileFilament
     /**
      * Register a callback that is responsible for retrieving the authenticated user's timezone.
      */
-    public static function findUserTimezoneUsing(callable $callback): void
+    public static function findUserTimezoneUsing(?callable $callback): void
     {
         static::$findUserTimezoneUsingCallback = $callback;
     }
@@ -56,7 +56,7 @@ class ProfileFilament
      * Register a callback that is responsible for determining if our middleware
      * should enforce mfa.
      */
-    public static function shouldCheckForMfaUsing(callable $callback): void
+    public static function shouldCheckForMfaUsing(?callable $callback): void
     {
         static::$shouldCheckForMfaCallback = $callback;
     }
@@ -64,7 +64,7 @@ class ProfileFilament
     /**
      * Register a callback that is responsible for determining a user's preferred mfa method.
      */
-    public static function getPreferredMfaMethodUsing(callable $callback): void
+    public static function getPreferredMfaMethodUsing(?callable $callback): void
     {
         static::$getPreferredMfaMethodCallback = $callback;
     }
@@ -73,7 +73,7 @@ class ProfileFilament
      * Register a callback that is responsible for determining the pipes to send
      * a two-factor authentication challenge through.
      */
-    public static function mfaAuthenticationPipelineUsing(callable $callback): void
+    public static function mfaAuthenticationPipelineUsing(?callable $callback): void
     {
         static::$mfaAuthenticationPipelineCallback = $callback;
     }

@@ -18,7 +18,7 @@ class RecoveryCode
     /**
      * Register a callback that is responsible for generating a new recovery code.
      */
-    public static function generateCodesUsing(callable $callback): void
+    public static function generateCodesUsing(?callable $callback): void
     {
         static::$generateCodesUsingCallback = $callback;
     }

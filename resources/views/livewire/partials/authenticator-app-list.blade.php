@@ -1,4 +1,8 @@
-<div id="authenticator-apps-list" class="divide-y divide-gray-300 dark:divide-gray-600">
+<div
+    id="{{ $this->getId() }}-authenticator-apps-list"
+    class="divide-y divide-gray-300 dark:divide-gray-600"
+    data-test="totp-list-container"
+>
     @foreach ($this->sortedAuthenticatorApps as $registeredApp)
         @livewire(\Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppListItem::class, [
             'app' => $registeredApp,

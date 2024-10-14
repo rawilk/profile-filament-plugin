@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Route;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\RecoveryCodesViewed;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\ToggleRecoveryCodesAction;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\ToggleTotpFormAction;
+use Rawilk\ProfileFilament\Filament\Actions\Mfa\ToggleWebauthnAction;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
@@ -22,16 +21,17 @@ beforeEach(function () {
 
     login($this->user = User::factory()->create());
 
-    Route::get('/_test', fn () => Blade::render('@livewire(\'' . MfaOverview::class . '\')'));
-
     disableSudoMode();
+
+    Route::get('/_test', fn () => Blade::render('@livewire("' . MfaOverview::class . '")'));
 });
 
-it('can be rendered', function () {
-    get('/_test')->assertOk();
+it('renders', function () {
+    livewire(MfaOverview::class)
+        ->assertOk();
 });
 
-it('shows the recovery codes in a modal when mfa is first enabled', function (string $event) {
+it('shows recovery codes in a modal when mfa is first enabled', function (string $event) {
     livewire(MfaOverview::class)
         ->dispatch($event, enabledMfa: true)
         ->assertSet('showRecoveryInModal', true)
@@ -51,8 +51,7 @@ it('hides everything when mfa is disabled', function (string $event) {
 
     disableMfa($this->user);
 
-    $component
-        ->dispatch($event)
+    $component->dispatch($event)
         ->assertSet('showAuthenticatorAppForm', false)
         ->assertSet('showWebauthn', false)
         ->assertSet('showRecoveryInModal', false)
@@ -68,37 +67,37 @@ describe('recovery codes', function () {
         enableMfa($this->user);
     });
 
-    test('can be shown', function () {
+    it('can show the recovery codes', function () {
         livewire(MfaOverview::class)
             ->assertDontSeeText('code-one')
-            ->callAction('toggleRecoveryCodes')
+            ->callAction(ToggleRecoveryCodesAction::class)
             ->assertSet('showRecoveryCodes', true)
             ->assertSeeText('code-one');
 
         Event::assertDispatched(RecoveryCodesViewed::class);
     });
 
-    it('requires sudo mode to show', function () {
+    it('can require sudo mode to show', function () {
         enableSudoMode();
 
         livewire(MfaOverview::class)
             ->call('mountAction', 'toggleRecoveryCodes')
-            ->assertActionMounted('sudoChallenge')
-            ->assertSet('showRecoveryCodes', false)
+            ->assertActionNotMounted(ToggleRecoveryCodesAction::class)
+            ->assertSeeText(sudoChallengeTitle())
             ->assertDontSeeText('code-one');
 
         Event::assertNotDispatched(RecoveryCodesViewed::class);
     });
 
-    it('does not require sudo mode to hide', function () {
+    it('does not require sudo mode to hide the codes', function () {
         enableSudoMode();
 
         livewire(MfaOverview::class, ['showRecoveryCodes' => true])
             ->assertSeeText('code-one')
-            ->callAction('toggleRecoveryCodes')
+            ->callAction(ToggleRecoveryCodesAction::class)
             ->assertSet('showRecoveryCodes', false)
             ->assertDontSeeText('code-one')
-            ->assertActionNotMounted('sudoChallenge');
+            ->assertDontSeeText(__('profile-filament::messages.sudo_challenge.title'));
     });
 });
 
@@ -109,21 +108,22 @@ describe('webauthn', function () {
         WebauthnKey::factory()->notPasskey()->for($this->user)->create(['name' => 'my key']);
     });
 
-    it('shows how many keys are registered', function () {
+    it('shows how many keys a user has registered', function () {
         get('/_test')
-            ->assertElementExists('#webauthn-list-container', function (AssertElement $div) {
+            ->assertElementExists('[data-test="webauthn-container"]', function (AssertElement $div) {
                 $div
                     ->containsText(__('profile-filament::pages/security.mfa.method_configured'))
                     ->containsText('1 key')
+                    // keys are not shown initially
                     ->doesntContainText('my key');
             });
     });
 
-    it('does not show a badge if no keys are registered', function () {
+    it('does not show a badge if keys are not registered', function () {
         $this->user->webauthnKeys()->delete();
 
         get('/_test')
-            ->assertElementExists('#webauthn-list-container', function (AssertElement $div) {
+            ->assertElementExists('[data-test="webauthn-container"]', function (AssertElement $div) {
                 $div
                     ->doesntContainText(__('profile-filament::pages/security.mfa.method_configured'))
                     ->doesntContainText('1 key');
@@ -134,37 +134,38 @@ describe('webauthn', function () {
         WebauthnKey::factory()->passkey()->for($this->user)->create();
 
         get('/_test')
-            ->assertElementExists('#webauthn-list-container', function (AssertElement $div) {
+            ->assertElementExists('[data-test="webauthn-container"]', function (AssertElement $div) {
                 $div
                     ->containsText(__('profile-filament::pages/security.mfa.method_configured'))
                     ->containsText('1 key');
             });
     });
 
-    it('can toggle the keys', function () {
+    it('can show and hide the registered keys', function () {
         livewire(MfaOverview::class)
             ->assertDontSeeText('my key')
-            ->callAction('toggleWebauthn')
-            ->assertSuccessful()
+            ->callAction(ToggleWebauthnAction::class)
             ->assertSet('showWebauthn', true)
             ->assertDispatched(MfaEvent::ToggleWebauthnKeys->value, show: true)
-            ->callAction('toggleWebauthn')
+            ->callAction(ToggleWebauthnAction::class)
             ->assertSet('showWebauthn', false)
             ->assertDispatched(MfaEvent::ToggleWebauthnKeys->value, show: false);
     });
 
-    it('requires sudo mode to show if no keys are registered', function () {
+    // Sudo mode is required for this because the register key action is shown initially
+    // in this case, and the action is a sensitive action.
+    it('can require sudo mode to show if no keys are registered', function () {
         enableSudoMode();
         $this->user->webauthnKeys()->delete();
 
         livewire(MfaOverview::class)
             ->call('mountAction', 'toggleWebauthn')
-            ->assertActionMounted('sudoChallenge')
             ->assertSet('showWebauthn', false)
-            ->assertNotDispatched(MfaEvent::ToggleWebauthnKeys->value);
+            ->assertNotDispatched(MfaEvent::ToggleWebauthnKeys->value)
+            ->assertSeeText(sudoChallengeTitle());
     });
 
-    it('keeps webauthn shown if another key is still registered when one is deleted', function () {
+    it('keeps the registered key list open if at least one key is still registered when another one is deleted', function () {
         livewire(MfaOverview::class, [
             'showWebauthn' => true,
         ])
@@ -180,9 +181,9 @@ describe('totp', function () {
         AuthenticatorApp::factory()->for($this->user)->create(['name' => 'my app']);
     });
 
-    it('shows how many apps are registered', function () {
+    it('shows how many apps are registered for a user', function () {
         get('/_test')
-            ->assertElementExists('#totp-list-container', function (AssertElement $div) {
+            ->assertElementExists('[data-test="totp-container"]', function (AssertElement $div) {
                 $div
                     ->containsText(__('profile-filament::pages/security.mfa.method_configured'))
                     ->containsText('1 app')
@@ -194,7 +195,7 @@ describe('totp', function () {
         $this->user->authenticatorApps()->delete();
 
         get('/_test')
-            ->assertElementExists('#totp-list-container', function (AssertElement $div) {
+            ->assertElementExists('[data-test="totp-container"]', function (AssertElement $div) {
                 $div
                     ->doesntContainText(__('profile-filament::pages/security.mfa.method_configured'))
                     ->doesntContainText('1 app');
@@ -203,24 +204,25 @@ describe('totp', function () {
 
     it('can toggle the totp apps list', function () {
         livewire(MfaOverview::class)
-            ->callAction('toggleTotp')
-            ->assertSuccessful()
+            ->callAction(ToggleTotpFormAction::class)
             ->assertSet('showAuthenticatorAppForm', true)
             ->assertDispatched(MfaEvent::ShowAppForm->value)
-            ->callAction('toggleTotp')
+            ->callAction(ToggleTotpFormAction::class)
             ->assertSet('showAuthenticatorAppForm', false)
             ->assertDispatched(MfaEvent::HideAppList->value);
     });
 
-    it('requires sudo mode to show the form when no apps are registered', function () {
+    // Sudo mode is required for this because the register app action is shown initially
+    // in this case, and the action is a sensitive action.
+    it('can require sudo mode to show the form when no apps are registered to the user', function () {
         $this->user->authenticatorApps()->delete();
         enableSudoMode();
 
         livewire(MfaOverview::class)
             ->call('mountAction', 'toggleTotp')
-            ->assertActionMounted('sudoChallenge')
             ->assertSet('showAuthenticatorAppForm', false)
-            ->assertNotDispatched(MfaEvent::ShowAppForm->value);
+            ->assertNotDispatched(MfaEvent::ShowAppForm->value)
+            ->assertSeeText(sudoChallengeTitle());
     });
 
     it('does not hide the totp list when at least one app is still registered after an app is deleted', function () {
@@ -231,26 +233,3 @@ describe('totp', function () {
             ->assertSet('showAuthenticatorAppForm', true);
     });
 });
-
-function disableMfa(User $user): void
-{
-    $user->update([
-        'two_factor_enabled' => false,
-        'two_factor_recovery_codes' => null,
-    ]);
-}
-
-function enableMfa(User $user): void
-{
-    $user->update([
-        'two_factor_enabled' => true,
-        'two_factor_recovery_codes' => Crypt::encryptString(
-            json_encode([
-                'code-one',
-                'code-two',
-                'code-three',
-                'code-four',
-            ])
-        ),
-    ]);
-}

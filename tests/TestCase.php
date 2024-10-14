@@ -5,20 +5,15 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Timebox;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Rawilk\ProfileFilament\ProfileFilamentPluginServiceProvider;
 use Rawilk\ProfileFilament\Tests\Fixtures\Filament\AdminPanelProvider;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 use Rawilk\ProfileFilament\Tests\Fixtures\Support\InstantlyResolvingTimebox;
-use Throwable;
 
-class TestCase extends Orchestra
+abstract class TestCase extends Orchestra
 {
-    use LazilyRefreshDatabase;
-
     protected $enablesPackageDiscoveries = true;
 
     protected function setUp(): void
@@ -28,15 +23,6 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'Rawilk\\ProfileFilament\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
-
-        // copy icon sets over to vendor directory
-        try {
-            File::copyDirectory(
-                directory: __DIR__ . '/../resources/svg',
-                destination: __DIR__ . '/../vendor/orchestra/testbench-core/laravel/vendor/rawilk/profile-filament-plugin/resources/svg',
-            );
-        } catch (Throwable) {
-        }
     }
 
     public function getEnvironmentSetUp($app)

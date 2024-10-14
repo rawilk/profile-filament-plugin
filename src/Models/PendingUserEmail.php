@@ -51,6 +51,11 @@ class PendingUserEmail extends Model
         return $this->morphTo('user');
     }
 
+    public function isExpired(): bool
+    {
+        return $this->created_at->addMinutes(config('auth.verification.expire', 60))->isPast();
+    }
+
     public function scopeForUser(Builder $query, Model $user): void
     {
         $query->where([
@@ -66,6 +71,9 @@ class PendingUserEmail extends Model
         // Although this theoretically shouldn't happen, make sure the new email hasn't already been assigned
         // to a user account.
         $this->guardAgainstTakenEmails();
+
+        // Make sure token is not expired.
+        $this->ensureTokenIsValid();
 
         $originalEmail = $user->email;
 
@@ -118,6 +126,14 @@ class PendingUserEmail extends Model
         throw_if(
             $emailExists,
             new InvalidVerificationLinkException(__('profile-filament::pages/settings.email.email_already_taken')),
+        );
+    }
+
+    protected function ensureTokenIsValid(): void
+    {
+        throw_if(
+            $this->isExpired(),
+            new InvalidVerificationLinkException(__('profile-filament::pages/settings.email.invalid_verification_link')),
         );
     }
 }

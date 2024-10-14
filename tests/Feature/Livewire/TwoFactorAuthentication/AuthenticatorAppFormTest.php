@@ -2,21 +2,16 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Factories\Sequence;
-use Illuminate\Support\Facades\Event;
 use PragmaRX\Google2FA\Google2FA;
 use Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction;
 use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorAppServiceContract;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppAdded;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppForm;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
-use Rawilk\ProfileFilament\Services\AuthenticatorAppService;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
+use Rawilk\ProfileFilament\Tests\Fixtures\Support\MockAuthenticatorAppService;
 
-use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
@@ -25,101 +20,84 @@ beforeEach(function () {
         'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
     ]);
 
+    $this->app->bind(AuthenticatorAppServiceContract::class, MockAuthenticatorAppService::class);
+
+    Event::fake();
+
+    login($this->user = User::factory()->withoutMfa()->create());
+
     disableSudoMode();
+
+    $this->mfaEngine = app(Google2FA::class);
+    $this->userSecret = $this->mfaEngine->generateSecretKey();
 });
 
-it('does not show anything by default', function () {
+it('does not show anything initially', function () {
     livewire(AuthenticatorAppForm::class)
         ->assertSuccessful()
-        ->assertDontSee('#authenticator-apps-list')
+        ->assertDontSee('totp-list-container')
         ->assertDontSeeHtml('<form');
 });
 
 it('can register a new authenticator app for a user', function () {
-    app()->bind(AuthenticatorAppServiceContract::class, MockAuthenticatorAppService::class);
+    $validOtp = $this->mfaEngine->getCurrentOtp($this->userSecret);
 
-    Event::fake();
-    actingAs($user = User::factory()->withoutMfa()->create());
+    MockAuthenticatorAppService::$secret = $this->userSecret;
 
-    $mfaEngine = app(Google2FA::class);
-    $userSecret = $mfaEngine->generateSecretKey();
-    $validOtp = $mfaEngine->getCurrentOtp($userSecret);
-
-    MockAuthenticatorAppService::$secret = $userSecret;
+    // We already know this action works from other tests, so there's
+    // no need to test the outcome of it again.
+    $this->mock(ConfirmTwoFactorAppAction::class)
+        ->shouldReceive('__invoke')
+        ->with(
+            $this->user,
+            'My app',
+            $this->userSecret,
+        )
+        ->once();
 
     livewire(AuthenticatorAppForm::class, [
         'authenticatorApps' => collect(),
     ])
-        // Since our apps list is empty, the component should also call the "showAddForm" method
         ->call('showApps')
+        // Since the app list is empty, the component should also call the "showAddForm" method
         ->assertSuccessful()
         ->assertSeeHtml('<form')
-        ->assertSet('secret', $userSecret)
+        ->assertSeeHtml('<svg')
+        ->assertSet('secret', $this->userSecret)
         ->set('name', 'My app')
         ->set('code', $validOtp)
         ->call('confirm')
-        ->assertSuccessful()
+        ->assertHasNoErrors()
         ->assertDispatched(MfaEvent::AppAdded->value, enabledMfa: true)
         ->assertSet('secret', '');
-
-    Event::assertDispatched(TwoFactorAppAdded::class);
-    Event::assertDispatched(TwoFactorAuthenticationWasEnabled::class);
-
-    $user->refresh();
-    $authenticatorApp = $user->authenticatorApps()->first();
-
-    expect($user->two_factor_enabled)->toBeTrue()
-        ->and($user->recoveryCodes())->toHaveCount(8)
-        ->and($authenticatorApp)
-        ->toBeInstanceOf(AuthenticatorApp::class)
-        ->name->toBe('My app')
-        ->last_used_at->toBeNull();
 });
 
 test('a valid otp code is required to register an authenticator app', function () {
-    app()->bind(AuthenticatorAppServiceContract::class, MockAuthenticatorAppService::class);
+    MockAuthenticatorAppService::$secret = $this->userSecret;
 
-    Event::fake();
-    actingAs($user = User::factory()->withoutMfa()->create());
-
-    $mfaEngine = app(Google2FA::class);
-    $userSecret = $mfaEngine->generateSecretKey();
-
-    MockAuthenticatorAppService::$secret = $userSecret;
+    $this->mock(ConfirmTwoFactorAppAction::class)
+        ->shouldNotReceive('__invoke');
 
     livewire(AuthenticatorAppForm::class, [
         'authenticatorApps' => collect(),
     ])
-        // Since our apps list is empty, the component should also call the "showAddForm" method
         ->call('showApps')
         ->set('name', 'My app')
         ->set('code', 'invalid')
         ->call('confirm')
         ->assertSet('codeValid', false)
         ->assertNotDispatched(MfaEvent::AppAdded->value);
-
-    Event::assertNotDispatched(TwoFactorAppAdded::class);
-    Event::assertNotDispatched(TwoFactorAuthenticationWasEnabled::class);
-
-    $user->refresh();
-
-    expect($user->two_factor_enabled)->toBeFalse()
-        ->and($user->authenticatorApps()->count())->toBe(0);
 });
 
-test('sudo mode is required to register an app', function () {
+test('sudo mode can be required to register an app', function () {
     enableSudoMode();
 
-    app()->bind(AuthenticatorAppServiceContract::class, MockAuthenticatorAppService::class);
+    $validOtp = $this->mfaEngine->getCurrentOtp($this->userSecret);
 
-    Event::fake();
-    actingAs($user = User::factory()->withoutMfa()->create());
+    MockAuthenticatorAppService::$secret = $this->userSecret;
 
-    $mfaEngine = app(Google2FA::class);
-    $userSecret = $mfaEngine->generateSecretKey();
-    $validOtp = $mfaEngine->getCurrentOtp($userSecret);
-
-    MockAuthenticatorAppService::$secret = $userSecret;
+    $this->mock(ConfirmTwoFactorAppAction::class)
+        ->shouldNotReceive('__invoke');
 
     livewire(AuthenticatorAppForm::class, [
         'authenticatorApps' => collect(),
@@ -128,25 +106,22 @@ test('sudo mode is required to register an app', function () {
         ->set('name', 'My app')
         ->set('code', $validOtp)
         ->call('confirm')
-        ->assertActionMounted('sudoChallenge')
+        ->assertHasNoErrors()
+        ->assertSet('codeValid', true)
         ->assertNotDispatched(MfaEvent::AppAdded->value);
-
-    $user->refresh();
-
-    Event::assertNotDispatched(TwoFactorAuthenticationWasEnabled::class);
-
-    expect($user->two_factor_enabled)->toBeFalse();
 });
 
-it("shows a user's registered authenticators in descending order", function () {
-    actingAs($user = User::factory()->withMfa()->create());
+it('shows a users registered apps in descending (registration) order', function () {
+    $this->freezeSecond();
+
+    login($user = User::factory()->withMfa()->create());
 
     $apps = AuthenticatorApp::factory()
-        ->state(new Sequence(
-            ['created_at' => now(), 'name' => 'app--One'],
-            ['created_at' => now()->subSecond(), 'name' => 'app--Two'],
-            ['created_at' => now()->addSecond(), 'name' => 'app--Three'],
-        ))
+        ->sequence(
+            ['created_at' => now(), 'name' => 'app.one'],
+            ['created_at' => now()->subSecond(), 'name' => 'app.two'],
+            ['created_at' => now()->addSecond(), 'name' => 'app.three'],
+        )
         ->for($user)
         ->count(3)
         ->create();
@@ -155,47 +130,34 @@ it("shows a user's registered authenticators in descending order", function () {
         'authenticatorApps' => $apps,
     ])
         ->call('showApps')
-        ->assertSeeInOrder([
-            'app--Three',
-            'app--One',
-            'app--Two',
+        ->assertSeeTextInOrder([
+            'app.three',
+            'app.one',
+            'app.two',
         ])
         ->assertSet('showForm', false);
 });
 
-it('requires a unique name for the authenticator app', function () {
-    app()->bind(AuthenticatorAppServiceContract::class, MockAuthenticatorAppService::class);
+it('requires a unique name for each app', function () {
+    AuthenticatorApp::factory()->for($this->user)->create(['name' => 'My app']);
 
-    actingAs($user = User::factory()->withoutMfa()->create());
+    $validOtp = $this->mfaEngine->getCurrentOtp($this->userSecret);
 
-    AuthenticatorApp::factory()->for($user)->create(['name' => 'my app']);
+    MockAuthenticatorAppService::$secret = $this->userSecret;
 
-    $mfaEngine = app(Google2FA::class);
-    $userSecret = $mfaEngine->generateSecretKey();
-    $validOtp = $mfaEngine->getCurrentOtp($userSecret);
-
-    MockAuthenticatorAppService::$secret = $userSecret;
+    $this->mock(ConfirmTwoFactorAppAction::class)
+        ->shouldNotReceive('__invoke');
 
     livewire(AuthenticatorAppForm::class, [
-        'authenticatorApps' => $user->authenticatorApps,
+        'authenticatorApps' => $this->user->authenticatorApps,
     ])
         ->call('showApps')
         ->call('showAddForm')
-        ->set('name', 'my app')
+        ->set('name', 'My app')
         ->set('code', $validOtp)
         ->call('confirm')
         ->assertHasFormErrors([
-            'name' => 'unique',
+            'name' => ['unique'],
         ])
         ->assertNotDispatched(MfaEvent::AppAdded->value);
 });
-
-class MockAuthenticatorAppService extends AuthenticatorAppService
-{
-    public static $secret;
-
-    public function generateSecretKey(): string
-    {
-        return static::$secret;
-    }
-}

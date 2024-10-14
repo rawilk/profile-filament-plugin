@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Testing\Support;
 
+use Cose\Algorithm\Manager;
+use Cose\Algorithm\Signature;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use Symfony\Component\Uid\Uuid;
+use Webauthn\AttestationStatement;
+use Webauthn\AttestationStatement\AttestationStatementSupportManager;
+use Webauthn\Denormalizer\WebauthnSerializerFactory;
+use Webauthn\PublicKeyCredentialSource;
 use Webauthn\TrustPath\EmptyTrustPath;
 
 /**
@@ -20,6 +27,11 @@ class FakeWebauthn
     public const ASSERTION_CHALLENGE = 'oDpfgU0SqPyEs5Kb7SVjV3tBMPEYj23PrYBPf6csrzE';
 
     public const ATTESTATION_CHALLENGE = 'bgbN-Wj9pcKnqDEXA09AyGsYKA2ehFILw1RZABvAuMg';
+
+    public static function credentialIdEncoded(): string
+    {
+        return Base64UrlSafe::encodeUnpadded(static::CREDENTIAL_ID);
+    }
 
     public static function rawAssertionChallenge(): string
     {
@@ -73,6 +85,31 @@ class FakeWebauthn
         ];
     }
 
+    public static function publicKeyCredentialSource(bool $encodeUserId = true): PublicKeyCredentialSource
+    {
+        return PublicKeyCredentialSource::create(
+            publicKeyCredentialId: static::CREDENTIAL_ID,
+            type: 'public-key',
+            transports: ['internal', 'hybrid'],
+            attestationType: 'none',
+            trustPath: EmptyTrustPath::create(),
+            aaguid: Uuid::fromString('00000000-0000-0000-0000-000000000000'),
+            credentialPublicKey: 'pQECAyYgASFYICsmEYv6jyLZhQCZtB5Ghj05S9SKjPt-QRLfwE7PF1c6IlggtmyoqDMLB2VlqyK7nva1tF513RCqfT0kDGj0w_AVR5s',
+            userHandle: $encodeUserId ? 'MQ' : '1',
+            counter: 0,
+        );
+    }
+
+    public static function serializedPublicKeyCredentialSource(): string
+    {
+        $serializer = (new WebauthnSerializerFactory(static::attestationSupportManager()))->create();
+
+        return $serializer->serialize(
+            static::publicKeyCredentialSource(encodeUserId: false),
+            'json',
+        );
+    }
+
     public static function publicKey(): array
     {
         return [
@@ -92,5 +129,37 @@ class FakeWebauthn
             'counter' => 0,
             'otherUI' => null,
         ];
+    }
+
+    protected static function attestationSupportManager(): AttestationStatementSupportManager
+    {
+        $manager = AttestationStatementSupportManager::create();
+
+        $manager->add(AttestationStatement\NoneAttestationStatementSupport::create());
+        $manager->add(AttestationStatement\FidoU2FAttestationStatementSupport::create());
+        $manager->add(AttestationStatement\AndroidKeyAttestationStatementSupport::create());
+        $manager->add(
+            AttestationStatement\PackedAttestationStatementSupport::create(static::algorithmManager())
+        );
+
+        return $manager;
+    }
+
+    protected static function algorithmManager(): Manager
+    {
+        return Manager::create()->add(
+            Signature\ECDSA\ES256::create(),
+            Signature\ECDSA\ES256K::create(),
+            Signature\ECDSA\ES384::create(),
+            Signature\ECDSA\ES512::create(),
+            Signature\RSA\RS256::create(),
+            Signature\RSA\RS384::create(),
+            Signature\RSA\RS512::create(),
+            Signature\RSA\PS256::create(),
+            Signature\RSA\PS384::create(),
+            Signature\RSA\PS512::create(),
+            Signature\EdDSA\Ed256::create(),
+            Signature\EdDSA\Ed512::create(),
+        );
     }
 }

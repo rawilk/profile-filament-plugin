@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Mail;
 use Rawilk\ProfileFilament\Actions\PendingUserEmails\StoreOldUserEmailAction;
 use Rawilk\ProfileFilament\Events\PendingUserEmails\NewUserEmailVerified;
 use Rawilk\ProfileFilament\Mail\PendingEmailVerifiedMail;
@@ -18,95 +15,94 @@ beforeEach(function () {
     Mail::fake();
     Event::fake();
 
+    $this->freezeSecond();
+
     config([
         'profile-filament.models.pending_user_email' => PendingUserEmail::class,
         'profile-filament.models.old_user_email' => OldUserEmail::class,
         'profile-filament.actions.store_old_user_email' => StoreOldUserEmailAction::class,
         'profile-filament.mail.pending_email_verified' => PendingEmailVerifiedMail::class,
         'profile-filament.pending_email_changes.login_after_verification' => false,
-        'profile-filament.pending_email_changes.login_remember' => true,
+        'profile-filament.pending_email_changes.login_remember' => false,
         'auth.verification.expire' => 60,
     ]);
+
+    $this->pendingEmail = PendingUserEmail::factory()
+        ->for(User::factory(state: ['email' => 'first@example.test']))
+        ->create(['email' => 'new@example.test']);
 });
 
-it('verifies a pending email change', closure: function () {
-    Date::setTestNow('2023-01-01 10:00:00');
+it('verifies a pending email change', function () {
+    // Links should be valid all the way up to the last second.
+    $this->travel(1)->hour();
 
-    $user = User::factory()->create(['email' => 'old@example.test']);
-    $pendingEmail = PendingUserEmail::factory()->for($user)->create(['email' => 'new-email@example.test']);
-
-    $url = $pendingEmail->verification_url;
-
-    $this->travelTo(now()->addHour());
-
-    get($url)
+    get($this->pendingEmail->verification_url)
         ->assertSessionHas('success')
         ->assertSessionHas('verified', true)
         ->assertRedirect('/admin/login');
 
-    expect(auth()->check())->toBeFalse()
-        ->and($user->refresh())->email->toBe('new-email@example.test');
+    $this->assertGuest();
+
+    expect($this->pendingEmail->user->refresh())->email->toBe('new@example.test');
+
+    $this->assertModelMissing($this->pendingEmail);
 
     $this->assertDatabaseHas(OldUserEmail::class, [
-        'email' => 'old@example.test',
-        'user_id' => $user->id,
+        'email' => 'first@example.test',
+        'user_id' => $this->pendingEmail->user->getKey(),
     ]);
 
-    $this->assertDatabaseMissing(PendingUserEmail::class, [
-        'email' => 'new-email@example.test',
-    ]);
+    Event::assertDispatched(function (NewUserEmailVerified $event) {
+        expect($event->user)->toBe($this->pendingEmail->user)
+            ->and($event->previousEmail)->toBe('first@example.test');
 
-    Event::assertDispatched(NewUserEmailVerified::class);
+        return true;
+    });
 
     Mail::assertQueued(function (PendingEmailVerifiedMail $mail) {
-        $mail->assertTo('old@example.test');
+        $mail->assertTo('first@example.test');
 
         return true;
     });
 });
 
 it('rejects invalid tokens', function () {
-    $user = User::factory()->create(['email' => 'old@example.test']);
-    $pendingEmail = PendingUserEmail::factory()->for($user)->create(['email' => 'new-email@example.test']);
-    $pendingEmail->token = 'foo';
+    $this->pendingEmail->token = 'invalid';
 
-    get($pendingEmail->verification_url)
+    get($this->pendingEmail->verification_url)
         ->assertSessionHas('error')
         ->assertRedirect('/admin/login');
 
-    expect($user->fresh())->email->toBe('old@example.test');
+    expect($this->pendingEmail->user->refresh())->email->toBe('first@example.test');
 
     Event::assertNotDispatched(NewUserEmailVerified::class);
+    Mail::assertNothingOutgoing();
 });
 
-it('blocks expired links', function () {
-    Date::setTestNow('2023-01-01 10:00:00');
-    $user = User::factory()->create(['email' => 'old@example.test']);
-    $pendingEmail = PendingUserEmail::factory()->for($user)->create(['email' => 'new-email@example.test']);
-
-    $url = $pendingEmail->verification_url;
+it('rejects expired links', function () {
+    $url = URL::signedRoute(
+        'filament.admin.pending_email.verify',
+        [
+            'token' => $this->pendingEmail->token,
+        ]
+    );
 
     $this->travelTo(now()->addHour()->addSecond());
 
     get($url)
-        ->assertForbidden();
+        ->assertRedirect('/admin/login');
 
-    expect($user->refresh())->email->toBe('old@example.test');
+    expect($this->pendingEmail->user->refresh())->email->toBe('first@example.test');
 
-    $this->assertDatabaseHas(PendingUserEmail::class, [
-        'email' => 'new-email@example.test',
-    ]);
+    $this->assertModelExists($this->pendingEmail);
 });
 
-it('can log a user in after they verify their new email', function () {
+it('can log a user in after the email is verified', function () {
     config([
         'profile-filament.pending_email_changes.login_after_verification' => true,
     ]);
 
-    $user = User::factory()->create(['email' => 'old@example.test']);
-    $pendingEmail = PendingUserEmail::factory()->for($user)->create(['email' => 'new-email@example.test']);
+    get($this->pendingEmail->verification_url)->assertRedirect('/admin');
 
-    get($pendingEmail->verification_url);
-
-    expect(auth()->check())->toBeTrue();
+    $this->assertAuthenticated();
 });

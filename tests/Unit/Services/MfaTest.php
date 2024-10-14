@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use PragmaRX\Google2FA\Google2FA;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
@@ -16,8 +16,10 @@ use Rawilk\ProfileFilament\Services\Mfa;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 use Symfony\Component\HttpKernel\Exception\HttpException as HttpException;
 
+uses(LazilyRefreshDatabase::class);
+
 beforeEach(function () {
-    $this->user = User::factory()->withMfa()->create();
+    $this->user = User::factory()->withMfa()->create(['id' => 1]);
 
     $this->mfa = new Mfa(userModel: User::class);
 
@@ -55,7 +57,7 @@ it('knows if there is a challenged user', function () {
 
     expect($this->mfa->hasChallengedUser())->toBeTrue();
 
-    session()->put(MfaSession::User->value, 2);
+    session()->put(MfaSession::User->value, -1);
 
     expect($this->mfa->hasChallengedUser())->toBeFalse();
 });
@@ -69,7 +71,7 @@ it('can confirm a user mfa session', function () {
         ->and(session()->get(MfaSession::Confirmed->value . '.1'))->toBeTrue();
 });
 
-it('knows if a user session has been mfa confirmed', function () {
+it('knows if a users session has confirmed mfa', function () {
     $this->mfa->confirmUserSession($this->user);
 
     expect($this->mfa->isConfirmedInSession($this->user))->toBeTrue()
@@ -113,24 +115,28 @@ it('handles an invalid recovery code', function () {
 it('can determine if a totp code is valid', function () {
     challengeUser();
 
-    Date::setTestNow('2023-01-01 10:00:00');
+    $this->freezeSecond();
 
     $mfaEngine = app(Google2FA::class);
     $userSecret = $mfaEngine->generateSecretKey();
     $validOtp = $mfaEngine->getCurrentOtp($userSecret);
 
-    AuthenticatorApp::factory()->for($this->user)->create();
-
-    $authenticator = AuthenticatorApp::factory()->for($this->user)->create([
-        'secret' => $userSecret,
-    ]);
+    $apps = AuthenticatorApp::factory()
+        ->for($this->user)
+        ->sequence(
+            ['secret' => $mfaEngine->generateSecretKey()],
+            ['secret' => $userSecret],
+        )
+        ->count(2)
+        ->create();
 
     expect($this->mfa->isValidTotpCode($validOtp))->toBeTrue()
-        ->and($authenticator->refresh())->last_used_at->toDateTimeString()->toBe('2023-01-01 10:00:00');
+        ->and($apps->first()->refresh())->last_used_at->toBeNull()
+        ->and($apps->last()->refresh())->last_used_at->toBe(now());
 
-    Event::assertDispatched(function (TwoFactorAppUsed $event) use ($authenticator) {
+    Event::assertDispatched(function (TwoFactorAppUsed $event) use ($apps) {
         expect($event->user)->toBe($this->user)
-            ->and($event->authenticatorApp)->toBe($authenticator);
+            ->and($event->authenticatorApp)->toBe($apps->last());
 
         return true;
     });
@@ -146,7 +152,7 @@ it('handles invalid totp codes', function () {
     Event::assertNotDispatched(TwoFactorAppUsed::class);
 });
 
-it('knows if remember cookie should be set', function () {
+it('knows if a remember cookie should be set', function () {
     expect($this->mfa->remember())->toBeFalse();
 
     (fn () => $this->remember = null)->call($this->mfa);
@@ -178,13 +184,33 @@ it('can push a challenged user to the session', function () {
 
     $this->mfa->pushChallengedUser(user: $this->user, remember: true);
 
-    expect(session()->get(MfaSession::User->value))->toBe($this->user->id)
+    expect(session()->get(MfaSession::User->value))->toBe($this->user->getKey())
         ->and(session()->get(MfaSession::Remember->value))->toBeTrue();
 
     Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
 });
 
-function challengeUser(): void
-{
-    session()->put(MfaSession::User->value, test()->user->id);
-}
+it('can determine if a user has mfa enabled on their account', function () {
+    expect($this->mfa->userHasMfaEnabled($this->user))->toBeTrue();
+
+    $this->user->update(['two_factor_enabled' => false]);
+
+    expect($this->mfa->userHasMfaEnabled($this->user))->toBeFalse();
+});
+
+it('checks for a "hasTwoFactorEnabled" method on a user model', function () {
+    $model = new class extends User
+    {
+        protected $table = 'users';
+
+        public function hasTwoFactorEnabled(): bool
+        {
+            return false;
+        }
+    };
+
+    $customUser = $model::find($this->user->getKey());
+    $customUser->update(['two_factor_enabled' => true]);
+
+    expect($this->mfa->userHasMfaEnabled($customUser))->toBeFalse();
+});

@@ -3,58 +3,42 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasDisabled;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
     config([
-        'profile-filament.actions.mark_two_factor_disabled' => MarkTwoFactorDisabledAction::class,
+        'profile-filament.actions.mark_two_factor_disabled' => MarkTwoFactorEnabledAction::class,
     ]);
 
     Event::fake();
 
-    $this->user = User::factory()->withMfa()->create();
-
-    $this->webauthnKey = WebauthnKey::factory()->for($this->user)->create();
+    $this->record = WebauthnKey::factory()
+        ->for(User::factory())
+        ->create();
 });
 
 it('deletes a webauthn key', function () {
-    app(DeleteWebauthnKeyAction::class)($this->webauthnKey);
+    app(DeleteWebauthnKeyAction::class)($this->record);
 
     Event::assertDispatched(function (WebauthnKeyDeleted $event) {
-        return $event->webauthnKey->is($this->webauthnKey)
-            && $event->user->is($this->user);
+        expect($event->user)->toBe($this->record->user)
+            ->and($event->webauthnKey)->toBe($this->record);
+
+        return true;
     });
 
-    Event::assertDispatched(TwoFactorAuthenticationWasDisabled::class);
-
-    $this->assertDatabaseMissing(WebauthnKey::class, [
-        'id' => $this->webauthnKey->id,
-    ]);
-
-    expect($this->user->refresh())
-        ->two_factor_enabled->toBeFalse();
+    $this->assertModelMissing($this->record);
 });
 
-it('does not disable 2fa for a user if they have other webauthn keys registered', function () {
-    $otherKey = WebauthnKey::factory()->for($this->user)->create();
+it('calls the action to disable mfa for a user', function () {
+    $this->mock(MarkTwoFactorEnabledAction::class)
+        ->shouldReceive('__invoke')
+        ->with($this->record->user)
+        ->once();
 
-    app(DeleteWebauthnKeyAction::class)($this->webauthnKey);
-
-    Event::assertDispatched(function (WebauthnKeyDeleted $event) {
-        return $event->webauthnKey->is($this->webauthnKey);
-    });
-    Event::assertDispatchedTimes(WebauthnKeyDeleted::class, 1);
-    Event::assertNotDispatched(TwoFactorAuthenticationWasDisabled::class);
-
-    $this->assertDatabaseHas(WebauthnKey::class, [
-        'id' => $otherKey->id,
-    ]);
-
-    expect($this->user->refresh())
-        ->two_factor_enabled->toBeTrue();
+    app(DeleteWebauthnKeyAction::class)($this->record);
 });

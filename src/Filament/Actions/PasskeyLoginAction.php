@@ -72,7 +72,7 @@ class PasskeyLoginAction extends Action
                     $response = Webauthn::verifyAssertion(
                         user: null,
                         assertionResponse: $arguments['assertion'],
-                        storedPublicKey: unserialize(session()->pull(MfaSession::PasskeyAssertionPk->value)),
+                        storedPublicKey: session()->pull(MfaSession::PasskeyAssertionPk->value),
                         requiresPasskey: true,
                     );
                 } catch (Throwable|AssertionFailed $e) {

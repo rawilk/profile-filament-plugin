@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpdated;
-use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKey as WebauthnKeyComponent;
+use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKey as Component;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -15,146 +14,146 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function () {
     Event::fake();
-    login($this->user = User::factory()->withMfa()->create());
 
     disableSudoMode();
 
-    $this->webauthnKey = WebauthnKey::factory()->for($this->user)->notPasskey()->create(['attachment_type' => 'cross-platform']);
+    $this->record = WebauthnKey::factory()->for(User::factory()->withMfa())->notPasskey()->create([
+        'attachment_type' => 'cross-platform',
+    ]);
+
+    login($this->record->user);
 
     config([
         'profile-filament.actions.delete_webauthn_key' => DeleteWebauthnKeyAction::class,
     ]);
 });
 
-it('can edit the name of a webauthn key', function () {
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
+it('renders', function () {
+    livewire(Component::class, [
+        'id' => $this->record->getKey(),
+    ])
         ->assertSuccessful()
+        ->assertSeeText($this->record->name);
+});
+
+it('can edit the name of the key', function () {
+    livewire(Component::class, [
+        'id' => $this->record->getKey(),
+    ])
         ->mountAction('edit')
         ->assertActionDataSet([
-            'name' => $this->webauthnKey->name,
+            'name' => $this->record->name,
         ])
         ->callAction('edit', [
             'name' => 'new name',
         ])
-        ->assertSuccessful()
-        ->assertNotified();
+        ->assertHasNoActionErrors();
 
     Event::assertDispatched(WebauthnKeyUpdated::class);
 
-    expect($this->webauthnKey->refresh())
-        ->name->toBe('new name');
+    expect($this->record->refresh())->name->toBe('new name');
 });
 
-it('requires a name', function () {
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
+it('requires a name when editing', function () {
+    livewire(Component::class, [
+        'id' => $this->record->getKey(),
+    ])
         ->callAction('edit', [
-            'name' => '',
+            'name' => null,
         ])
         ->assertHasActionErrors([
-            'name' => 'required',
-        ])
-        ->assertNotNotified();
+            'name' => ['required'],
+        ]);
 
     Event::assertNotDispatched(WebauthnKeyUpdated::class);
-
-    expect($this->webauthnKey->refresh())
-        ->name->not->toBe('')
-        ->name->not->toBeNull();
 });
 
 it('requires a unique name', function () {
-    WebauthnKey::factory()->for($this->user)->create(['name' => 'taken name']);
+    WebauthnKey::factory()->for($this->record->user)->create(['name' => 'taken name']);
 
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
+    livewire(Component::class, [
+        'id' => $this->record->getKey(),
+    ])
         ->callAction('edit', [
             'name' => 'taken name',
         ])
         ->assertHasActionErrors([
-            'name' => 'unique',
+            'name' => ['unique'],
         ]);
 
-    Event::assertNotDispatched(WebauthnKeyUpdated::class);
-
-    expect($this->webauthnKey->refresh())
-        ->name->not->toBe('taken name');
+    expect($this->record->refresh())->name->not->toBe('taken name');
 });
 
-it('requires authorization to edit a webauthn key', function () {
-    login(User::factory()->withMfa()->create());
+test('a user cannot edit another users security key', function () {
+    $otherKey = WebauthnKey::factory()->for(User::factory())->create();
 
-    try {
-        livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
-            ->callAction('edit', [
-                'name' => 'new name',
-            ]);
-    } catch (ErrorException) {
-    }
-
-    Event::assertNotDispatched(WebauthnKeyUpdated::class);
-
-    expect($this->webauthnKey->refresh())
-        ->name->not->toBe('new name');
+    livewire(Component::class, [
+        'id' => $otherKey->getKey(),
+    ])
+        ->assertActionDisabled('edit');
 });
 
 it('can delete a webauthn key', function () {
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
+    livewire(Component::class, [
+        'id' => $this->record->getKey(),
+    ])
         ->callAction('delete')
-        ->assertNotified(__('profile-filament::pages/security.mfa.webauthn.actions.delete.success_message', ['name' => e($this->webauthnKey->name)]))
-        ->assertDispatched(MfaEvent::WebauthnKeyDeleted->value, id: $this->webauthnKey->id)
-        ->assertSet('webauthnKey', null);
+        ->assertDispatched(MfaEvent::WebauthnKeyDeleted->value, id: $this->record->getKey())
+        ->assertSet('id', null);
 
     Event::assertDispatched(function (WebauthnKeyDeleted $event) {
-        return $event->webauthnKey->is($this->webauthnKey);
+        expect($event->webauthnKey)->toBe($this->record);
+
+        return true;
     });
 
-    $this->assertDatabaseMissing(WebauthnKey::class, [
-        'id' => $this->webauthnKey->id,
-    ]);
+    $this->assertModelMissing($this->record);
 });
 
-it('requires sudo mode to delete a webauthn key', function () {
+it('can require sudo mode to delete a key', function () {
     enableSudoMode();
 
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
+    livewire(Component::class, [
+        'id' => $this->record->getKey(),
+    ])
         ->call('mountAction', 'delete')
-        ->assertActionMounted('sudoChallenge');
+        ->assertSeeText(sudoChallengeTitle());
 });
 
-it('requires authorization to delete a webauthn key', function () {
-    login(User::factory()->withMfa()->create());
+test('a user cannot delete another users key', function () {
+    $otherKey = WebauthnKey::factory()->for(User::factory())->create();
 
-    try {
-        livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
-            ->callAction('delete');
-    } catch (ErrorException) {
-    }
-
-    Event::assertNotDispatched(WebauthnKeyDeleted::class);
-
-    $this->assertDatabaseHas(WebauthnKey::class, [
-        'id' => $this->webauthnKey->id,
-    ]);
+    livewire(Component::class, [
+        'id' => $otherKey->getKey(),
+    ])
+        ->assertSet('webauthnKey', null);
 });
 
-it('does not show the upgrade to passkey action for ineligible keys', function () {
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $this->webauthnKey])
+it('does not show the upgrade to passkey for ineligible keys', function () {
+    livewire(Component::class, [
+        'id' => $this->record->getKey(),
+    ])
         ->assertActionHidden('upgrade');
 });
 
-it('can upgrade an eligible key to a passkey', function () {
-    $webauthnKey = WebauthnKey::factory()->for($this->user)->notPasskey()->create(['attachment_type' => 'platform']);
+it('can upgrade eligible keys to passkeys', function () {
+    $record = WebauthnKey::factory()->for($this->record->user)->notPasskey()->create(['attachment_type' => 'platform']);
 
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $webauthnKey])
+    livewire(Component::class, [
+        'id' => $record->getKey(),
+    ])
         ->assertActionVisible('upgrade');
 });
 
-it('does not show the passkey upgrade button if passkeys are disabled', function () {
+it('does not show the upgrade to passkey action if passkeys are disabled in the current panel', function () {
     getPanelFeatures()->twoFactorAuthentication(
         passkeys: false,
     );
 
-    $webauthnKey = WebauthnKey::factory()->for($this->user)->notPasskey()->create(['attachment_type' => 'platform']);
+    $record = WebauthnKey::factory()->for($this->record->user)->notPasskey()->create(['attachment_type' => 'platform']);
 
-    livewire(WebauthnKeyComponent::class, ['webauthnKey' => $webauthnKey])
+    livewire(Component::class, [
+        'id' => $record->getKey(),
+    ])
         ->assertActionHidden('upgrade');
 });

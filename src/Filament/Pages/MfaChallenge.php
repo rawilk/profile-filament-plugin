@@ -40,7 +40,7 @@ class MfaChallenge extends SimplePage
         }
 
         if (Mfa::isConfirmedInSession($this->user)) {
-            redirect()->intended(filament()->getHomeUrl());
+            redirect()->intended(filament()->getHomeUrl() ?? filament()->getUrl());
 
             return;
         }
@@ -85,7 +85,7 @@ class MfaChallenge extends SimplePage
             // This will probably be the case for most apps.
             Mfa::confirmUserSession($this->user);
 
-            redirect()->intended(filament()->getHomeUrl());
+            redirect()->intended(filament()->getHomeUrl() ?? filament()->getUrl());
 
             return;
         }

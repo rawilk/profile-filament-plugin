@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppRemoved;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUpdated;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasDisabled;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppListItem;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -22,121 +20,116 @@ beforeEach(function () {
     disableSudoMode();
 
     Event::fake();
-    login($this->user = User::factory()->withMfa()->create());
 
-    $this->authenticator = AuthenticatorApp::factory()->for($this->user)->create();
+    $this->record = AuthenticatorApp::factory()
+        ->for(User::factory()->withMfa())
+        ->create(['name' => 'my app']);
+
+    login($this->record->user);
 });
 
-it('can edit the name of the authenticator app', function () {
+it('renders', function () {
     livewire(AuthenticatorAppListItem::class, [
-        'app' => $this->authenticator,
+        'app' => $this->record,
     ])
-        ->mountAction('edit')
-        ->assertActionDataSet([
-            'name' => $this->authenticator->name,
-        ])
-        ->callAction('edit', data: [
+        ->assertSuccessful()
+        ->assertSeeText($this->record->name);
+});
+
+it('can edit the name', function () {
+    livewire(AuthenticatorAppListItem::class, [
+        'app' => $this->record,
+    ])
+        ->callAction('edit', [
             'name' => 'new name',
         ])
         ->assertHasNoActionErrors();
 
-    expect($this->authenticator->refresh())
-        ->name->toBe('new name');
+    expect($this->record->refresh())->name->toBe('new name');
 
     Event::assertDispatched(function (TwoFactorAppUpdated $event) {
-        return $event->authenticatorApp->is($this->authenticator)
-            && $event->user->is($this->user);
+        expect($event->authenticatorApp)->toBe($this->record)
+            ->and($event->user)->toBe($this->record->user);
+
+        return true;
     });
 });
 
 it('requires a name to edit', function () {
-    livewire(AuthenticatorAppListItem::class, ['app' => $this->authenticator])
-        ->mountAction('edit')
-        ->callAction('edit', data: [
-            'name' => '',
+    livewire(AuthenticatorAppListItem::class, [
+        'app' => $this->record,
+    ])
+        ->callAction('edit', [
+            'name' => null,
         ])
         ->assertHasActionErrors([
-            'name' => 'required',
+            'name' => ['required'],
         ]);
 
     Event::assertNotDispatched(TwoFactorAppUpdated::class);
 });
 
-it('requires app name to be unique', function () {
-    AuthenticatorApp::factory()->for($this->user)->create(['name' => 'taken name']);
+it('requires a unique app name', function () {
+    AuthenticatorApp::factory()->for($this->record->user)->create(['name' => 'taken name']);
 
-    livewire(AuthenticatorAppListItem::class, ['app' => $this->authenticator])
-        ->mountAction('edit')
-        ->callAction('edit', data: [
+    livewire(AuthenticatorAppListItem::class, [
+        'app' => $this->record,
+    ])
+        ->callAction('edit', [
             'name' => 'taken name',
         ])
         ->assertHasActionErrors([
-            'name' => 'unique',
+            'name' => ['unique'],
         ]);
-
-    Event::assertNotDispatched(TwoFactorAppUpdated::class);
 });
 
-test('edits to an authenticator app require authorization', function () {
-    login(User::factory()->withMfa()->create());
+test('a user cannot edit another users app', function () {
+    $otherApp = AuthenticatorApp::factory()->for(User::factory()->withMfa())->create();
 
-    // Wrapped in a try-catch because I can't figure out a way to use
-    // $this->authorize() in the `before` action callback and test
-    // for it here...
-    try {
-        livewire(AuthenticatorAppListItem::class, ['app' => $this->authenticator])
-            ->mountAction('edit')
-            ->callAction('edit', data: [
-                'name' => 'new name',
-            ]);
-    } catch (ErrorException) {
-    }
-
-    Event::assertNotDispatched(TwoFactorAppUpdated::class);
-
-    expect($this->authenticator->refresh())
-        ->name->not->toBe('new name');
+    livewire(AuthenticatorAppListItem::class, [
+        'app' => $otherApp,
+    ])
+        ->assertActionHidden('edit');
 });
 
-it('can delete an authenticator app', function () {
-    livewire(AuthenticatorAppListItem::class, ['app' => $this->authenticator])
+it('can delete an app', function () {
+    livewire(AuthenticatorAppListItem::class, [
+        'app' => $this->record,
+    ])
+        ->assertActionVisible('delete')
         ->callAction('delete')
-        ->assertNotified(__('profile-filament::pages/security.mfa.app.actions.delete.success_message', ['name' => e($this->authenticator->name)]))
-        ->assertDispatched(MfaEvent::AppDeleted->value, appId: $this->authenticator->id)
+        ->assertHasNoActionErrors()
+        ->assertDispatched(MfaEvent::AppDeleted->value, appId: $this->record->getKey())
         ->assertSet('app', null);
 
-    $this->assertDatabaseMissing(AuthenticatorApp::class, [
-        'id' => $this->authenticator->id,
-    ]);
-
-    Event::assertDispatched(TwoFactorAuthenticationWasDisabled::class);
+    $this->assertModelMissing($this->record);
 
     Event::assertDispatched(function (TwoFactorAppRemoved $event) {
-        return $event->authenticatorApp->is($this->authenticator)
-            && $event->user->is($this->user);
+        expect($event->authenticatorApp)->toBe($this->record)
+            ->and($event->user)->toBe($this->record->user);
+
+        return true;
     });
 });
 
-it('requires sudo mode to delete an authenticator app', function () {
+it('can require sudo mode to delete an app', function () {
     enableSudoMode();
 
-    livewire(AuthenticatorAppListItem::class, ['app' => $this->authenticator])
+    $this->mock(DeleteTwoFactorAppAction::class)
+        ->shouldNotReceive('__invoke');
+
+    livewire(AuthenticatorAppListItem::class, [
+        'app' => $this->record,
+    ])
         ->call('mountAction', 'delete')
-        ->assertActionMounted('sudoChallenge');
+        ->assertSeeText(sudoChallengeTitle());
 });
 
-it('authorizes deletions against a policy', function () {
-    login(User::factory()->withMfa()->create());
+test('a user cannot delete another users app', function () {
+    $otherApp = AuthenticatorApp::factory()->for(User::factory()->withMfa())->create();
 
-    try {
-        livewire(AuthenticatorAppListItem::class, ['app' => $this->authenticator])
-            ->callAction('delete');
-    } catch (ErrorException) {
-    }
-
-    Event::assertNotDispatched(TwoFactorAppRemoved::class);
-
-    $this->assertDatabaseHas(AuthenticatorApp::class, [
-        'id' => $this->authenticator->id,
-    ]);
+    livewire(AuthenticatorAppListItem::class, [
+        'app' => $otherApp,
+    ])
+        ->assertActionHidden('delete');
 });

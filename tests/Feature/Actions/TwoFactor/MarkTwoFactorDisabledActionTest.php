@@ -21,17 +21,21 @@ beforeEach(function () {
     );
 });
 
-it('disables 2fa for a user', function () {
+it('disables mfa for a user', function () {
     app(MarkTwoFactorDisabledAction::class)($this->user);
 
-    Event::assertDispatched(TwoFactorAuthenticationWasDisabled::class);
+    Event::assertDispatched(function (TwoFactorAuthenticationWasDisabled $event) {
+        expect($event->user)->toBe($this->user);
 
-    expect($this->user->fresh())
+        return true;
+    });
+
+    expect($this->user->refresh())
         ->two_factor_enabled->toBeFalse()
         ->two_factor_recovery_codes->toBeNull();
 });
 
-it('does not disable 2fa if user has authenticator apps registered to them', function () {
+it('does not disable mfa if user has authenticator apps registered to them', function () {
     AuthenticatorApp::factory()->for($this->user)->create();
 
     app(MarkTwoFactorDisabledAction::class)($this->user);
@@ -42,7 +46,7 @@ it('does not disable 2fa if user has authenticator apps registered to them', fun
         ->two_factor_enabled->toBeTrue();
 });
 
-it('does not disable 2fa if user has webauthn keys registered to them', function () {
+it('does not disable mfa if user has webauthn keys registered to them', function () {
     WebauthnKey::factory()->for($this->user)->create();
 
     app(MarkTwoFactorDisabledAction::class)($this->user);

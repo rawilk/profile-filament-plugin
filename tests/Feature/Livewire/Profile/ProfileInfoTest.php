@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Events\Profile\ProfileInformationUpdated;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -11,28 +9,26 @@ use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
-    Date::setTestNow('2023-01-01 10:00:00');
+    $this->freezeTime();
 
-    login($this->user = User::factory()->create(['name' => 'John Smith']));
+    login($this->user = User::factory()->create(['name' => 'Dexter Morgan']));
 });
 
-it('displays profile information for a user', function () {
+it('displays profile info for a user', function () {
     livewire(ProfileInfo::class)
-        ->assertSeeText('John Smith')
-        ->assertSeeText('Jan 1, 2023')
-        ->assertActionExists('edit');
+        ->assertSeeText('Dexter Morgan')
+        ->assertSeeText(now()->format('M j, Y'))
+        ->assertInfolistActionExists('profile-information', 'edit');
 });
 
-it('can edit the profile info for a user', function () {
+it('can edit a users profile information', function () {
     Event::fake();
 
     livewire(ProfileInfo::class)
-        ->mountAction('edit')
-        ->setActionData([
+        ->callInfolistAction('profile-information', 'edit', data: [
             'name' => 'New Name',
         ])
-        ->callAction('edit')
-        ->assertNotified();
+        ->assertHasNoInfolistActionErrors();
 
     Event::assertDispatched(ProfileInformationUpdated::class);
 

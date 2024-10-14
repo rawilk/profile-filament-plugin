@@ -81,9 +81,10 @@ class MfaOverview extends ProfileComponent
     #[On(MfaEvent::AppAdded->value)]
     #[On(MfaEvent::WebauthnKeyAdded->value)]
     #[On(MfaEvent::PasskeyRegistered->value)]
+    #[On('sudo-active')]
     public function onMfaMethodAdded(bool $enabledMfa): void
     {
-        if ($enabledMfa) {
+        if ($enabledMfa && $this->ensureSudoIsActive()) {
             $this->showRecoveryInModal = true;
             $this->dispatch('open-modal', id: 'mfa-recovery-codes');
         }

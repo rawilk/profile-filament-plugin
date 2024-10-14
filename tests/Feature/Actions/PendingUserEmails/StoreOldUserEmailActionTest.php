@@ -24,7 +24,7 @@ it('stores a reference to an old email address for a user', function () {
 
     $this->assertDatabaseHas(OldUserEmail::class, [
         'email' => 'old@example.test',
-        'user_id' => $this->user->id,
+        'user_id' => $this->user->getKey(),
     ]);
 
     Mail::assertQueued(function (PendingEmailVerifiedMail $mail) {

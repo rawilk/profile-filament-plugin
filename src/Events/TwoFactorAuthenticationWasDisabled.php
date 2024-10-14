@@ -6,7 +6,7 @@ namespace Rawilk\ProfileFilament\Events;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
 
-final class TwoFactorAuthenticationWasDisabled extends ProfileFilamentEvent
+class TwoFactorAuthenticationWasDisabled extends ProfileFilamentEvent
 {
     public function __construct(public User $user)
     {

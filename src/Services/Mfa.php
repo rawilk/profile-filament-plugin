@@ -82,18 +82,20 @@ class Mfa
             return $this->challengedUser;
         }
 
-        $user = $this->userModel::query()
-            ->withoutGlobalScopes()
-            ->whereKey(session()->get(MfaSession::User->value))
-            ->first();
+        return once(function () {
+            $user = $this->userModel::query()
+                ->withoutGlobalScopes()
+                ->whereKey(session()->get(MfaSession::User->value))
+                ->first();
 
-        abort_unless(
-            $user,
-            Response::HTTP_UNPROCESSABLE_ENTITY,
-            __('profile-filament::messages.mfa_challenge.invalid_challenged_user'),
-        );
+            abort_unless(
+                $user,
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                __('profile-filament::messages.mfa_challenge.invalid_challenged_user'),
+            );
 
-        return $this->challengedUser = $user;
+            return $user;
+        });
     }
 
     public function pushChallengedUser(User $user, bool $remember = false): void

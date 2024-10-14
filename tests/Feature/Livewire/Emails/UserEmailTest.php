@@ -2,152 +2,152 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Mail;
+use Rawilk\ProfileFilament\Actions\PendingUserEmails\UpdateUserEmailAction;
 use Rawilk\ProfileFilament\Livewire\Emails\UserEmail;
 use Rawilk\ProfileFilament\Mail\PendingEmailVerificationMail;
 use Rawilk\ProfileFilament\Models\PendingUserEmail;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 use function Pest\Livewire\livewire;
-use function Rawilk\ProfileFilament\renderMarkdown;
 
 beforeEach(function () {
     Event::fake();
     Mail::fake();
 
-    login($this->user = User::factory()->verified()->create(['email' => 'one@example.test']));
+    login($this->user = User::factory()->verified()->create(['email' => 'first@example.test']));
 
     disableSudoMode();
 
     config([
         'profile-filament.models.pending_user_email' => PendingUserEmail::class,
         'profile-filament.mail.pending_email_verification' => PendingEmailVerificationMail::class,
+        'profile-filament.actions.update_user_email' => UpdateUserEmailAction::class,
     ]);
 });
 
-it('can be rendered', function () {
+it('renders', function () {
     livewire(UserEmail::class)
         ->assertSuccessful()
-        ->assertSeeText('one@example.test')
-        ->assertActionExists('edit');
+        ->assertSeeText('first@example.test')
+        ->assertInfolistActionExists('email', 'editEmail');
 });
 
-it('provides a form to edit your email address', function () {
+it('can edit a users email address', function () {
     livewire(UserEmail::class)
-        ->mountAction('edit')
-        ->setActionData([
-            'email' => 'two@example.test',
+        ->callInfolistAction('email', 'editEmail', data: [
+            'email' => 'new@example.test',
         ])
-        ->callAction('edit')
-        ->assertSuccessful()
-        ->assertNotified();
+        ->assertHasNoInfolistActionErrors();
 
-    expect($this->user->refresh())->email->toBe('one@example.test');
+    expect($this->user->refresh())->email->toBe('first@example.test');
 
     $this->assertDatabaseHas(PendingUserEmail::class, [
-        'email' => 'two@example.test',
-        'user_id' => $this->user->id,
+        'email' => 'new@example.test',
+        'user_id' => $this->user->getKey(),
     ]);
 
-    Mail::assertQueued(function (PendingEmailVerificationMail $mail) {
-        $mail->assertTo('two@example.test');
-
-        return true;
-    });
+    Mail::assertQueued(PendingEmailVerificationMail::class);
 });
 
-it('requires sudo mode to edit your email address', function () {
+it('can require sudo mode to edit the email address', function () {
     enableSudoMode();
 
     livewire(UserEmail::class)
-        ->call('mountAction', 'edit')
-        ->assertActionMounted('sudoChallenge');
+        ->call('mountInfolistAction', 'editEmail', 'email', 'infolist')
+        ->assertInfolistActionNotMounted('email', 'editEmail')
+        ->assertSeeText(sudoChallengeTitle());
 });
 
 it('shows a pending email address change in the ui', function () {
-    PendingUserEmail::factory()->for($this->user)->create(['email' => 'two@example.test']);
+    PendingUserEmail::factory()->for($this->user)->create(['email' => 'new@example.test']);
 
     livewire(UserEmail::class)
         ->assertSeeText(__('profile-filament::pages/settings.email.change_pending_badge'))
-        ->assertSee(renderMarkdown(__('profile-filament::pages/settings.email.pending_description', ['email' => 'two@example.test'])))
-        ->assertActionVisible('cancel')
-        ->assertActionVisible('resend');
+        ->assertSeeHtml(
+            str(__('profile-filament::pages/settings.email.pending_description', [
+                'email' => 'new@example.test',
+            ]))
+                ->inlineMarkdown()
+                ->toHtmlString()
+        )
+        ->assertActionVisible('resend')
+        ->assertActionVisible('cancelPendingEmailChange');
 });
 
 it('requires an email address in the form', function () {
+    $this->mock(UpdateUserEmailAction::class)
+        ->shouldNotReceive('__invoke');
+
     livewire(UserEmail::class)
-        ->mountAction('edit')
-        ->setActionData([
-            'email' => '',
+        ->callInfolistAction('email', 'editEmail', data: [
+            'email' => null,
         ])
-        ->callAction('edit')
-        ->assertHasActionErrors([
-            'email' => 'required',
+        ->assertHasInfolistActionErrors([
+            'email' => ['required'],
         ]);
 });
 
 it('requires a valid email address', function () {
+    $this->mock(UpdateUserEmailAction::class)
+        ->shouldNotReceive('__invoke');
+
     livewire(UserEmail::class)
-        ->mountAction('edit')
-        ->setActionData([
+        ->callInfolistAction('email', 'editEmail', data: [
             'email' => 'invalid',
         ])
-        ->callAction('edit')
-        ->assertHasActionErrors([
-            'email' => 'email',
+        ->assertHasInfolistActionErrors([
+            'email' => ['email'],
         ]);
 });
 
 it('requires a unique email', function () {
-    User::factory()->create(['email' => 'two@example.test']);
+    User::factory()->create(['email' => 'other@example.test']);
+
+    $this->mock(UpdateUserEmailAction::class)
+        ->shouldNotReceive('__invoke');
 
     livewire(UserEmail::class)
-        ->mountAction('edit')
-        ->setActionData([
-            'email' => 'two@example.test',
+        ->callInfolistAction('email', 'editEmail', data: [
+            'email' => 'other@example.test',
         ])
-        ->callAction('edit')
-        ->assertHasActionErrors([
-            'email' => 'unique',
+        ->assertHasInfolistActionErrors([
+            'email' => ['unique'],
         ]);
 });
 
 it('can cancel a pending email change', function () {
-    PendingUserEmail::factory()->for($this->user)->create();
+    $record = PendingUserEmail::factory()->for($this->user)->create();
 
     livewire(UserEmail::class)
-        ->callAction('cancel')
-        ->assertSuccessful();
+        ->callAction('cancelPendingEmailChange')
+        ->assertHasNoActionErrors();
 
-    $this->assertDatabaseMissing(PendingUserEmail::class, [
-        'user_id' => $this->user->id,
-    ]);
+    $this->assertModelMissing($record);
 });
 
-it('requires sudo mode to cancel a pending email change', function () {
+it('can require sudo mode to cancel a pending email change', function () {
     enableSudoMode();
 
-    PendingUserEmail::factory()->for($this->user)->create();
+    $record = PendingUserEmail::factory()->for($this->user)->create();
 
     livewire(UserEmail::class)
-        ->call('mountAction', 'cancel')
-        ->assertActionMounted('sudoChallenge');
+        ->call('mountAction', 'cancelPendingEmailChange')
+        ->assertActionNotMounted('cancelPendingEmailChange')
+        ->assertSeeText(sudoChallengeTitle());
 
-    $this->assertDatabaseHas(PendingUserEmail::class, [
-        'user_id' => $this->user->id,
-    ]);
+    $this->assertModelExists($record);
 });
 
 it('can re-send the pending email verification email', function () {
-    PendingUserEmail::factory()->for($this->user)->create(['email' => 'two@example.test']);
+    $record = PendingUserEmail::factory()->for($this->user)->create();
 
     livewire(UserEmail::class)
         ->callAction('resend')
+        ->assertHasNoActionErrors()
         ->assertNotified();
 
-    Mail::assertQueued(function (PendingEmailVerificationMail $mail) {
-        $mail->assertTo('two@example.test');
+    Mail::assertQueued(function (PendingEmailVerificationMail $mail) use ($record) {
+        $mail->assertTo($record->email);
 
         return true;
     });

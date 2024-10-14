@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction;
 use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyRegistered;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
-use Rawilk\ProfileFilament\Facades\Webauthn as WebauthnFacade;
-use Rawilk\ProfileFilament\Services\Webauthn;
+use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Testing\Support\FakeWebauthn;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -18,61 +16,46 @@ beforeEach(function () {
 
     config([
         'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
+        'profile-filament.models.webauthn_key' => WebauthnKey::class,
     ]);
 
-    $this->user = User::factory()->withoutMfa()->create();
+    $this->user = User::factory()->withoutMfa()->create(['id' => 1]);
 });
 
 it('registers a new passkey for a user', function () {
-    Webauthn::generateChallengeWith(fn (): string => FakeWebauthn::rawAttestationChallenge());
-
-    $publicKey = WebauthnFacade::passkeyAttestationObjectFor($this->user->email, $this->user->id);
-    $publicKeyCredentialSource = WebauthnFacade::verifyAttestation(
-        FakeWebauthn::attestationResponse(),
-        $publicKey,
-    );
-
-    Cache::shouldReceive('forget')->with('user:1:has-passkeys');
+    Cache::shouldReceive('forget')->with('user:1:has-passkeys')->once();
 
     $passkey = app(RegisterPasskeyAction::class)(
         user: $this->user,
-        publicKeyCredentialSource: $publicKeyCredentialSource,
+        publicKeyCredentialSource: FakeWebauthn::publicKeyCredentialSource(encodeUserId: false),
         attestation: FakeWebauthn::attestationResponse(),
         keyName: 'my passkey',
     );
 
-    Event::assertDispatched(PasskeyRegistered::class);
-    Event::assertDispatched(TwoFactorAuthenticationWasEnabled::class);
+    Event::assertDispatched(function (PasskeyRegistered $event) use ($passkey) {
+        expect($event->passkey)->toBe($passkey)
+            ->and($event->user)->toBe($this->user);
+
+        return true;
+    });
 
     expect($passkey)
         ->name->toBe('my passkey')
         ->is_passkey->toBeTrue()
         ->user
-        ->toBe($this->user)
-        ->and($this->user->refresh())
-        ->two_factor_enabled->toBeTrue();
+        ->toBe($this->user);
 });
 
-it('does not try to enable 2fa if the user already has it enabled', function () {
-    Webauthn::generateChallengeWith(fn (): string => FakeWebauthn::rawAttestationChallenge());
-
-    $this->user->update(['two_factor_enabled' => true]);
-
-    $publicKey = WebauthnFacade::passkeyAttestationObjectFor($this->user->email, $this->user->id);
-    $publicKeyCredentialSource = WebauthnFacade::verifyAttestation(
-        FakeWebauthn::attestationResponse(),
-        $publicKey,
-    );
-
-    Cache::shouldReceive('forget')->with('user:1:has-passkeys');
+it('calls the action to enable mfa for a user', function () {
+    $this->mock(MarkTwoFactorEnabledAction::class)
+        ->shouldReceive('__invoke')
+        ->with($this->user)
+        ->once();
 
     app(RegisterPasskeyAction::class)(
         user: $this->user,
-        publicKeyCredentialSource: $publicKeyCredentialSource,
+        publicKeyCredentialSource: FakeWebauthn::publicKeyCredentialSource(encodeUserId: false),
         attestation: FakeWebauthn::attestationResponse(),
         keyName: 'my passkey',
     );
-
-    Event::assertDispatched(PasskeyRegistered::class);
-    Event::assertNotDispatched(TwoFactorAuthenticationWasEnabled::class);
 });

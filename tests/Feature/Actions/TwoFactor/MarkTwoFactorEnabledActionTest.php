@@ -9,7 +9,7 @@ use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
-it('enables 2fa for a user', function () {
+it('enables mfa for a user', function () {
     Event::fake();
     $user = User::factory()->withoutMfa()->create();
 
@@ -17,16 +17,18 @@ it('enables 2fa for a user', function () {
 
     app(MarkTwoFactorEnabledAction::class)($user);
 
-    $user->refresh();
-
-    expect($user)
+    expect($user->refresh())
         ->two_factor_enabled->toBeTrue()
         ->recoveryCodes()->toHaveCount(8);
 
-    Event::assertDispatched(TwoFactorAuthenticationWasEnabled::class);
+    Event::assertDispatched(function (TwoFactorAuthenticationWasEnabled $event) use ($user) {
+        expect($event->user)->toBe($user);
+
+        return true;
+    });
 });
 
-it('does nothing if 2fa is already enabled', function () {
+it('does nothing if mfa is already enabled', function () {
     Event::fake();
     $user = User::factory()->withMfa()->create();
 

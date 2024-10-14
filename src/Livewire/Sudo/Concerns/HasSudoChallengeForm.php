@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
@@ -21,7 +22,9 @@ use Livewire\Attributes\Locked;
 use Rawilk\FilamentPasswordInput\Password;
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
 use Rawilk\ProfileFilament\Enums\Session\SudoSession;
+use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\Mfa;
+use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Facades\Webauthn;
 use Throwable;
 
@@ -117,6 +120,7 @@ trait HasSudoChallengeForm
         return Action::make('submit')
             ->action('confirm')
             ->color('primary')
+            ->hidden(fn (): bool => $this->challengeMode === SudoChallengeMode::Webauthn)
             ->label(
                 fn () => $this->challengeMode?->actionButton($this->user) ?? __('profile-filament::messages.sudo_challenge.password.submit')
             )
@@ -137,6 +141,7 @@ trait HasSudoChallengeForm
                     ? __('profile-filament::messages.sudo_challenge.webauthn.submit_including_passkeys')
                     : __('profile-filament::messages.sudo_challenge.webauthn.submit');
             })
+            ->visible(fn (): bool => $this->challengeMode === SudoChallengeMode::Webauthn)
             ->color('primary')
             ->extraAttributes([
                 'class' => 'w-full',
@@ -154,6 +159,24 @@ trait HasSudoChallengeForm
         $this->hasWebauthnError = false;
 
         unset($this->challengeMode, $this->challengeOptions, $this->alternateChallengeOptions);
+    }
+
+    public function confirm(Request $request, ?array $assertion = null): void
+    {
+        try {
+            $this->confirmIdentity($assertion);
+        } catch (Halt) {
+            return;
+        }
+
+        Sudo::activate();
+        SudoModeActivated::dispatch($this->user, $request);
+
+        $this->onConfirmed();
+    }
+
+    protected function onConfirmed(): void
+    {
     }
 
     protected function userHandle(): ?string
@@ -246,7 +269,7 @@ trait HasSudoChallengeForm
                             assertionResponse: $assertion,
                             storedPublicKey: session()->pull(SudoSession::WebauthnAssertionPk->value),
                         );
-                    } catch (Throwable) {
+                    } catch (Throwable $e) {
                         $this->error = __('profile-filament::messages.sudo_challenge.webauthn.invalid');
                         $this->hasWebauthnError = true;
 

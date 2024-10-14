@@ -19,10 +19,6 @@ class User extends BaseUser implements FilamentUser, MustVerifyNewEmail
 
     protected $guarded = [];
 
-    protected $casts = [
-        'password' => 'hashed',
-    ];
-
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
@@ -31,5 +27,12 @@ class User extends BaseUser implements FilamentUser, MustVerifyNewEmail
     protected static function newFactory(): UserFactory
     {
         return UserFactory::new();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
     }
 }

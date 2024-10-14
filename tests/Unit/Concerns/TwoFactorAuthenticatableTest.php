@@ -9,7 +9,11 @@ use Rawilk\ProfileFilament\Support\RecoveryCode;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
-    $this->user = User::factory()->withMfa()->create();
+    $this->user = User::factory()->withMfa()->create(['id' => 1]);
+});
+
+afterEach(function () {
+    RecoveryCode::generateCodesUsing(null);
 });
 
 it('can get recovery codes as an array', function () {

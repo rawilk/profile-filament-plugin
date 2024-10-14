@@ -8,6 +8,7 @@
         },
     })"
     class="pr-2"
+    data-test="register-form"
 >
     @include('profile-filament::livewire.partials.webauthn-unsupported')
 

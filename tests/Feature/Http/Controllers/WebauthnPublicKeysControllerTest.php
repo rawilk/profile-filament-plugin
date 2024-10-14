@@ -2,36 +2,35 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
-use Rawilk\ProfileFilament\Facades\Webauthn as WebauthnFacade;
+use Rawilk\ProfileFilament\Facades\Webauthn;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\Services\Webauthn;
 use Rawilk\ProfileFilament\Testing\Support\FakeWebauthn;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
-use Symfony\Component\HttpFoundation\Response;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\post;
 
 beforeEach(function () {
-    $this->user = User::factory()->withMfa()->create();
+    $this->user = User::factory()->withMfa()->create(['id' => 1]);
 
     Route::webauthn();
 });
 
-it('can generate a public key for an attestation for the authenticated user', function () {
-    Webauthn::generateChallengeWith(fn (): string => FakeWebauthn::rawAttestationChallenge());
+afterEach(function () {
+    Str::createRandomStringsNormally();
+    Webauthn::generateChallengeWith(null);
+});
 
-    WebauthnKey::factory()->for($this->user)->create();
+it('creates an options object for webauthn registration', function () {
+    Str::createRandomStringsUsing(fn () => FakeWebauthn::rawAttestationChallenge());
 
-    // Challenge will be the same as what's returned from controller since we're hard-coding
-    // it in the callback above.
-    $expectedPublicKey = WebauthnFacade::attestationObjectFor(
-        $this->user->email,
-        $this->user->id,
-    );
+    WebauthnKey::factory()->for($this->user)->create([
+        'credential_id' => FakeWebauthn::CREDENTIAL_ID,
+    ]);
+
+    $expectedOptions = Webauthn::attestationObjectFor($this->user);
 
     actingAs($this->user)
         ->post(route('profile-filament::webauthn.attestation_pk'))
@@ -43,30 +42,34 @@ it('can generate a public key for an attestation for the authenticated user', fu
             ],
             'user' => [
                 'name' => $this->user->email,
-                'id' => 'MQ', // '1'
+                'displayName' => $this->user->email,
+                'id' => 'MQ',
             ],
             'challenge' => FakeWebauthn::ATTESTATION_CHALLENGE,
             'excludeCredentials' => [
                 [
-                    // Our factory uses this credential id by default
-                    'id' => FakeWebauthn::CREDENTIAL_ID,
+                    'id' => FakeWebauthn::credentialIdEncoded(),
                 ],
             ],
         ])
-        ->assertSessionHas(MfaSession::AttestationPublicKey->value, serialize($expectedPublicKey));
+        ->assertJsonCount(1, 'excludeCredentials')
+        ->assertSessionHas(MfaSession::AttestationPublicKey->value, $expectedOptions);
 });
 
-it('can generate a public key for an assertion for a user', function () {
-    Webauthn::generateChallengeWith(fn (): string => FakeWebauthn::rawAssertionChallenge());
+it('can generate options for authenticating a user with webauthn', function () {
+    Str::createRandomStringsUsing(fn () => FakeWebauthn::rawAssertionChallenge());
 
-    WebauthnKey::factory()->for($this->user)->create();
+    WebauthnKey::factory()->for($this->user)->create([
+        'credential_id' => FakeWebauthn::CREDENTIAL_ID,
+    ]);
 
-    $expectedPublicKey = WebauthnFacade::assertionObjectFor($this->user->id);
+    $expectedOptions = Webauthn::assertionObjectFor($this->user);
 
-    $url = URL::signedRoute(
+    $url = URL::temporarySignedRoute(
         'profile-filament::webauthn.assertion_pk',
+        now()->addMinute(),
         [
-            'user' => $this->user->id,
+            'user' => $this->user->getRouteKey(),
             's' => MfaSession::AssertionPublicKey->value,
         ],
     );
@@ -77,23 +80,40 @@ it('can generate a public key for an assertion for a user', function () {
             'rpId' => 'acme.test',
             'allowCredentials' => [
                 [
-                    'id' => FakeWebauthn::CREDENTIAL_ID,
+                    'id' => FakeWebauthn::credentialIdEncoded(),
                 ],
             ],
         ])
-        ->assertSessionHas(MfaSession::AssertionPublicKey->value, serialize($expectedPublicKey));
+        ->assertJsonCount(1, 'allowCredentials')
+        ->assertSessionHas(MfaSession::AssertionPublicKey->value, $expectedOptions);
 });
 
-it('does not generate public keys for invalid users', function () {
-    $url = URL::signedRoute(
+it('generates a generic assertion option challenge for invalid users', function () {
+    Webauthn::generateChallengeWith(fn () => FakeWebauthn::rawAssertionChallenge());
+
+    Str::createRandomStringsUsing(fn () => 'QYsoXHwsgMPGt1ch');
+
+    $expectedOptions = Webauthn::genericAssertion();
+
+    $url = URL::temporarySignedRoute(
         'profile-filament::webauthn.assertion_pk',
+        now()->addMinute(),
         [
-            'user' => 2,
+            'user' => 'invalid',
             's' => MfaSession::AssertionPublicKey->value,
         ],
     );
 
     post($url)
-        ->assertStatus(Response::HTTP_NOT_FOUND)
-        ->assertSessionMissing(MfaSession::AssertionPublicKey->value);
+        ->assertJson([
+            'challenge' => FakeWebauthn::ASSERTION_CHALLENGE,
+            'rpId' => 'acme.test',
+            'allowCredentials' => [
+                [
+                    'id' => 'UVlzb1hId3NnTVBHdDFjaA', // base64 of our random string above
+                ],
+            ],
+        ])
+        ->assertJsonCount(1, 'allowCredentials')
+        ->assertSessionHas(MfaSession::AssertionPublicKey->value, $expectedOptions);
 });

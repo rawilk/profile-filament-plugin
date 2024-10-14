@@ -8,7 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
-final class TwoFactorAppRemoved extends ProfileFilamentEvent
+class TwoFactorAppRemoved extends ProfileFilamentEvent
 {
     public function __construct(public User $user, public AuthenticatorApp $authenticatorApp)
     {

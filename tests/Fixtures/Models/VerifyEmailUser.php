@@ -17,13 +17,16 @@ class VerifyEmailUser extends BaseUser implements MustVerifyEmail
 
     protected $table = 'users';
 
-    protected $casts = [
-        'password' => 'hashed',
-        'email_verified_at' => 'immutable_datetime',
-    ];
-
     protected static function newFactory(): VerifyEmailUserFactory
     {
         return VerifyEmailUserFactory::new();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+            'email_verified_at' => 'immutable_datetime',
+        ];
     }
 }

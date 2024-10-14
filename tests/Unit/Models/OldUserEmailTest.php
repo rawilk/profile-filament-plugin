@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Factories\Sequence;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Events\PendingUserEmails\EmailAddressReverted;
 use Rawilk\ProfileFilament\Exceptions\PendingUserEmails\InvalidRevertLinkException;
@@ -18,48 +16,52 @@ beforeEach(function () {
 });
 
 test('query can be scoped to a user', function () {
-    User::factory()->count(2)->create();
-    OldUserEmail::factory()
-        ->state(new Sequence(
-            ['user_id' => 1, 'user_type' => User::class],
-            ['user_id' => 2, 'user_type' => User::class],
-        ))
+    $users = User::factory()->count(2)->create();
+
+    $records = OldUserEmail::factory()
+        ->sequence(
+            ['user_id' => $users->first()->id, 'user_type' => User::class],
+            ['user_id' => $users->last()->id, 'user_type' => User::class],
+        )
         ->count(5)
         ->create();
 
-    $models = OldUserEmail::forUser($user = User::first())->get();
+    $results = OldUserEmail::forUser($users->first())->get();
 
-    expect($models)->toHaveCount(3)
-        ->first()->user->toBe($user);
+    expect($results)->toHaveCount(3)
+        ->modelsMatchExactly($records->filter(fn (OldUserEmail $record) => $record->user()->is($users->first())));
 });
 
-it('knows if it is expired', function () {
-    Date::setTestNow('2023-01-01 10:00:00');
+it('knows if it has expired', function () {
+    $this->freezeSecond();
 
-    $model = OldUserEmail::factory()->for(User::factory())->create();
+    $record = OldUserEmail::factory()->for(User::factory())->create();
 
-    $this->travelTo(now()->addMinutes(5)->subSecond());
-    expect($model->isExpired())->toBeFalse();
+    $this->travel(5)->minutes();
+    expect($record->isExpired())->toBeFalse();
 
-    $this->travelTo(now()->addSeconds(2));
-    expect($model->isExpired())->toBeTrue();
+    $this->travel(1)->second();
+    expect($record->isExpired())->toBeTrue();
 });
 
 it('has a revert url attribute', function () {
-    $model = OldUserEmail::factory()->for(User::factory())->create(['token' => 'my_token']);
+    $this->freezeSecond();
 
-    expect($model->revert_url)
+    $record = OldUserEmail::factory()->for(User::factory())->create(['token' => 'my_token']);
+
+    expect($record->revert_url)
         ->toContain('/my_token')
-        ->toContain('expires')
+        ->toContain('expires=' . now()->addMinutes(5)->unix())
         ->toContain('signature');
 });
 
 it('can activate itself', function () {
     Event::fake();
-    $user = User::factory()->create(['email' => 'email@example.test']);
-    $oldEmail = OldUserEmail::factory()->for($user)->create(['email' => 'old@example.test']);
 
-    $oldEmail->activate();
+    $user = User::factory()->create(['email' => 'email@example.test']);
+    $record = OldUserEmail::factory()->for($user)->create(['email' => 'old@example.test']);
+
+    $record->activate();
 
     expect($user->refresh())->email->toBe('old@example.test');
 
@@ -71,34 +73,35 @@ it('can activate itself', function () {
         return true;
     });
 
-    $this->assertDatabaseMissing(OldUserEmail::class, [
-        'email' => 'old@example.test',
-    ]);
+    $this->assertModelMissing($record);
 });
 
-test('expired tokens can not be activated', function () {
-    Date::setTestNow('2023-01-01 10:00:00');
-    $oldEmail = OldUserEmail::factory()->for(User::factory())->create();
+test('expired tokens cannot be activated', function () {
+    $this->freezeSecond();
+
+    $record = OldUserEmail::factory()->for(User::factory())->create();
 
     $this->travelTo(now()->addMinutes(5)->addSecond());
 
-    $oldEmail->activate();
+    $record->activate();
 })->throws(InvalidRevertLinkException::class);
 
-it('will not activate itself if the email is already taken by another user', function () {
-    User::factory()->create(['email' => 'taken@example.test']);
-    $oldEmail = OldUserEmail::factory()->for(User::factory())->create(['email' => 'taken@example.test']);
+it('will not activate if the email is assigned to another user', function () {
+    User::factory()->create(['email' => 'taken@email.test']);
 
-    $oldEmail->activate();
+    $record = OldUserEmail::factory()->for(User::factory())->create(['email' => 'taken@email.test']);
+
+    $record->activate();
 })->throws(InvalidRevertLinkException::class);
 
 it('re-verifies an email for a user if they are an instance of MustVerifyEmail', function () {
-    Date::setTestNow('2023-01-01 10:00:00');
+    $this->freezeSecond();
 
     $user = VerifyEmailUser::factory()->create();
-    $oldEmail = OldUserEmail::factory()->for($user, 'user')->create();
+    $record = OldUserEmail::factory()->for($user, 'user')->create();
 
-    $oldEmail->activate();
+    $record->activate();
 
-    expect($user->refresh())->email_verified_at->toDateTimeString()->toBe('2023-01-01 10:00:00');
+    expect($user->refresh())
+        ->email_verified_at->toBe(now());
 });

@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Event;
+use Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction;
 use Rawilk\ProfileFilament\Events\RecoveryCodesRegenerated;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\RecoveryCodes;
 use Rawilk\ProfileFilament\Support\RecoveryCode;
@@ -16,8 +15,6 @@ beforeEach(function () {
 
     disableSudoMode();
 
-    login($this->user = User::factory()->withMfa()->create());
-
     $codes = [
         'code-one',
         'code-two',
@@ -25,16 +22,25 @@ beforeEach(function () {
         'code-four',
     ];
 
-    $this->user->update([
-        'two_factor_recovery_codes' => Crypt::encryptString(
-            json_encode($codes),
-        ),
-    ]);
+    login(
+        $this->user = User::factory()->withMfa()->create([
+            'two_factor_recovery_codes' => Crypt::encryptString(json_encode($codes)),
+        ])
+    );
 });
 
-it("shows a user's recovery codes", function () {
+afterEach(function () {
+    RecoveryCode::generateCodesUsing(null);
+});
+
+it('renders', function () {
     livewire(RecoveryCodes::class)
-        ->assertSeeInOrder([
+        ->assertSuccessful();
+});
+
+it('shows a users recovery codes', function () {
+    livewire(RecoveryCodes::class)
+        ->assertSeeTextInOrder([
             'code-one',
             'code-two',
             'code-three',
@@ -48,25 +54,26 @@ it('can generate new recovery codes', function () {
     livewire(RecoveryCodes::class)
         ->callAction('generate')
         ->assertSet('regenerated', true)
-        ->assertNotified()
-        ->assertDontSee('code-one')
-        ->assertSee('my-code');
+        ->assertDontSeeText('code-one')
+        ->assertSeeText('my-code');
 
     Event::assertDispatched(RecoveryCodesRegenerated::class);
 });
 
-it('requires sudo mode to generate new codes', function () {
+it('can require sudo mode to regenerate recovery codes', function () {
     enableSudoMode();
+
+    $this->mock(GenerateNewRecoveryCodesAction::class)
+        ->shouldNotReceive('__invoke');
 
     livewire(RecoveryCodes::class)
         ->call('mountAction', 'generate')
-        ->assertActionMounted('sudoChallenge')
-        ->assertSee('code-one');
+        ->assertSeeText(sudoChallengeTitle())
+        ->assertSeeText('code-one');
 });
 
 it('has a copy codes to clipboard action', function () {
-    livewire(RecoveryCodes::class)
-        ->assertActionExists('copy');
+    livewire(RecoveryCodes::class)->assertActionExists('copy');
 });
 
 it('has a download codes action', function () {
@@ -82,6 +89,5 @@ it('has a download codes action', function () {
 });
 
 it('has a print action', function () {
-    livewire(RecoveryCodes::class)
-        ->assertActionExists('print');
+    livewire(RecoveryCodes::class)->assertActionExists('print');
 });

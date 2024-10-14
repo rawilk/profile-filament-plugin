@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Rawilk\ProfileFilament\Contracts\Responses\PendingEmailVerifiedResponse;
 use Rawilk\ProfileFilament\Exceptions\PendingUserEmails\InvalidVerificationLinkException;
 use Rawilk\ProfileFilament\Models\PendingUserEmail;
@@ -19,7 +20,7 @@ class VerifyPendingEmailController
         })->user;
 
         if (config('profile-filament.pending_email_changes.login_after_verification')) {
-            filament()->auth()->login($user, config('profile-filament.pending_email_changes.login_remember', true));
+            Auth::login($user, config('profile-filament.pending_email_changes.login_remember', true));
         }
 
         return app(PendingEmailVerifiedResponse::class);

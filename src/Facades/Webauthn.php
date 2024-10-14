@@ -12,7 +12,8 @@ use Webauthn\PublicKeyCredentialSource;
 
 /**
  * @method static PublicKeyCredentialCreationOptions attestationObjectFor(User $user)
- * @method static PublicKeyCredentialRequestOptions assertionObjectFor(User $user)
+ * @method static PublicKeyCredentialRequestOptions assertionObjectFor(User $user, array $exclude = [])
+ * @method static PublicKeyCredentialRequestOptions genericAssertion()
  * @method static PublicKeyCredentialCreationOptions passkeyAttestationObjectFor(User $user, array $excludeCredentials = [])
  * @method static PublicKeyCredentialRequestOptions passkeyAssertionObject()
  * @method static array verifyAssertion(null|User $user, array $assertionResponse, PublicKeyCredentialRequestOptions $storedPublicKey, bool $requiresPasskey = false)

@@ -24,16 +24,16 @@ class WebauthnKeyFactory extends Factory
             'credential_id' => Str::random(10),
             'attachment_type' => Arr::random(['platform', 'cross-platform']),
             'is_passkey' => false,
-            'public_key' => FakeWebauthn::publicKey(),
+            'public_key' => json_encode((array) FakeWebauthn::publicKeyCredentialSource()),
         ];
     }
 
-    public function notPasskey(): self
+    public function notPasskey(): static
     {
         return $this->state(['is_passkey' => false]);
     }
 
-    public function upgradeableToPasskey(): self
+    public function upgradeableToPasskey(): static
     {
         return $this->state([
             'is_passkey' => false,
@@ -41,7 +41,15 @@ class WebauthnKeyFactory extends Factory
         ]);
     }
 
-    public function passkey(): self
+    public function notUpgradeableToPasskey(): static
+    {
+        return $this->state([
+            'is_passkey' => false,
+            'attachment_type' => 'cross-platform',
+        ]);
+    }
+
+    public function passkey(): static
     {
         return $this->state([
             'is_passkey' => true,

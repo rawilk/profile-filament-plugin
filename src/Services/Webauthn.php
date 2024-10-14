@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Services;
 
+use const PHP_URL_HOST;
+
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature;
 use Illuminate\Contracts\Auth\Authenticatable as User;
@@ -123,12 +125,31 @@ class Webauthn
     /**
      * @see https://webauthn-doc.spomky-labs.com/pure-php/authenticate-your-users
      */
-    public function assertionObjectFor(User $user): PublicKeyCredentialRequestOptions
+    public function assertionObjectFor(User $user, array $exclude = []): PublicKeyCredentialRequestOptions
     {
         return PublicKeyCredentialRequestOptions::create(
             challenge: $this->generateChallenge(),
             rpId: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
-            allowCredentials: $this->getPublicKeyCredentialDescriptorsFor($user),
+            allowCredentials: $this->getPublicKeyCredentialDescriptorsFor($user, $exclude),
+            userVerification: config('profile-filament.webauthn.user_verification', AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED),
+            timeout: config('profile-filament.webauthn.timeout', 60_000),
+        );
+    }
+
+    /**
+     * To prevent user enumeration, we will generate an options object as if nothing
+     * has gone wrong.
+     *
+     * @see https://webauthn-doc.spomky-labs.com/pure-php/authenticate-your-users#allowed-credentials
+     */
+    public function genericAssertion(): PublicKeyCredentialRequestOptions
+    {
+        return PublicKeyCredentialRequestOptions::create(
+            challenge: $this->generateChallenge(),
+            rpId: parse_url(config('profile-filament.webauthn.relying_party.id'), PHP_URL_HOST),
+            allowCredentials: [
+                PublicKeyCredentialDescriptor::create(type: 'public-key', id: Base64UrlSafe::encodeUnpadded(Str::random())),
+            ],
             userVerification: config('profile-filament.webauthn.user_verification', AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED),
             timeout: config('profile-filament.webauthn.timeout', 60_000),
         );
@@ -251,8 +272,8 @@ class Webauthn
             $parsedJson = json_decode($json, true);
 
             /**
-             * The serializer does some kind of encoding to the credential id, so we need
-             * set it to the un-encoded value, otherwise the credential id checks
+             * The serializer decodes the credential id, so we need to set it to the
+             * encoded value, otherwise the credential id checks
              * during the ceremony will fail...
              */
             $source->publicKeyCredentialId = data_get($parsedJson, 'publicKeyCredentialId');
