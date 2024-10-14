@@ -173,7 +173,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
     private function registerLivewireComponents(): void
     {
-        Livewire::component('masked-value', PackageLivewire\MaskedValue::class);
         Livewire::component('recovery-codes', PackageLivewire\TwoFactorAuthentication\RecoveryCodes::class);
         Livewire::component('authenticator-app-form', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppForm::class);
         Livewire::component('authenticator-app-list-item', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppListItem::class);
