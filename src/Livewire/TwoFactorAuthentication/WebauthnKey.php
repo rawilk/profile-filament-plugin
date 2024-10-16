@@ -66,8 +66,8 @@ class WebauthnKey extends ProfileComponent
     public function render(): string
     {
         return <<<'HTML'
-        <div @class(['hidden' => ! $this->webauthnKey])>
-            @if ($this->webauthnKey)
+        <div @class(['hidden' => ! $this->id])>
+            @if ($this->id)
                 <div class="py-3 flex justify-between items-center gap-x-3">
                     <div>
                         <div>
