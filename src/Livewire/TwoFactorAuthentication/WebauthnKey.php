@@ -28,7 +28,7 @@ use Rawilk\ProfileFilament\Models\WebauthnKey as WebauthnKeyModel;
 class WebauthnKey extends ProfileComponent
 {
     #[Locked]
-    public int|string|null $id;
+    public int|string|null $id = null;
 
     #[Computed]
     public function hasPasskeys(): bool
