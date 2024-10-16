@@ -63,6 +63,13 @@ class WebauthnKey extends ProfileComponent
             ]);
     }
 
+    public function mount(): void
+    {
+        if (! $this->webauthnKey) {
+            $this->id = null;
+        }
+    }
+
     public function render(): string
     {
         return <<<'HTML'
