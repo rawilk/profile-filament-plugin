@@ -24,7 +24,7 @@ return [
         'label' => 'Kod odzyskiwania',
         'placeholder' => 'XXXXX-XXXXX',
         'hint' => 'Jeśli nie masz dostępu do swojego urządzenia mobilnego, wprowadź jeden z kodów odzyskiwania, aby zweryfikować swoją tożsamość.',
-        'alternative_heading' => "Nie masz kodu odzyskiwania?",
+        'alternative_heading' => 'Nie masz kodu odzyskiwania?',
         'use_label' => 'Użyj kodu odzyskiwania',
         'invalid' => 'Wprowadzony kod jest nieprawidłowy.',
     ],
@@ -50,7 +50,7 @@ return [
         ],
 
         'unsupported' => [
-            'title' => "Twoja przeglądarka nie jest wspierana!",
+            'title' => 'Twoja przeglądarka nie jest wspierana!',
             'message' => 'Wygląda na to, że Twoja przeglądarka lub urządzenie nie jest kompatybilne z kluczami bezpieczeństwa WebAuthn. Możesz użyć jednej z innych metod dwuskładnikowych lub spróbować przełączyć się na wspieraną przeglądarkę.',
             'learn_more_link' => 'Dowiedz się więcej',
         ],

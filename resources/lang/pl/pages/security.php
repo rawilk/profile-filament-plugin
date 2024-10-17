@@ -145,7 +145,7 @@ return [
 
                 'generate' => [
                     'heading' => 'Wygeneruj nowe kody odzyskiwania',
-                    'description' => "Gdy wygenerujesz nowe kody odzyskiwania, musisz pobrać lub wydrukować nowe kody. **Twoje stare kody przestaną działać.**",
+                    'description' => 'Gdy wygenerujesz nowe kody odzyskiwania, musisz pobrać lub wydrukować nowe kody. **Twoje stare kody przestaną działać.**',
                     'button' => 'Wygeneruj nowe kody odzyskiwania',
                     'success_title' => 'Sukces!',
                     'success_message' => 'Nowe kody odzyskiwania do uwierzytelniania dwuskładnikowego zostały pomyślnie wygenerowane. Zachowaj je w bezpiecznym, trwałym miejscu i usuń poprzednie kody.',

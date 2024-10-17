@@ -14,7 +14,7 @@ return [
     'sudo_challenge' => [
 
         'title' => 'Potwierdź dostęp',
-        'tip' => "**Wskazówka:** Wchodzisz w tryb sudo. Po wykonaniu chronionej akcji sudo, zostaniesz poproszony o ponowne uwierzytelnienie dopiero po kilku godzinach nieaktywności.",
+        'tip' => '**Wskazówka:** Wchodzisz w tryb sudo. Po wykonaniu chronionej akcji sudo, zostaniesz poproszony o ponowne uwierzytelnienie dopiero po kilku godzinach nieaktywności.',
         'cancel_button' => 'Anuluj',
         'signed_in_as' => 'Zalogowany jako: **:handle**',
         'expired' => 'Twoja sesja sudo wygasła. Odśwież stronę, aby spróbować ponownie.',

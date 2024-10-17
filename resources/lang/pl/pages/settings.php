@@ -20,7 +20,7 @@ return [
         'email_description' => 'Ten adres e-mail będzie używany do logowania, powiadomień związanych z kontem i może być również używany do resetowania hasła.',
 
         'pending_heading' => 'Potwierdź swój e-mail',
-        'pending_description' => "Musisz tylko sprawdzić swoją skrzynkę e-mail **:email** i kliknąć link weryfikacyjny, który Ci wysłaliśmy, aby potwierdzić, że to Ty i zakończyć aktualizację. Twoja zmiana nie wejdzie w życie, dopóki nie potwierdzisz nowego adresu e-mail.",
+        'pending_description' => 'Musisz tylko sprawdzić swoją skrzynkę e-mail **:email** i kliknąć link weryfikacyjny, który Ci wysłaliśmy, aby potwierdzić, że to Ty i zakończyć aktualizację. Twoja zmiana nie wejdzie w życie, dopóki nie potwierdzisz nowego adresu e-mail.',
 
         'actions' => [
 
