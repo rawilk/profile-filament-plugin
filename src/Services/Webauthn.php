@@ -9,6 +9,7 @@ use const PHP_URL_HOST;
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature;
 use Illuminate\Contracts\Auth\Authenticatable as User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Psr\Log\LoggerInterface;
@@ -294,6 +295,8 @@ class Webauthn
              */
             'challenge' => Base64UrlSafe::encodeUnpadded($options->challenge),
         ];
+
+        Arr::forget($data, 'attestation');
 
         if ($options instanceof PublicKeyCredentialCreationOptions) {
             $data['user'] = (array) $options->user;
