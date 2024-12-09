@@ -36,7 +36,7 @@ class Mfa
     protected ?bool $remember = null;
 
     /**
-     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $userModel
+     * @param  class-string<Model>  $userModel
      */
     public function __construct(protected string $userModel)
     {
