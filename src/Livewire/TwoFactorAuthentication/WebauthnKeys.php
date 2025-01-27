@@ -47,7 +47,7 @@ class WebauthnKeys extends ProfileComponent
     public bool $showForm = false;
 
     /**
-     * @var \Illuminate\Support\Collection<int, \Rawilk\ProfileFilament\Models\WebauthnKey>
+     * @var Collection<int, \Rawilk\ProfileFilament\Models\WebauthnKey>
      */
     #[Reactive]
     public Collection $webauthnKeys;
