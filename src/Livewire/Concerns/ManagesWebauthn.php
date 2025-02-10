@@ -15,7 +15,7 @@ use Rawilk\ProfileFilament\Filament\Actions\Mfa\ToggleWebauthnAction;
  * @mixin \Rawilk\ProfileFilament\Livewire\MfaOverview
  *
  * @property-read bool $canUseWebauthn
- * @property-read \Illuminate\Support\Collection<int, \Rawilk\ProfileFilament\Models\WebauthnKey> $webauthnKeys
+ * @property-read Collection<int, \Rawilk\ProfileFilament\Models\WebauthnKey> $webauthnKeys
  */
 trait ManagesWebauthn
 {

@@ -312,7 +312,7 @@ class Webauthn
     }
 
     /**
-     * @return array<int, \Webauthn\PublicKeyCredentialParameters>
+     * @return array<int, PublicKeyCredentialParameters>
      */
     protected function getPubKeyCredParams(): array
     {
