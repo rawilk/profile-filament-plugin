@@ -8,14 +8,14 @@ use Rawilk\ProfileFilament\ProfileFilamentPluginServiceProvider;
 use Rawilk\ProfileFilament\Providers\AuthServiceProvider;
 use Rawilk\ProfileFilament\Support\PageManager;
 
-//arch()->preset()->php();
-//arch()->preset()->security()->ignoring([
+// arch()->preset()->php();
+// arch()->preset()->security()->ignoring([
 //    RevokeSessionAction::class, // Needs unserialize
-//]);
+// ]);
 
-//arch()->expect('Rawilk\ProfileFilament')->toUseStrictTypes();
-//arch()->expect('Rawilk\ProfileFilament')->toUseStrictEquality();
-//arch()->expect('Rawilk\ProfileFilament')
+// arch()->expect('Rawilk\ProfileFilament')->toUseStrictTypes();
+// arch()->expect('Rawilk\ProfileFilament')->toUseStrictEquality();
+// arch()->expect('Rawilk\ProfileFilament')
 //    ->classes()
 //    ->not->toBeFinal()->ignoring([
 //        Features::class,
@@ -36,7 +36,7 @@ arch()->expect('Rawilk\ProfileFilament\Dto')
     ->toExtendNothing()
     ->not->toHaveSuffix('Dto');
 
-//arch()->expect([
+// arch()->expect([
 //    'dd',
 //    'ddd',
 //    'dump',
@@ -50,4 +50,4 @@ arch()->expect('Rawilk\ProfileFilament\Dto')
 //
 //    // 'time()' is difficult to test; now()->timestamp should be used instead
 //    'time',
-//])->not->toBeUsed();
+// ])->not->toBeUsed();

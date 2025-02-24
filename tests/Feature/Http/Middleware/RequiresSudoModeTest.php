@@ -25,13 +25,13 @@ beforeEach(function () {
 });
 
 it('redirects to a sudo mode challenge', function () {
-    get('/requires-sudo')
-        ->assertRedirectToRoute('filament.admin.auth.sudo-challenge');
+get('/requires-sudo')
+->assertRedirectToRoute('filament.admin.auth.sudo-challenge');
 
     Event::assertDispatched(SudoModeChallenged::class);
 
     expect(session()->get('url.intended'))->toBe('https://acme.test/requires-sudo');
-});
+    });
 
 it('extends sudo mode if it is already active', function () {
     Sudo::activate();
