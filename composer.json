@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "php": "^8.2|^8.3",
+        "php": "^8.2|^8.3|^8.4",
         "bacon/bacon-qr-code": "^3.0",
         "filament/filament": "^3.2.96",
         "illuminate/contracts": "^11.23|^12.0",
