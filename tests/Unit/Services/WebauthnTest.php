@@ -53,7 +53,7 @@ it('can get a list of keys associated with a user', function () {
     expect($credentials)
         ->toHaveCount(1)
         ->toContainOnlyInstancesOf(PublicKeyCredentialDescriptor::class)
-        ->and($credentials[0]->id)->toBe(FakeWebauthn::credentialIdEncoded());
+        ->and($credentials[0]->id)->toBe(FakeWebauthn::CREDENTIAL_ID);
 });
 
 it('can exclude certain keys', function () {
@@ -78,7 +78,7 @@ it('can generate options for an attestation', function () {
         ->pubKeyCredParams->toBeArray()
         ->pubKeyCredParams->toContainOnlyInstancesOf(PublicKeyCredentialParameters::class)
         ->excludeCredentials->toHaveCount(1)
-        ->and($options->excludeCredentials[0]->id)->toBe(FakeWebauthn::credentialIdEncoded());
+        ->and($options->excludeCredentials[0]->id)->toBe(FakeWebauthn::CREDENTIAL_ID);
 });
 
 it('can generate options for passkey attestations', function () {
@@ -138,7 +138,7 @@ it('can generate options for assertions', function () {
         ->challenge->toBe('1LtnPPCb5iDHtW52GZPLbt3dfXU65Mo0')
         ->rpId->toBe('acme.test')
         ->allowCredentials->toHaveCount(1)
-        ->and($options->allowCredentials[0]->id)->toBe(FakeWebauthn::credentialIdEncoded());
+        ->and($options->allowCredentials[0]->id)->toBe(FakeWebauthn::CREDENTIAL_ID);
 });
 
 it('can generate assertion options for passkeys (userless)', function () {
@@ -258,7 +258,7 @@ it('can serialize public key credential creation options for a request response'
         ->and($result['rp']->id)->toBe('acme.test')
         ->and($result['user']['id'])->toBe('MQ')
         ->and($result['user']['name'])->toBe('email@example.com')
-        ->and($result['excludeCredentials'][0]->id)->toBe(FakeWebauthn::credentialIdEncoded());
+        ->and($result['excludeCredentials'][0]->id)->toBe(FakeWebauthn::CREDENTIAL_ID);
 });
 
 it('can serialize public key credential request options for a request response', function () {
@@ -270,6 +270,6 @@ it('can serialize public key credential request options for a request response',
 
     expect($result['challenge'])->toBe('MUx0blBQQ2I1aURIdFc1MkdaUExidDNkZlhVNjVNbzA')
         ->and($result['rpId'])->toBe('acme.test')
-        ->and($result['allowCredentials'][0]->id)->toBe(FakeWebauthn::credentialIdEncoded())
+        ->and($result['allowCredentials'][0]->id)->toBe(FakeWebauthn::CREDENTIAL_ID)
         ->and($result)->not->toHaveKey('user');
 });
