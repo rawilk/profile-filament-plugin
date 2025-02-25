@@ -31,7 +31,7 @@
     <x-profile-filament::plugin-css class="flex">
         <div @class(['flex', 'flex-1' => $dismiss])>
             @if ($icon)
-                <div class="flex-shrink-0">
+                <div class="shrink-0">
                     <x-filament::icon
                         :icon="$icon"
                         :icon-alias="$iconAlias"
@@ -52,7 +52,7 @@
                 <div class="-mx-1.5 -my-1.5">
                     <button
                         type="button"
-                        class="inline-flex rounded-md bg-custom-50 dark:bg-custom-500/10 p-1.5 text-custom-500 hover:bg-custom-100 dark:hover:bg-custom-700/10 focus:outline-none focus:ring-2 focus:ring-custom-600 focus:ring-offset-2 focus:ring-offset-custom-50 dark:focus:ring-offset-custom-700"
+                        class="inline-flex rounded-md bg-custom-50 dark:bg-custom-500/10 p-1.5 text-custom-500 hover:bg-custom-100 dark:hover:bg-custom-700/10 focus:outline-hidden focus:ring-2 focus:ring-custom-600 focus:ring-offset-2 focus:ring-offset-custom-50 dark:focus:ring-offset-custom-700"
                         x-on:click="dismiss"
                     >
                         <span class="sr-only">{{ __('profile-filament::messages.alert.dismiss') }}</span>
