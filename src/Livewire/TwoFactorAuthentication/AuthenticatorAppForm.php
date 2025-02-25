@@ -59,7 +59,7 @@ class AuthenticatorAppForm extends ProfileComponent
     #[Locked]
     public bool $codeValid = false;
 
-    /** @var \Illuminate\Support\Collection<int, \Rawilk\ProfileFilament\Models\AuthenticatorApp> */
+    /** @var Collection<int, \Rawilk\ProfileFilament\Models\AuthenticatorApp> */
     #[Reactive]
     public Collection $authenticatorApps;
 

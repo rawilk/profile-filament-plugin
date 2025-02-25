@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Rawilk\ProfileFilament\ProfileFilamentPluginServiceProvider;
 use Rawilk\ProfileFilament\Providers\AuthServiceProvider;
 
-//arch()->expect('Rawilk\ProfileFilament')
+// arch()->expect('Rawilk\ProfileFilament')
 //    ->classes()
 //    ->not->toExtend(ServiceProvider::class)
 //    ->ignoring([

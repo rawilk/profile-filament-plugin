@@ -13,7 +13,7 @@ arch()->expect('Rawilk\ProfileFilament\Models')
     ->classes()
     ->not->toHaveSuffix('Model');
 
-//arch()->expect('Rawilk\ProfileFilament')
+// arch()->expect('Rawilk\ProfileFilament')
 //    ->classes()
 //    ->not->toExtend(Model::class)
 //    ->ignoring([

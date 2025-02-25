@@ -26,7 +26,7 @@ arch()->expect('Rawilk\ProfileFilament\Mail')
         'envelope',
     ]);
 
-//arch()->expect('Rawilk\ProfileFilament')
+// arch()->expect('Rawilk\ProfileFilament')
 //    ->classes()
 //    ->not->toExtend(Mailable::class)->ignoring([
 //        'Rawilk\ProfileFilament\Mail',

@@ -14,7 +14,7 @@ use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Services\Mfa;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
-use Symfony\Component\HttpKernel\Exception\HttpException as HttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(LazilyRefreshDatabase::class);
 

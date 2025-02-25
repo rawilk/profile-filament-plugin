@@ -38,13 +38,13 @@ afterEach(function () {
 });
 
 it('redirects to the mfa challenge', function () {
-    get('/requires-mfa')
-        ->assertRedirectToRoute('filament.admin.auth.mfa.challenge');
+get('/requires-mfa')
+->assertRedirectToRoute('filament.admin.auth.mfa.challenge');
 
     Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
 
     expect(session()->get('url.intended'))->toBe('https://acme.test/requires-mfa');
-});
+    });
 
 it('does nothing for guests', function () {
     auth()->logout();
