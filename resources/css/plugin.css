@@ -1,23 +1,2 @@
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
-
-@layer theme, base, components, utilities;
-
-@config "../../tailwind.config.js";
-
-@theme {
-    --color-*: initial;
-
-    /**
-     * These are needed to include custom styles in the sheet
-     * We'll attempt to pull in the current variable value to
-     * avoid overriding them for the project we're in.
-     */
-    --spacing: var(--spacing, 0.25rem);
-    --container-xl: var(--container-xl, 36rem);
-    --text-base: var(--text-base, 1rem);
-    --text-base--line-height: var(--text-base--line-height, calc(1.5 / 1));
-    --font-weight-semibold: var(--font-weight-semibold, 600);
-    --tracking-tight: var(--tracking-tight, -0.025em);
-    --radius-md: var(--radius-md, 0.375rem);
-}
+@tailwind components;
+@tailwind utilities;
