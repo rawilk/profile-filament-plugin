@@ -110,15 +110,15 @@ describe('webauthn', function () {
     });
 
     it('shows how many keys a user has registered', function () {
-        get('/_test')
-            ->assertElementExists('[data-test="webauthn-container"]', function (AssertElement $div) {
-                $div
-                    ->containsText(__('profile-filament::pages/security.mfa.method_configured'))
-                    ->containsText('1 key')
-                    // keys are not shown initially
-                    ->doesntContainText('my key');
-            });
-    })->skip('Skip until dom assertions dep is updated.');
+    get('/_test')
+    ->assertElementExists('[data-test="webauthn-container"]', function (AssertElement $div) {
+        $div
+            ->containsText(__('profile-filament::pages/security.mfa.method_configured'))
+            ->containsText('1 key')
+            // keys are not shown initially
+            ->doesntContainText('my key');
+    });
+        })->skip('Skip until dom assertions dep is updated.');
 
     it('does not show a badge if keys are not registered', function () {
         $this->user->webauthnKeys()->delete();
@@ -183,14 +183,14 @@ describe('totp', function () {
     });
 
     it('shows how many apps are registered for a user', function () {
-        get('/_test')
-            ->assertElementExists('[data-test="totp-container"]', function (AssertElement $div) {
-                $div
-                    ->containsText(__('profile-filament::pages/security.mfa.method_configured'))
-                    ->containsText('1 app')
-                    ->doesntContainText('my app');
-            });
-    })->skip('Skip until dom assertions dep is updated.');
+    get('/_test')
+    ->assertElementExists('[data-test="totp-container"]', function (AssertElement $div) {
+        $div
+            ->containsText(__('profile-filament::pages/security.mfa.method_configured'))
+            ->containsText('1 app')
+            ->doesntContainText('my app');
+    });
+        })->skip('Skip until dom assertions dep is updated.');
 
     it('does not show a badge if no apps are registered', function () {
         $this->user->authenticatorApps()->delete();
