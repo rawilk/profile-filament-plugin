@@ -3,13 +3,13 @@
 
 {{ __('profile-filament::mail.email_updated.line1', ['app_name' => config('app.name')]) }}
 
-{{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::mail.email_updated.line2', ['email' => $maskedEmail])) }}
+{{ __('profile-filament::mail.email_updated.line2', ['email' => e($maskedEmail)]) }}
 
-{{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::mail.email_updated.line3')) }}
+{{ __('profile-filament::mail.email_updated.line3') }}
 
-{{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::mail.email_updated.line4', ['url' => $url, 'days' => $linkExpirationDays])) }}
+{{ __('profile-filament::mail.email_updated.line4', ['url' => $url, 'days' => $linkExpirationDays]) }}
 
-{{ \Rawilk\ProfileFilament\renderMarkdown($requestDetails) }}
+{{ str($requestDetails)->inlineMarkdown()->toHtmlString() }}
 
-{{ \Rawilk\ProfileFilament\renderMarkdown(__('profile-filament::mail.email_updated.salutation', ['app_name' => config('app.name')])) }}
+{{ str(__('profile-filament::mail.email_updated.salutation', ['app_name' => config('app.name')]))->inlineMarkdown()->toHtmlString() }}
 </x-mail::message>
