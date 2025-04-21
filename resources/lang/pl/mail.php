@@ -8,7 +8,7 @@ return [
         'greeting' => 'Witaj,',
         'line1' => 'Złożono prośbę o zmianę adresu e-mail na Twoim koncie na :email. Kliknij poniższy przycisk, aby zweryfikować swój nowy adres e-mail.',
         'button' => 'Zweryfikuj nowy adres e-mail',
-        'line2' => 'Uwaga: Ten link wygaśnie za :minutes minut.',
+        'line2' => 'Uwaga — ten link działa tylko przez :expire. Po tym czasie musisz poprosić o nowy, aby zweryfikować swój adres e-mail.',
         'line3' => 'Jeśli nie aktualizowałeś swojego adresu e-mail, nie musisz podejmować żadnych działań.',
         'salutation' => 'Dziękujemy,<br>:app_name',
     ],
@@ -19,7 +19,7 @@ return [
         'line1' => 'Otrzymujesz tę wiadomość, ponieważ adres e-mail Twojego konta :app_name został niedawno zaktualizowany.',
         'line2' => 'Od teraz będziesz musiał używać adresu ":email" do logowania się na swoje konto.',
         'line3' => 'Jeśli to Ty dokonałeś tej zmiany, nie musisz podejmować żadnych dalszych działań.',
-        'line4' => 'Jeśli nie zainicjowałeś tej zmiany, [kliknij ten link](:url), aby cofnąć zmianę. Ten link wygaśnie za :days dni.',
+        'line4' => 'Jeśli nie zainicjowałeś tej zmiany, [kliknij ten link](:url), aby cofnąć zmianę. Ten link wygaśnie za :expire.',
         'salutation' => 'Dziękujemy,<br>:app_name',
     ],
 

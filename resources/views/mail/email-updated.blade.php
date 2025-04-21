@@ -7,7 +7,7 @@
 
 {{ __('profile-filament::mail.email_updated.line3') }}
 
-{{ __('profile-filament::mail.email_updated.line4', ['url' => $url, 'days' => $linkExpirationDays]) }}
+{{ __('profile-filament::mail.email_updated.line4', ['url' => $url, 'expire' => $linkExpires]) }}
 
 {{ str($requestDetails)->inlineMarkdown()->toHtmlString() }}
 

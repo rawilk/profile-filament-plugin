@@ -8,7 +8,7 @@ return [
         'greeting' => 'Hello,',
         'line1' => 'A request has been made on your account to change your email address to :email. Please click the button below to verify your new email address.',
         'button' => 'Verify new email address',
-        'line2' => 'Note: This link will expire in :minutes minutes.',
+        'line2' => "Heads up — this link only works for :expire. After that, you'll need to request a new one to verify your email address.",
         'line3' => 'If you did not update your email address, no further action is required.',
         'salutation' => 'Thanks,<br>:app_name',
     ],
@@ -19,7 +19,7 @@ return [
         'line1' => 'You are receiving this email because your :app_name account email address was recently updated.',
         'line2' => 'From now on, you will need to use ":email" to sign into your account.',
         'line3' => 'If this was you, no further action is required.',
-        'line4' => 'If you did not initiate this change, [click this link](:url) to revert the change. This link will expire in :days days.',
+        'line4' => 'If you did not initiate this change, [click this link](:url) to revert the change. This link will expire in :expire.',
         'salutation' => 'Thanks,<br>:app_name',
     ],
 

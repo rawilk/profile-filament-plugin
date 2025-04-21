@@ -41,7 +41,17 @@ class PendingEmailVerificationMail extends Mailable implements ShouldQueue
             with: [
                 'url' => $this->pendingUserEmail->verification_url,
                 'email' => $this->pendingUserEmail->email,
+                'linkExpires' => $this->getLinkExpiration(),
             ],
+        );
+    }
+
+    protected function getLinkExpiration(): string
+    {
+        return now()->diffForHumans(
+            other: now()->addMinutes(config('auth.verification.expire', 60)),
+            syntax: true,
+            parts: 2,
         );
     }
 }

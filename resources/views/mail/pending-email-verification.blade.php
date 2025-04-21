@@ -7,7 +7,7 @@
 {{ __('profile-filament::mail.pending_email_verification.button') }}
 </x-mail::button>
 
-{{ __('profile-filament::mail.pending_email_verification.line2', ['minutes' => config('auth.verification.expire', 60)]) }}
+{{ __('profile-filament::mail.pending_email_verification.line2', ['expire' => $linkExpires]) }}
 
 {{ __('profile-filament::mail.pending_email_verification.line3') }}
 
