@@ -60,10 +60,10 @@ describe('recovery codes', function () {
     });
 
     test('guests are not allowed to see this view', function () {
-    get(route('filament.admin.auth.mfa.recovery-codes.print'))
-    ->assertRedirect('/admin/login');
+        get(route('filament.admin.auth.mfa.recovery-codes.print'))
+            ->assertRedirect('/admin/login');
 
         Event::assertNotDispatched(RecoveryCodesViewed::class);
         Event::assertNotDispatched(SudoModeChallenged::class);
-        });
+    });
 });
