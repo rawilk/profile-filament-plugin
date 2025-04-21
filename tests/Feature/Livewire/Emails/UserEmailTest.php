@@ -139,7 +139,13 @@ it('can require sudo mode to cancel a pending email change', function () {
 });
 
 it('can re-send the pending email verification email', function () {
+    config(['auth.verification.expire' => 60]);
+
+    $this->freezeSecond();
+
     $record = PendingUserEmail::factory()->for($this->user)->create();
+
+    $this->travel(30)->minutes();
 
     livewire(UserEmail::class)
         ->callAction('resend')
@@ -151,4 +157,6 @@ it('can re-send the pending email verification email', function () {
 
         return true;
     });
+
+    expect($record->refresh()->created_at)->toBe(now());
 });

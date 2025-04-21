@@ -155,7 +155,14 @@ class UserEmail extends ProfileComponent implements HasInfolists
                 $mailable = config('profile-filament.mail.pending_email_verification');
 
                 Mail::to($this->pendingEmail->email)->send(
-                    new $mailable($this->pendingEmail->refresh()->withoutRelations(), filament()->getCurrentPanel()?->getId()),
+                    new $mailable(
+                        // Make sure the timestamp gets updated to allow more expiration time.
+                        tap($this->pendingEmail, function (PendingUserEmail $record) {
+                            $record->touch('created_at');
+                        })->refresh()->withoutRelations(),
+
+                        filament()->getCurrentPanel()?->getId()
+                    ),
                 );
 
                 Notification::make()
