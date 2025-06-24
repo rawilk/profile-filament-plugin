@@ -17,8 +17,8 @@ The following events are dispatched from the package. The base namespace for eac
 
 This event is dispatched when an authenticator (totp) app is registered for a user. It will receive the following parameters:
 
--   `$user`: The authenticated user
--   `$authenticatorApp`: The `AuthenticatorApp` model being registered
+- `$user`: The authenticated user
+- `$authenticatorApp`: The `AuthenticatorApp` model being registered
 
 ### TwoFactorAppRemoved
 
@@ -26,8 +26,8 @@ This event is dispatched when an authenticator (totp) app is registered for a us
 
 This event is dispatched when an authenticator (totp) app is deleted. It will receive the following parameters:
 
--   `$user`: The authenticated user
--   `$authenticatorApp`: The `AuthenticatorApp` model being deleted
+- `$user`: The authenticated user
+- `$authenticatorApp`: The `AuthenticatorApp` model being deleted
 
 ### TwoFactorAppUpdated
 
@@ -35,8 +35,8 @@ This event is dispatched when an authenticator (totp) app is deleted. It will re
 
 This event is dispatched when an authenticator app's name is updated. It will receive the following parameters:
 
--   `$user`: The authenticated user
--   `$authenticatorApp`: The `AuthenticatorApp` model being updated
+- `$user`: The authenticated user
+- `$authenticatorApp`: The `AuthenticatorApp` model being updated
 -
 
 ### TwoFactorAppUsed
@@ -45,8 +45,8 @@ This event is dispatched when an authenticator app's name is updated. It will re
 
 This event is dispatched when an authenticator (totp) app is used to verify a user's identity. It will receive the following parameters:
 
--   `$user`: The user the app belongs to
--   `$authenticatorApp`: The `AuthenticatorApp` model being used
+- `$user`: The user the app belongs to
+- `$authenticatorApp`: The `AuthenticatorApp` model being used
 
 ### PasskeyDeleted
 
@@ -54,8 +54,8 @@ This event is dispatched when an authenticator (totp) app is used to verify a us
 
 This event is dispatched when user deletes a passkey. It will receive the following parameters:
 
--   `$passkey`: The `WebauthnKey` passkey model being deleted
--   `$user`: The user the passkey belongs to
+- `$passkey`: The `WebauthnKey` passkey model being deleted
+- `$user`: The user the passkey belongs to
 
 ### PasskeyRegistered
 
@@ -63,8 +63,8 @@ This event is dispatched when user deletes a passkey. It will receive the follow
 
 This event is dispatched when user registers a passkey. It will receive the following parameters:
 
--   `$passkey`: The `WebauthnKey` passkey model being registered
--   `$user`: The user the passkey belongs to
+- `$passkey`: The `WebauthnKey` passkey model being registered
+- `$user`: The user the passkey belongs to
 
 ### PasskeyUpdated
 
@@ -72,8 +72,8 @@ This event is dispatched when user registers a passkey. It will receive the foll
 
 This event is dispatched when user updates a passkey's name. It will receive the following parameters:
 
--   `$passkey`: The `WebauthnKey` passkey model being updated
--   `$user`: The user the passkey belongs to
+- `$passkey`: The `WebauthnKey` passkey model being updated
+- `$user`: The user the passkey belongs to
 
 ### EmailAddressReverted
 
@@ -81,9 +81,9 @@ This event is dispatched when user updates a passkey's name. It will receive the
 
 This event is dispatched when user clicks the revert url link in the Pending Email Verified email. It will receive the following parameters:
 
--   `$user`: The user reverting their email
--   `$revertedFrom`: The email address that was cancelled
--   `$revertedTo`: The email address the user will now use
+- `$user`: The user reverting their email
+- `$revertedFrom`: The email address that was cancelled
+- `$revertedTo`: The email address the user will now use
 
 ### NewUserEmailVerified
 
@@ -91,8 +91,8 @@ This event is dispatched when user clicks the revert url link in the Pending Ema
 
 This event is dispatched when a user verifies an email address change. It will receive the following parameters:
 
--   `$user`: The user that verified their new email address
--   `$previousEmail`: The user's previous email address
+- `$user`: The user that verified their new email address
+- `$previousEmail`: The user's previous email address
 
 ### ProfileInformationUpdated
 
@@ -100,7 +100,7 @@ This event is dispatched when a user verifies an email address change. It will r
 
 This event is dispatched when a user updates their profile information. It will receive the following parameters:
 
--   `$user`: The authenticated user
+- `$user`: The authenticated user
 
 ### SudoModeActivated
 
@@ -108,8 +108,8 @@ This event is dispatched when a user updates their profile information. It will 
 
 This event is dispatched when user successfully confirms their identity for sudo mode. It will receive the following parameters:
 
--   `$user`: The user that entered sudo mode
--   `$request`: The current request object
+- `$user`: The user that entered sudo mode
+- `$request`: The current request object
 
 ### SudoModeChallenged
 
@@ -117,8 +117,8 @@ This event is dispatched when user successfully confirms their identity for sudo
 
 This event is dispatched when user is shown a sudo mode prompt. It will receive the following parameters:
 
--   `$user`: The user that was shown the sudo prompt
--   `$request`: The current request object
+- `$user`: The user that was shown the sudo prompt
+- `$request`: The current request object
 
 ### WebauthnKeyDeleted
 
@@ -126,8 +126,8 @@ This event is dispatched when user is shown a sudo mode prompt. It will receive 
 
 This event is dispatched when user deletes a webauthn key from their account. It will receive the following parameters:
 
--   `$webauthnKey`: The webauthn key being deleted
--   `$user`: The user the key belongs to
+- `$webauthnKey`: The webauthn key being deleted
+- `$user`: The user the key belongs to
 
 ### WebauthnKeyRegistered
 
@@ -135,8 +135,8 @@ This event is dispatched when user deletes a webauthn key from their account. It
 
 This event is dispatched when user registers a new webauthn key to their account. It will receive the following parameters:
 
--   `$webauthnKey`: The webauthn key being registered
--   `$user`: The user the key belongs to
+- `$webauthnKey`: The webauthn key being registered
+- `$user`: The user the key belongs to
 
 ### WebauthnKeyUpdated
 
@@ -144,8 +144,8 @@ This event is dispatched when user registers a new webauthn key to their account
 
 This event is dispatched when user deletes a webauthn updates a webauthn key's name. It will receive the following parameters:
 
--   `$webauthnKey`: The webauthn key being updated
--   `$user`: The user the key belongs to
+- `$webauthnKey`: The webauthn key being updated
+- `$user`: The user the key belongs to
 
 ### WebauthnKeyUpgradeToPasskey
 
@@ -153,9 +153,9 @@ This event is dispatched when user deletes a webauthn updates a webauthn key's n
 
 This event is dispatched when user upgrades a webauthn key to a passkey. It will receive the following parameters:
 
--   `$user`: The user the key belongs to
--   `$passkey`: The newly registered passkey
--   `$upgradedFrom`: The webauthn key that was upgraded (and deleted)
+- `$user`: The user the key belongs to
+- `$passkey`: The newly registered passkey
+- `$upgradedFrom`: The webauthn key that was upgraded (and deleted)
 
 ### WebauthnKeyUsed
 
@@ -163,8 +163,8 @@ This event is dispatched when user upgrades a webauthn key to a passkey. It will
 
 This event is dispatched when user uses a webauthn key to verify their identity. It will receive the following parameters:
 
--   `$user`: The user the key belongs to
--   `$webauthnKey`: The webauthn key being used
+- `$user`: The user the key belongs to
+- `$webauthnKey`: The webauthn key being used
 
 > {tip} This will also be dispatched when for a passkey when it is used.
 
@@ -174,9 +174,9 @@ This event is dispatched when user uses a webauthn key to verify their identity.
 
 This event is dispatched when user uses a recovery code and it is replaced. It will receive the following parameters:
 
--   `$user`: The user using a recovery code
--   `$oldCode`: The code that was used
--   `$newCode`: The new code being assigned to the user
+- `$user`: The user using a recovery code
+- `$oldCode`: The code that was used
+- `$newCode`: The new code being assigned to the user
 
 ### RecoveryCodesRegenerated
 
@@ -184,7 +184,7 @@ This event is dispatched when user uses a recovery code and it is replaced. It w
 
 This event is dispatched when user regenerates their recovery codes. It will receive the following parameters:
 
--   `$user`: The user regenerating recovery codes
+- `$user`: The user regenerating recovery codes
 
 ### RecoveryCodesViewed
 
@@ -192,7 +192,7 @@ This event is dispatched when user regenerates their recovery codes. It will rec
 
 This event is dispatched when user views their recovery codes. It will receive the following parameters:
 
--   `$user`: The user viewing their recovery codes
+- `$user`: The user viewing their recovery codes
 
 ### TwoFactorAuthenticationChallenged
 
@@ -200,7 +200,7 @@ This event is dispatched when user views their recovery codes. It will receive t
 
 This event is dispatched when a user is forced to verify their identity with two-factor authentication. It will receive the following parameters:
 
--   `$user`: The user being challenged
+- `$user`: The user being challenged
 
 ### TwoFactorAuthenticationWasDisabled
 
@@ -208,7 +208,7 @@ This event is dispatched when a user is forced to verify their identity with two
 
 This event is dispatched when a user removes every mfa method on their account and has mfa disabled. It will receive the following parameters:
 
--   `$user`: The user disabling mfa
+- `$user`: The user disabling mfa
 
 ### TwoFactorAuthenticationWasEnabled
 
@@ -216,7 +216,7 @@ This event is dispatched when a user removes every mfa method on their account a
 
 This event is dispatched when a user first adds a second factor of authentication and mfa is enabled on their account. It will receive the following parameters:
 
--   `$user`: The user enabling mfa
+- `$user`: The user enabling mfa
 
 ### UserDeletedAccount
 
@@ -224,7 +224,7 @@ This event is dispatched when a user first adds a second factor of authenticatio
 
 This event is dispatched when a user deletes their own account. It will receive the following parameters:
 
--   `$user`: The user being deleted
+- `$user`: The user being deleted
 
 ### UserPasswordWasUpdated
 
@@ -232,4 +232,4 @@ This event is dispatched when a user deletes their own account. It will receive 
 
 This event is dispatched when a user updates their password. It will receive the following parameters:
 
--   `$user`: The user updating their password
+- `$user`: The user updating their password
