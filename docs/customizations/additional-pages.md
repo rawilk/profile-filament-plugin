@@ -28,9 +28,9 @@ class Notifications extends Page
     protected static string $view = 'filament.pages.notifications';
 
     protected static ?string $cluster = Profile::class;
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-bell';
-    
+
     // do not prefix with `profile`, since the cluster's
     // slug will already be prefixed to this slug.
     protected static ?string $slug = 'notifications';

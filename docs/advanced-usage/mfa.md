@@ -13,9 +13,9 @@ If you're looking to customize the registration process for each method, please 
 
 The following package migrations will need to be run for two-factor authentication:
 
--   `add_two_factor_to_users_table`
--   `create_authenticator_apps_table`
--   `create_webauthn_keys_table`
+- `add_two_factor_to_users_table`
+- `create_authenticator_apps_table`
+- `create_webauthn_keys_table`
 
 See [Migrations](/docs/profile-filament-plugin/{version}/installation#user-content-migrations) for more information.
 
@@ -181,12 +181,12 @@ class MfaPipe
 
 The `$request` that each pipe receives in `handle` is our custom `TwoFactorLoginEventBag` DTO object. This object contains the following properties:
 
--   `\Illuminate\Contracts\Auth\Authenticatable $user`: The user being authenticated
--   `bool $remember`: Indicates if the user wished to be remembered
--   `array $data`: Any data submitted through our mfa challenge form
--   `\Illuminate\Http\Request|null $request`: The current request object
--   `\Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode $mfaChallengeMode`: The current challenge mode (totp, webauthn)
--   `null|array $assertionResponse`: If webauthn is being used, this is the response we received from the webauthn key
+- `\Illuminate\Contracts\Auth\Authenticatable $user`: The user being authenticated
+- `bool $remember`: Indicates if the user wished to be remembered
+- `array $data`: Any data submitted through our mfa challenge form
+- `\Illuminate\Http\Request|null $request`: The current request object
+- `\Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode $mfaChallengeMode`: The current challenge mode (totp, webauthn)
+- `null|array $assertionResponse`: If webauthn is being used, this is the response we received from the webauthn key
 
 > {tip} Your pipe classes don't need to verify the mfa method being used is valid; our mfa challenge will handle that for you.
 
@@ -418,7 +418,7 @@ We will provide the callback the user instance, and an array of available challe
 
 When our `RequiresTwoFactorAuthentication` middleware is being used, we will check for a valid mfa session for a user that has mfa enabled on their account, except for when:
 
--   The request is for the `logout` route.
+- The request is for the `logout` route.
 
 This may be fine for most applications, however there may be edge cases in your application. For these edge cases, you may provide a callback function to the `ProfileFilament` class in a service provider.
 
@@ -437,5 +437,5 @@ public function boot(): void
 
 The callback you provide should return a boolean value, and will receive the following parameters:
 
--   `$request`: The current request object
--   `$user`: The user to enforce mfa for
+- `$request`: The current request object
+- `$user`: The user to enforce mfa for

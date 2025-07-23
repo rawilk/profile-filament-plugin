@@ -18,21 +18,21 @@ Although this package is highly opinionated in how it handles many things, it is
 
 ## Credits
 
--   [Randall Wilk](https://github.com/rawilk)
--   [All Contributors](https://github.com/rawilk/profile-filament-plugin/graphs/contributors)
--   [livewire/livewire](https://livewire.laravel.com) - For some JS code snippets
--   [laragear/webauthn](https://github.com/Laragear/WebAuthn) - For inspiration on some webauthn concepts
--   [claudiodekker/laravel-auth](https://github.com/claudiodekker/laravel-auth) - For some inspirations on multi-factor and sudo mode concepts
--   [protonemedia/laravel-verify-new-email](https://github.com/protonemedia/laravel-verify-new-email) - For inspirations on pending email change functionalities
+- [Randall Wilk](https://github.com/rawilk)
+- [All Contributors](https://github.com/rawilk/profile-filament-plugin/graphs/contributors)
+- [livewire/livewire](https://livewire.laravel.com) - For some JS code snippets
+- [laragear/webauthn](https://github.com/Laragear/WebAuthn) - For inspiration on some webauthn concepts
+- [claudiodekker/laravel-auth](https://github.com/claudiodekker/laravel-auth) - For some inspirations on multi-factor and sudo mode concepts
+- [protonemedia/laravel-verify-new-email](https://github.com/protonemedia/laravel-verify-new-email) - For inspirations on pending email change functionalities
 
 `Agent` service class for browser/device detection is derived from:
 
--   [Jenssegers/Agent](https://github.com/jenssegers/agent)
--   [Laravel Jetstream](https://github.com/laravel/jetstream)
+- [Jenssegers/Agent](https://github.com/jenssegers/agent)
+- [Laravel Jetstream](https://github.com/laravel/jetstream)
 
 ## Alternatives
 
--   [Filament Breezy](https://github.com/jeffgreco13/filament-breezy)
+- [Filament Breezy](https://github.com/jeffgreco13/filament-breezy)
 
 ## License
 
