@@ -7,8 +7,8 @@ sort: 2
 
 For sensitive actions, we can prompt for authentication before the action is performed, even when you're already signed in. For example, we consider the following actions sensitive because each action could allow a new person to access your account.
 
--   Modification of your email address
--   Addition or deletion of a passkey
+- Modification of your email address
+- Addition or deletion of a passkey
 
 Once a user authenticates to perform a sensitive action, their session is temporarily in "sudo mode". In sudo mode, additional sensitive actions can be performed without additional authentication prompts.
 
@@ -63,19 +63,19 @@ use Livewire\Component;
 class SensitiveAction extends Action
 {
     use RequiresSudo;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->before(function (Component $livewire) {
             $this->ensureSudoIsActive($livewire);
         });
-        
+
         $this->mountUsing(function (Component $livewire) {
             $this->mountSudoAction($livewire);
         });
-        
+
         $this->registerModalActions([
             $this->getSudoChallengeAction(),
         ]);
@@ -94,7 +94,7 @@ use Livewire\Component;
 class YourComponent extends Component
 {
     // ...
-    
+
     public function sensitiveAction(): Action
     {
         return SensitiveAction::make();
@@ -113,7 +113,7 @@ In cases where the user needs to perform a sensitive action but a filament actio
 ```html
 <div>
     <!-- your component markup -->
-    
+
     @livewire(\Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeForm::class)
 </div>
 ```
@@ -148,7 +148,7 @@ public function sensitiveAction(): void
 }
 ```
 
-The `ensureSudoIsActive` method in our trait will dispatch an event to our `SudoChallengeForm`, which will take care of enforcing sudo mode for you. Once sudo mode has been entered, our component will dispatch the `sudo-active` event, which you should listen to as shown above. 
+The `ensureSudoIsActive` method in our trait will dispatch an event to our `SudoChallengeForm`, which will take care of enforcing sudo mode for you. Once sudo mode has been entered, our component will dispatch the `sudo-active` event, which you should listen to as shown above.
 
 If you have multiple sensitive actions in the same component, you can pass the method name as an argument to `ensureSudoIsActive`, which will then be included in the payload of the `sudo-active` event once it is dispatched.
 
