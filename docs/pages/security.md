@@ -365,9 +365,9 @@ Viewing the recovery codes is considered a sensitive action, so [sudo mode](/doc
 
 For convenience, we include actions to:
 
--   Download a text file of the codes
--   Print the codes
--   Copy the codes to clipboard
+- Download a text file of the codes
+- Print the codes
+- Copy the codes to clipboard
 
 #### Code Regeneration
 
@@ -541,7 +541,7 @@ Now you just need to register your action in the config:
 
 For convenience, we've included some render hooks in the mfa overview section to allow you to add in custom content as necessary. One example of needing the render hooks could be to insert a form for a user to choose their preferred mfa method. You can make use of the render hooks instead of completely overriding our views to accomplish this. Here are the render hooks available on this page:
 
--   `profile-filament::mfa.settings.before`: This will render your view in the two-factor authentication section right before the two-factor methods are listed.
--   `profile-filament::mfa.methods.after`: This will render your view right before the recovery codes section. Useful for adding additional mfa methods (note: this is not officially supported at this time, and may require additional work on your part to make it work correctly)
+- `profile-filament::mfa.settings.before`: This will render your view in the two-factor authentication section right before the two-factor methods are listed.
+- `profile-filament::mfa.methods.after`: This will render your view right before the recovery codes section. Useful for adding additional mfa methods (note: this is not officially supported at this time, and may require additional work on your part to make it work correctly)
 
 For more information on render hooks, see: [https://filamentphp.com/docs/3.x/support/render-hooks](https://filamentphp.com/docs/3.x/support/render-hooks)
