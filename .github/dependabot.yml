@@ -4,29 +4,29 @@
 version: 2
 updates:
 
-    -   package-ecosystem: "github-actions"
-        directory: "/"
-        schedule:
-            interval: "weekly"
-        labels:
-            - "dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
 
-    -   package-ecosystem: "composer"
-        directory: "/"
-        schedule:
-            interval: "weekly"
-        commit-message:
-            prefix: "Composer"
-        labels:
-            - "dependencies"
-            - "composer"
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "Composer"
+    labels:
+      - "dependencies"
+      - "composer"
 
-    -   package-ecosystem: "npm"
-        directory: "/"
-        schedule:
-            interval: "weekly"
-        commit-message:
-            prefix: "NPM"
-        labels:
-            - "dependencies"
-            - "npm"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "NPM"
+    labels:
+      - "dependencies"
+      - "npm"
