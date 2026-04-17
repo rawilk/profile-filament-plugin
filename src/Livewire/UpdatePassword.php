@@ -4,172 +4,249 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Livewire;
 
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\Facades\Blade;
+use Filament\Pages\Concerns\CanUseDatabaseTransactions;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
+use Filament\Support\Exceptions\Halt;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Computed;
+use LogicException;
 use Rawilk\FilamentPasswordInput\Password as PasswordInput;
 use Rawilk\ProfileFilament\Contracts\UpdatePasswordAction;
-use Rawilk\ProfileFilament\Features;
+use Throwable;
 
 /**
  * @property-read null|string $passwordResetUrl
- * @property-read Features $pluginFeatures
- * @property-read Form $form
  */
 class UpdatePassword extends ProfileComponent
 {
+    use CanUseDatabaseTransactions;
+
+    /**
+     * @var array<string, mixed>|null
+     */
     public ?array $data = [];
 
     #[Computed]
     public function passwordResetUrl(): ?string
     {
-        if (! $this->pluginFeatures->shouldShowPasswordResetLink()) {
+        if (! $this->profilePlugin->shouldShowPasswordResetLinkInUpdatePasswordForm()) {
             return null;
         }
 
         return Filament::getRequestPasswordResetUrl();
     }
 
-    #[Computed]
-    public function pluginFeatures(): Features
+    public function mount(): void
     {
-        return $this->profilePlugin->panelFeatures();
+        $this->form->fill();
     }
 
     public function render(): string
     {
         return <<<'HTML'
         <div>
-            <x-filament-panels::form
-                wire:submit="updatePassword"
-                :wire:key="$this->getId() . '.forms.data'"
-            >
+            <form wire:submit="updatePassword">
                 {{ $this->form }}
-            </x-filament-panels::form>
+            </form>
         </div>
         HTML;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('profile-filament::pages/security.password.title'))
-                    ->schema([
-                        $this->getCurrentPasswordField(),
-                        $this->getPasswordField(),
-                        $this->getPasswordConfirmationField(),
-
-                        Forms\Components\Actions::make([
-                            $this->submitAction(),
-                            $this->forgotPasswordLinkAction(),
-                        ]),
-
-                        Forms\Components\Placeholder::make('help')
-                            ->label('')
-                            ->hiddenLabel()
-                            ->content(
-                                fn (): Htmlable => new HtmlString(Blade::render(<<<'HTML'
-                                <div class="text-xs gap-x-1 flex items-start">
-                                    <div class="shrink-0">
-                                        <x-filament::icon
-                                            alias="profile-filament::help"
-                                            icon="heroicon-o-question-mark-circle"
-                                            class="h-4 w-4"
-                                        />
-                                    </div>
-
-                                    <div class="flex-1">
-                                        {{ str(__('profile-filament::pages/security.password.form.form_info'))->markdown()->toHtmlString() }}
-                                    </div>
-                                </div>
-                                HTML)),
-                            ),
-                    ]),
-            ])
-            ->statePath('data');
+        return $schema
+            ->model($this->getUser())
+            ->operation('edit')
+            ->statePath('data')
+            ->components($this->getFormSchema());
     }
 
-    public function submitAction(): Forms\Components\Actions\Action
+    public function getUser(): Authenticatable&Model
     {
-        return Forms\Components\Actions\Action::make('submit')
-            ->action('updatePassword')
-            ->color('primary')
-            ->submit('updatePassword')
-            ->label(__('profile-filament::pages/security.password.form.save_button'));
-    }
+        $user = Filament::auth()->user();
 
-    public function forgotPasswordLinkAction(): Forms\Components\Actions\Action
-    {
-        return Forms\Components\Actions\Action::make('forgotPassword')
-            ->label(__('profile-filament::pages/security.password.form.forgot_password_link'))
-            ->link()
-            ->color('primary')
-            ->url($this->passwordResetUrl)
-            ->visible(fn (): bool => filled($this->passwordResetUrl));
+        throw_unless(
+            $user instanceof Model,
+            new LogicException('The authenticated user object must be an Eloquent model to allow this form to update it.'),
+        );
+
+        return $user;
     }
 
     public function updatePassword(UpdatePasswordAction $updater): void
     {
-        $updater(Filament::auth()->user(), $this->form->getState()['password']);
+        $rateLimitingKey = 'pf-update-password:' . Filament::auth()->id();
+
+        if (RateLimiter::tooManyAttempts($rateLimitingKey, maxAttempts: 5)) {
+            $this->getRateLimitedNotification(new TooManyRequestsException(
+                static::class,
+                'updatePassword',
+                request()->ip(),
+                RateLimiter::availableIn($rateLimitingKey),
+            ))?->send();
+
+            return;
+        }
+
+        RateLimiter::hit($rateLimitingKey);
+
+        try {
+            $this->beginDatabaseTransaction();
+
+            $data = $this->form->getState();
+
+            $data = $this->mutateFormDataBeforeSave($data);
+
+            $user = $this->handleRecordUpdate($this->getUser(), $data);
+        } catch (Halt $exception) {
+            $exception->shouldRollbackDatabaseTransaction()
+                ? $this->rollBackDatabaseTransaction()
+                : $this->commitDatabaseTransaction();
+
+            return;
+        } catch (Throwable $exception) {
+            $this->rollBackDatabaseTransaction();
+
+            throw $exception;
+        }
+
+        $this->commitDatabaseTransaction();
+
+        if (request()->hasSession()) {
+            request()->session()->put([
+                'password_hash_' . Filament::getAuthGuard() => $user->getAuthPassword(),
+            ]);
+        }
 
         $this->form->fill();
 
         $this->getSuccessNotification()?->send();
     }
 
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        app(UpdatePasswordAction::class)($record, $data['password']);
+
+        return $record;
+    }
+
+    protected function getFormSchema(): array
+    {
+        return [
+            Section::make(__('profile-filament::pages/security.password.title'))
+                ->schema([
+                    $this->getPasswordComponent(),
+                    $this->getPasswordConfirmationComponent(),
+                    $this->getCurrentPasswordComponent(),
+                ])
+                ->footer([
+                    $this->getSaveFormAction(),
+                    $this->getForgotPasswordLinkAction(),
+                ]),
+        ];
+    }
+
     protected function getSuccessNotification(): ?Notification
     {
         return Notification::make()
-            ->success()
-            ->title(__('profile-filament::pages/security.password.form.notification'));
+            ->title(__('profile-filament::pages/security.password.form.notifications.saved.title'))
+            ->success();
     }
 
-    protected function getCurrentPasswordField(): Component
+    protected function getRateLimitedNotification(TooManyRequestsException $exception): ?Notification
+    {
+        return Notification::make()
+            ->title(__('profile-filament::pages/security.password.form.notifications.throttled.title', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => $exception->minutesUntilAvailable,
+            ]))
+            ->body(__('profile-filament::pages/security.password.form.notifications.throttled.body', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => $exception->minutesUntilAvailable,
+            ]))
+            ->danger();
+    }
+
+    protected function getCurrentPasswordComponent(): Component
     {
         return PasswordInput::make('current_password')
-            ->label(__('profile-filament::pages/security.password.form.current_password'))
+            ->label(__('profile-filament::pages/security.password.form.current_password.label'))
+            ->validationAttribute(__('profile-filament::pages/security.password.form.current_password.validation_attribute'))
+            ->belowContent(__('profile-filament::pages/security.password.form.current_password.below_content'))
             ->required()
             ->autocomplete('current-password')
-            ->currentPassword()
-            ->maxWidth('lg')
-            ->visible(fn (): bool => $this->pluginFeatures->requiresCurrentPassword());
+            ->currentPassword(guard: Filament::getAuthGuard())
+            ->maxWidth(Width::Large)
+            ->dehydrated(false)
+            ->visible(fn (Get $get): bool => filled($get('password')) && $this->profilePlugin->isCurrentPasswordRequired());
     }
 
-    protected function getPasswordField(): Component
+    protected function getPasswordComponent(): Component
     {
         return PasswordInput::make('password')
-            ->label(__('profile-filament::pages/security.password.form.password'))
+            ->label(__('profile-filament::pages/security.password.form.password.label'))
+            ->validationAttribute(__('profile-filament::pages/security.password.form.password.validation_attribute'))
             ->copyable()
             ->regeneratePassword()
             ->inlineSuffix()
             ->required()
             ->autocomplete('new-password')
             ->rule(Password::defaults())
+            ->showAllValidationMessages()
             ->dehydrateStateUsing(
                 fn (string $state): string => config('profile-filament.hash_user_passwords')
                     ? Hash::make($state)
                     : $state
             )
-            ->maxWidth('lg');
+            ->live(debounce: 500)
+            ->maxWidth(Width::Large);
     }
 
-    protected function getPasswordConfirmationField(): Component
+    protected function getPasswordConfirmationComponent(): Component
     {
         return PasswordInput::make('password_confirmation')
-            ->label(__('profile-filament::pages/security.password.form.password_confirmation'))
+            ->label(__('profile-filament::pages/security.password.form.password_confirmation.label'))
+            ->validationAttribute(__('profile-filament::pages/security.password.form.password_confirmation.validation_attribute'))
             ->hidePasswordManagerIcons()
+            ->autocomplete('new-password')
             ->required()
-            ->visible(fn (): bool => $this->pluginFeatures->requiresPasswordConfirmation())
+            ->visible(fn (): bool => $this->profilePlugin->isPasswordConfirmationRequired())
             ->same('password')
-            ->maxWidth('lg');
+            ->maxWidth(Width::Large)
+            ->dehydrated(false);
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return Action::make('save')
+            ->label(__('profile-filament::pages/security.password.form.actions.save.label'))
+            ->submit('updatePassword')
+            ->keyBindings(['mod+s']);
+    }
+
+    protected function getForgotPasswordLinkAction(): Action
+    {
+        return Action::make('forgotPassword')
+            ->label(__('profile-filament::pages/security.password.form.actions.forgot_password.label'))
+            ->link()
+            ->url($this->passwordResetUrl)
+            ->visible(fn (Get $get): bool => filled($get('password')) && filled($this->passwordResetUrl));
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        return $data;
     }
 }

@@ -10,14 +10,10 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\HtmlString;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\WrongUserHandle;
-use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Facades\Webauthn;
 use Webauthn\PublicKeyCredentialSource;
-
-use function Rawilk\ProfileFilament\wrapDateInTimeTag;
 
 /**
  * @property int $id
@@ -31,8 +27,6 @@ use function Rawilk\ProfileFilament\wrapDateInTimeTag;
  * @property null|\Illuminate\Support\Carbon $created_at
  * @property null|\Illuminate\Support\Carbon $updated_at
  * @property-read PublicKeyCredentialSource $public_key_credential_source
- * @property-read HtmlString $last_used
- * @property-read HtmlString $registered_at
  *
  * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\WebauthnKey byCredentialId(string $id)
  * @method static \Illuminate\Database\Eloquent\Builder|\Rawilk\ProfileFilament\Models\WebauthnKey notPasskeys()
@@ -40,6 +34,7 @@ use function Rawilk\ProfileFilament\wrapDateInTimeTag;
  */
 class WebauthnKey extends Model
 {
+    use Concerns\HasAuthenticatorTimestamps;
     use HasFactory;
 
     protected $hidden = [
@@ -116,21 +111,6 @@ class WebauthnKey extends Model
         $query->where('is_passkey', false);
     }
 
-    public function lastUsed(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                $date = blank($this->last_used_at)
-                    ? __('profile-filament::pages/security.mfa.method_never_used')
-                    : wrapDateInTimeTag($this->last_used_at->tz(ProfileFilament::userTimezone()), 'M d, Y g:i a');
-
-                $translation = __('profile-filament::pages/security.mfa.method_last_used_date', ['date' => $date]);
-
-                return str($translation)->inlineMarkdown()->toHtmlString();
-            },
-        )->shouldCache();
-    }
-
     protected function credentialId(): Attribute
     {
         return Attribute::make(
@@ -143,19 +123,6 @@ class WebauthnKey extends Model
     {
         return Attribute::make(
             get: fn (): PublicKeyCredentialSource => Webauthn::unserializeKeyData($this->public_key),
-        )->shouldCache();
-    }
-
-    protected function registeredAt(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                $date = $this->created_at->tz(ProfileFilament::userTimezone());
-
-                $translation = __('profile-filament::pages/security.mfa.method_registration_date', ['date' => wrapDateInTimeTag($date)]);
-
-                return str($translation)->inlineMarkdown()->toHtmlString();
-            },
         )->shouldCache();
     }
 

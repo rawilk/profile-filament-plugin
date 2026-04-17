@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Filament\Pages\Profile\Security;
+use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 use Rawilk\ProfileFilament\Livewire\PasskeyManager;
 use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeForm;

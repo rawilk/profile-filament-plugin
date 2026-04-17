@@ -5,62 +5,34 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Actions\TwoFactor;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
+use LogicException;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\HasMultiFactorAuthenticationRecovery;
 use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorDisabledAction as MarkTwoFactorDisabledActionContract;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasDisabled;
-use Rawilk\ProfileFilament\Features;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class MarkTwoFactorDisabledAction implements MarkTwoFactorDisabledActionContract
 {
-    protected Features $features;
-
-    public function __construct()
-    {
-        $this->features = filament(ProfileFilamentPlugin::PLUGIN_ID)->panelFeatures();
-    }
-
+    /**
+     * @param  User&HasMultiFactorAuthentication  $user
+     */
     public function __invoke(User $user): void
     {
-        if ($this->hasOtherTwoFactorEnabled($user)) {
+        if (! ($user instanceof HasMultiFactorAuthentication)) {
+            throw new LogicException('User model must implement the [' . HasMultiFactorAuthentication::class . '] interface to use this action.');
+        }
+
+        if ($user->hasOtherEnabledMultiFactorProviders()) {
             return;
         }
 
-        $user->forceFill([
-            'two_factor_enabled' => false,
-            'two_factor_recovery_codes' => null,
-        ])->save();
+        $user->toggleMultiFactorAuthenticationStatus(false);
+        $user->setPreferredMfaProvider(null);
+
+        if ($user instanceof HasMultiFactorAuthenticationRecovery) {
+            $user->saveAuthenticationRecoveryCodes(null);
+        }
 
         TwoFactorAuthenticationWasDisabled::dispatch($user);
-    }
-
-    protected function hasOtherTwoFactorEnabled(User $user): bool
-    {
-        if ($this->hasAuthenticatorApps($user)) {
-            return true;
-        }
-
-        if ($this->hasWebauthnKeys($user)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    protected function hasAuthenticatorApps(User $user): bool
-    {
-        if (! $this->features->hasAuthenticatorApps()) {
-            return false;
-        }
-
-        return $user->authenticatorApps()->exists();
-    }
-
-    protected function hasWebauthnKeys(User $user): bool
-    {
-        if (! $this->features->hasWebauthn()) {
-            return false;
-        }
-
-        return $user->webauthnKeys()->exists();
     }
 }

@@ -1,0 +1,13 @@
+.pf-sudo-modal-content {
+    .fi-sc-text {
+        width: 100%;
+    }
+
+    .pf-signed-in-as {
+        @apply -mt-2;
+    }
+
+    .fi-modal-description {
+        @apply hidden;
+    }
+}

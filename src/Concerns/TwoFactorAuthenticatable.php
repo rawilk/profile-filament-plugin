@@ -15,6 +15,8 @@ use Rawilk\ProfileFilament\Support\RecoveryCode;
  * @property string|null $two_factor_recovery_codes
  *
  * @mixin \Illuminate\Database\Eloquent\Model
+ *
+ * @deprecated
  */
 trait TwoFactorAuthenticatable
 {

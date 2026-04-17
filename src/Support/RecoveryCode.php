@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Support;
 
 use Illuminate\Support\Str;
 
+/** @deprecated */
 class RecoveryCode
 {
     /**

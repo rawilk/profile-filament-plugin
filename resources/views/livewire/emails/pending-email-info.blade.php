@@ -1,5 +1,5 @@
 <div class="px-4 py-3 rounded-md border border-gray-300 dark:border-gray-600">
-    <div class="flex gap-x-2 items-tart">
+    <div class="flex gap-x-2 items-start">
         <div class="shrink-0">
             <x-filament::icon
                 alias="profile-filament::pending-email-info"

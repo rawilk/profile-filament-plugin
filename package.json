@@ -5,9 +5,9 @@
     "type": "module",
     "scripts": {
         "dev:scripts": "node bin/build.js --dev",
-        "dev:styles": "npx tailwindcss -i resources/css/plugin.css -o resources/dist/plugin.css --watch",
+        "dev:styles": "npx @tailwindcss/cli -i resources/css/plugin.css -o resources/dist/plugin.css --watch",
         "build:scripts": "node bin/build.js",
-        "build:styles": "npx tailwindcss -i resources/css/plugin.css -o resources/dist/plugin.css --minify",
+        "build:styles": "npx @tailwindcss/cli -i resources/css/plugin.css -o resources/dist/plugin.css --minify",
         "dev": "npm-run-all --parallel dev:*",
         "build": "npm-run-all build:*"
     },
@@ -15,8 +15,9 @@
         "@simplewebauthn/browser": "^13.3.0"
     },
     "devDependencies": {
-        "esbuild": "^0.27.4",
+        "@tailwindcss/cli": "^4.0",
+        "esbuild": "^0.27.3",
         "npm-run-all": "^4.1.5",
-        "tailwindcss": "^3.4.19"
+        "tailwindcss": "^4.0"
     }
 }

@@ -28,7 +28,7 @@ beforeEach(function () {
         ),
     ]);
 
-    session()->put(MfaSession::User->value, $this->user->getKey());
+    session()->put(MfaSession::UserBeingAuthenticated->value, $this->user->getKey());
 
     Route::webauthn();
 
@@ -47,20 +47,20 @@ it('renders', function () {
 });
 
 it('redirects to login with no challenged user', function () {
-    session()->forget(MfaSession::User->value);
+    session()->forget(MfaSession::UserBeingAuthenticated->value);
 
     livewire(MfaChallenge::class)
         ->assertRedirect(filament()->getLoginUrl());
 });
 
 it('can be shown for an authenticated user', function () {
-    session()->forget(MfaSession::User->value);
+    session()->forget(MfaSession::UserBeingAuthenticated->value);
 
     login($this->user);
 
     livewire(MfaChallenge::class)
         ->assertNoRedirect()
-        ->assertSessionHas(MfaSession::User->value, $this->user->id);
+        ->assertSessionHas(MfaSession::UserBeingAuthenticated->value, $this->user->id);
 });
 
 it('redirects when mfa is already confirmed', function () {

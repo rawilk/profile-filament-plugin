@@ -7,6 +7,7 @@ namespace Rawilk\ProfileFilament\Enums\Livewire;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 
+/** @deprecated */
 enum SudoChallengeMode: string
 {
     case Password = 'password';

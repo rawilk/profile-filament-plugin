@@ -5,8 +5,7 @@ sort: 1
 
 ## Introduction
 
-The Profile page is typically the starting page for the user profile in this plugin. By default, it will display a user's name and the date their account was created, along with a form
-to edit their name. This of course can be customized according to your application's requirements.
+The Profile page is typically the starting page for the user profile in this plugin. By default, it will display a user's name and the date their account was created, along with a form to edit their name. This, of course, can be customized according to your application's requirements.
 
 Here is a screenshot of what the base Profile page will look like:
 
@@ -20,53 +19,55 @@ And here is the default edit form:
 
 For basic applications, the plugin's implementation may be enough. However, most applications will probably have a need to override the `ProfileInfo` component.
 
-Let's say you need to show a user's timezone and allow them to edit it as well on their profile info. This can easily be accomplished by overriding the `ProfileInfo` component
-and [swapping it out](/docs/profile-filament-plugin/{version}/customizations/page-customization#user-content-swap-components).
+Let's say you need to show a user's timezone and allow them to edit it as well on their profile info. This can be done by configuring the infolist and edit action in a service provider. If you need full control over the component or prefer not to customize it this way, you may [swap the component instead](/docs/profile-filament-plugin/{version}/customizations/page-customization#user-content-swap-components).
 
 To accomplish this, the two main methods we need to override are the `infolistSchema` and `formSchema` methods. There are other methods that can be overridden, such as `saveForm`, but what we are going to show below should be sufficient in most cases.
 
 ```php
-namespace App\Livewire;
-
+use App\Models\User;
 use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\Section;use Filament\Infolists\Components\TextEntry;
-use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
+use Filament\Schemas\Components\Section;
+use Rawilk\ProfileFilament\Filament\Actions\EditProfileInfoAction;
+use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\ProfileNameInput;
+use Rawilk\ProfileFilament\Filament\Schemas\Infolists\ProfileInfolist;
 
-class CustomProfileInfo extends ProfileInfo
+class AppServiceProvider
 {
-    protected function infolistSchema(): array
+    public function boot()
     {
-        return [
-            Section::make('Your information')
-                ->headerActions([
-                    $this->editAction(),
-                ])
+        EditProfileInfoAction::configureUsing(function (EditProfileInfoAction $action) {
+            $action
                 ->schema([
-                    $this->nameTextEntry(),
-                    TextEntry::make('timezone'),
-                    $this->createdAtTextEntry(),
+                    ProfileNameInput::make(),
+                    Select::make('timezone')
+                        ->options([
+                            // ...
+                        ])
                 ])
-        ];
-    }
-
-    protected function formSchema(): array
-    {
-        return [
-            $this->nameInput(),
-            Select::make('timezone')
-                ->options([
-                    // ...
-                ])
-        ];
-    }
+        });
+        
+        ProfileInfolist::configureComponents(function (User $user) {
+            return [
+                Section::make(__('Profile Information'))
+                    ->headerActions([
+                        EditProfileInfoAction::make()
+                    ])
+                    ->schema([
+                        ProfileInfolist::nameComponent(),
+                        TextEntry::make('timezone'),
+                    ])
+            ];
+        });
+    }    
 }
 ```
 
-Now, all you need to do is swap the component out in your panel's service provider:
+### Swap the Component Instead
+
+If you want to swap the component instead, here is how to do it in your panel's service provider:
 
 ```php
-use App\Livewire\CustomProfileInfo;
-use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo as ProfileInfoPage;
+use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo as ProfileInfoPage;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
@@ -75,7 +76,7 @@ $panel->plugin(
         ->swapComponent(
             page: ProfileInfoPage::class,
             component: ProfileInfo::class,
-            newComponent: CustomProfileInfo::class,
+            newComponent: YourCustomProfileInfo::class,
         )
 )
 ```
@@ -84,4 +85,4 @@ $panel->plugin(
 
 ## Events
 
-By default, our `editAction` will dispatch the `\Rawilk\ProfileFilament\Events\Profile\ProfileInformationUpdated` event, which you can listen for in your application if needed. The event will receive the authenticated user.
+By default, our `EditProfileInfoAction` will dispatch the `\Rawilk\ProfileFilament\Events\Profile\ProfileInformationUpdated` event, which you can listen for in your application if needed. The event will receive the authenticated user.

@@ -10,12 +10,12 @@ use Filament\Notifications\Notification;
 use Filament\Support\Facades\FilamentIcon;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Contracts\TwoFactor\GenerateNewRecoveryCodesAction as GenerateCodes;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo;
+use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo2;
 
 class GenerateNewRecoveryCodesAction extends Action
 {
     use CanCustomizeProcess;
-    use RequiresSudo;
+    use RequiresSudo2;
 
     protected function setUp(): void
     {

@@ -12,6 +12,7 @@ return new class extends Migration
             $table->after('password', function (Blueprint $table) {
                 $table->text('two_factor_recovery_codes')->nullable();
                 $table->boolean('two_factor_enabled')->default(false);
+                $table->string('preferred_mfa_provider')->nullable();
             });
         });
     }

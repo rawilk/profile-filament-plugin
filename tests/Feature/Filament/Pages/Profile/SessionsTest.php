@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Filament\Pages\Profile\Sessions;
+use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions;
 use Rawilk\ProfileFilament\Livewire\Sessions\SessionManager;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 

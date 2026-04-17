@@ -8,12 +8,6 @@ return [
     'account_security_link' => 'Looking to manage account security settings? You can find them in the [Password and authentication](:url) page.',
 
     'email' => [
-        'invalid_verification_link' => 'This verification link has already been consumed or is expired. Please request a new one to verify your email address.',
-        'email_already_taken' => 'The email address from your link has already been taken.',
-        'email_verified' => 'Your new email address has been verified and can now be used to sign-in.',
-        'invalid_revert_link' => 'This link has already been consumed or is expired. Please contact our support for further assistance.',
-        'email_reverted' => 'Your email address has been reverted back to what it was and can now be used to sign-in with.',
-
         'heading' => 'Email address',
         'label' => 'Email',
         'change_pending_badge' => 'Change pending',

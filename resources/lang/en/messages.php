@@ -3,23 +3,26 @@
 declare(strict_types=1);
 
 return [
+    'multi-factor-device' => [
+        'created-at' => 'Registered on :date',
+        'last-used' => 'Last used on :date',
+        'last-used-relative' => 'Last used :date',
+        'never-used' => 'Last used: never',
+    ],
+
     'alert' => [
         'dismiss' => 'Dismiss',
     ],
 
-    'mfa_challenge' => [
-        'invalid_challenged_user' => 'Your user account could not be verified.',
-    ],
-
     'sudo_challenge' => [
 
-        'title' => 'Confirm access',
-        'tip' => "**Tip:** You are entering sudo mode. After you've performed a sudo-protected action, you'll only be asked to re-authenticate again after a few hours of inactivity.",
-        'cancel_button' => 'Cancel',
-        'signed_in_as' => 'Signed in as: **:handle**',
-        'expired' => 'Your sudo session has expired. Please refresh the page to try again.',
+        //        'title' => 'Confirm access',
+        //        'tip' => "**Tip:** You are entering sudo mode. After you've performed a sudo-protected action, you'll only be asked to re-authenticate again after a few hours of inactivity.",
+        //        'cancel_button' => 'Cancel',
+        //        'signed_in_as' => 'Signed in as: **:handle**',
+        // 'expired' => 'Your sudo session has expired. Please refresh the page to try again.',
 
-        'alternative_heading' => 'Having problems?',
+        //        'alternative_heading' => 'Having problems?',
 
         'totp' => [
             'use_label' => 'Use your authenticator app',
@@ -45,12 +48,12 @@ return [
             'invalid' => 'Authentication failed.',
         ],
 
-        'password' => [
-            'use_label' => 'Use your password',
-            'input_label' => 'Your password',
-            'submit' => 'Confirm',
-            'invalid' => 'Incorrect password.',
-        ],
+        //        'password' => [
+        //            'use_label' => 'Use your password',
+        //            'input_label' => 'Your password',
+        //            'submit' => 'Confirm',
+        //            'invalid' => 'Incorrect password.',
+        //        ],
 
     ],
 

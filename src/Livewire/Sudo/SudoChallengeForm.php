@@ -21,9 +21,10 @@ use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Facades\Sudo;
 
+/** @deprecated */
 class SudoChallengeForm extends Component implements HasActions, HasForms
 {
-    use Concerns\HasSudoChallengeForm;
+    use Concerns\HasSudoChallengeForm2;
     use InteractsWithActions;
     use InteractsWithForms;
 
@@ -103,7 +104,7 @@ class SudoChallengeForm extends Component implements HasActions, HasForms
                 unset($this->challengeOptions, $this->alternateChallengeOptions, $this->challengeMode);
 
                 $this->error = null;
-                $this->mode = ProfileFilament::preferredSudoChallengeMethodFor($this->user, $this->challengeOptions);
+                $this->mode = ProfileFilament::preferredSudoChallengeProviderFor($this->user, $this->challengeOptions);
                 $this->hasWebauthnError = false;
             });
     }

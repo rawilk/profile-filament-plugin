@@ -6,7 +6,10 @@ namespace Rawilk\ProfileFilament\Services;
 
 use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Authenticatable as User;
+use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorAppServiceContract;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
@@ -15,18 +18,13 @@ use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Note: Webauthn security key verification is handled through the Webauthn service class.
- */
 class Mfa
 {
     use Macroable;
 
     /**
-     * The user attempting a two-factor challenge. This will typically be set
-     * during login mfa challenges.
+     * The user attempting a two-factor challenge.
      */
     protected ?User $challengedUser = null;
 
@@ -35,13 +33,14 @@ class Mfa
      */
     protected ?bool $remember = null;
 
-    /**
-     * @param  class-string<Model>  $userModel
-     */
-    public function __construct(protected string $userModel)
+    protected UserProvider $userProvider;
+
+    public function __construct()
     {
+        $this->userProvider = Filament::auth()->getProvider() ?? auth()->guard('web')->getProvider();
     }
 
+    /** @deprecated */
     public function usingChallengedUser(?User $user): self
     {
         $this->challengedUser = $user;
@@ -51,12 +50,9 @@ class Mfa
 
     public function confirmUserSession(User $user): void
     {
-        session()->forget([
-            MfaSession::User->value,
-            MfaSession::Remember->value,
-        ]);
+        $this->flushPendingSession();
 
-        session()->put($this->getUserConfirmedKey($user), true);
+        session()->put($this->getUserConfirmedKey($user), now()->unix());
     }
 
     public function isConfirmedInSession(User $user): bool
@@ -67,47 +63,66 @@ class Mfa
             && session()->get($key) === true;
     }
 
+    /** @deprecated */
     public function hasChallengedUser(): bool
     {
-        return session()->has(MfaSession::User->value)
+        return MfaSession::UserBeingAuthenticated->has()
             && $this->userModel::query()
                 ->withoutGlobalScopes()
-                ->whereKey(session()->get(MfaSession::User->value))
+                ->whereKey(MfaSession::UserBeingAuthenticated->get())
                 ->exists();
     }
 
-    public function challengedUser(): Model|User
+    public function challengedUser(): Model|User|null
     {
         if ($this->challengedUser) {
             return $this->challengedUser;
         }
 
-        return once(function () {
-            $user = $this->userModel::query()
-                ->withoutGlobalScopes()
-                ->whereKey(session()->get(MfaSession::User->value))
-                ->first();
+        if (! MfaSession::UserBeingAuthenticated->has()) {
+            return null;
+        }
 
-            abort_unless(
-                $user,
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-                __('profile-filament::messages.mfa_challenge.invalid_challenged_user'),
-            );
+        return $this->userProvider->retrieveById(
+            MfaSession::UserBeingAuthenticated->get()
+        );
+    }
 
-            return $user;
-        });
+    /**
+     * Indicates if too long has passed since the user confirmed their password
+     * on the login form.
+     */
+    public function passwordConfirmationHasExpired(): bool
+    {
+        if (! MfaSession::PasswordConfirmedAt->has()) {
+            return true;
+        }
+
+        // @todo: Make expiration configurable per panel
+        return Date::createFromTimestamp(MfaSession::PasswordConfirmedAt->get())
+            ->addMinutes(15)
+            ->isPast();
     }
 
     public function pushChallengedUser(User $user, bool $remember = false): void
     {
-        session()->put([
-            MfaSession::User->value => $user->getAuthIdentifier(),
-            MfaSession::Remember->value => $remember,
-        ]);
+        MfaSession::UserBeingAuthenticated->set((string) $user->getAuthIdentifier());
+        MfaSession::PasswordConfirmedAt->set(now()->unix());
+        MfaSession::Remember->set($remember);
 
         TwoFactorAuthenticationChallenged::dispatch($user);
     }
 
+    public function flushPendingSession(): void
+    {
+        session()->forget([
+            MfaSession::UserBeingAuthenticated,
+            MfaSession::PasswordConfirmedAt,
+            MfaSession::Remember,
+        ]);
+    }
+
+    /** @deprecated  */
     public function isValidRecoveryCode(string $code): bool
     {
         if (blank($code)) {
@@ -128,6 +143,7 @@ class Mfa
         return true;
     }
 
+    /** @deprecated */
     public function isValidTotpCode(string $code): bool
     {
         $authenticatorApps = app(AuthenticatorApp::class)::query()
@@ -147,6 +163,7 @@ class Mfa
         return false;
     }
 
+    /** @deprecated */
     public function canUseAuthenticatorAppsForChallenge(?User $user = null): bool
     {
         if (
@@ -167,6 +184,7 @@ class Mfa
             ->exists();
     }
 
+    /** @deprecated */
     public function canUseWebauthnForChallenge(?User $user = null): bool
     {
         if (
@@ -193,12 +211,13 @@ class Mfa
     public function remember(): bool
     {
         if (is_null($this->remember)) {
-            $this->remember = session()->pull(MfaSession::Remember->value, false);
+            $this->remember = MfaSession::Remember->isTrue();
         }
 
         return $this->remember;
     }
 
+    /** @deprecated */
     public function userHasMfaEnabled(?User $user = null): bool
     {
         $user ??= auth()->user();
@@ -212,7 +231,9 @@ class Mfa
 
     protected function getUserConfirmedKey(User $user): string
     {
-        return MfaSession::Confirmed->value . ".{$user->getAuthIdentifier()}";
+        return Str::of(MfaSession::ConfirmedAt->value)
+            ->append("__{$user->getAuthIdentifier()}")
+            ->value();
     }
 
     protected function profilePlugin(): ProfileFilamentPlugin
@@ -220,6 +241,7 @@ class Mfa
         return Filament::getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
     }
 
+    /** @deprecated */
     protected function hasWebauthnOrPasskeys(): bool
     {
         return $this->profilePlugin()->panelFeatures()->hasWebauthn()

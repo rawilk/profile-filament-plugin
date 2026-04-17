@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Filament\Pages\Profile\Settings;
+use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings;
 use Rawilk\ProfileFilament\Livewire\DeleteAccount;
 use Rawilk\ProfileFilament\Livewire\Emails\UserEmail;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;

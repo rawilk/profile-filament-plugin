@@ -9,9 +9,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Rawilk\ProfileFilament\Features;
-use Rawilk\ProfileFilament\Filament\Pages\Profile as ProfilePages;
 use Rawilk\ProfileFilament\Livewire as Components;
 
+/** @deprecated */
 final class PageManager
 {
     private array $defaults;
@@ -77,31 +77,31 @@ final class PageManager
     public function preparePages(): self
     {
         if (! $this->features->hasProfileForm()) {
-            unset($this->defaults[ProfilePages\ProfileInfo::class]['components'][Components\Profile\ProfileInfo::class]);
+            unset($this->defaults[\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class]['components'][Components\Profile\ProfileInfo::class]);
         }
 
         if (! $this->features->hasUpdateEmail()) {
-            unset($this->defaults[ProfilePages\Settings::class]['components'][Components\Emails\UserEmail::class]);
+            unset($this->defaults[\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class]['components'][Components\Emails\UserEmail::class]);
         }
 
         if (! $this->features->hasDeleteAccount()) {
-            unset($this->defaults[ProfilePages\Settings::class]['components'][Components\DeleteAccount::class]);
+            unset($this->defaults[\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class]['components'][Components\DeleteAccount::class]);
         }
 
         if (! $this->features->hasUpdatePassword()) {
-            unset($this->defaults[ProfilePages\Security::class]['components'][Components\UpdatePassword::class]);
+            unset($this->defaults[\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class]['components'][Components\UpdatePassword::class]);
         }
 
         if (! $this->features->hasPasskeys() || ! $this->features->hasWebauthn()) {
-            unset($this->defaults[ProfilePages\Security::class]['components'][Components\PasskeyManager::class]);
+            unset($this->defaults[\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class]['components'][Components\PasskeyManager::class]);
         }
 
         if (! $this->features->hasTwoFactorAuthentication() && ! $this->features->hasPasskeys()) {
-            unset($this->defaults[ProfilePages\Security::class]['components'][Components\MfaOverview::class]);
+            unset($this->defaults[\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class]['components'][Components\MfaOverview::class]);
         }
 
         if (! $this->features->hasSessionManager()) {
-            unset($this->defaults[ProfilePages\Sessions::class]['components'][Components\Sessions\SessionManager::class]);
+            unset($this->defaults[\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions::class]['components'][Components\Sessions\SessionManager::class]);
         }
 
         return $this;
@@ -214,10 +214,10 @@ final class PageManager
     private function getEnabledPages(): Collection
     {
         return collect([
-            ProfilePages\ProfileInfo::class => $this->pageIsEnabled(ProfilePages\ProfileInfo::class),
-            ProfilePages\Settings::class => $this->pageIsEnabled(ProfilePages\Settings::class),
-            ProfilePages\Security::class => $this->pageIsEnabled(ProfilePages\Security::class),
-            ProfilePages\Sessions::class => $this->pageIsEnabled(ProfilePages\Sessions::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class => $this->pageIsEnabled(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class => $this->pageIsEnabled(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class => $this->pageIsEnabled(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions::class => $this->pageIsEnabled(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions::class),
         ])
             ->filter()
             ->map(fn (bool $enabled, string $className) => $this->pageClassName($className));
@@ -226,10 +226,10 @@ final class PageManager
     private function setPageDefaults(): void
     {
         $this->defaults = [
-            ProfilePages\ProfileInfo::class => $this->defaultsFor(ProfilePages\ProfileInfo::class),
-            ProfilePages\Settings::class => $this->defaultsFor(ProfilePages\Settings::class),
-            ProfilePages\Security::class => $this->defaultsFor(ProfilePages\Security::class),
-            ProfilePages\Sessions::class => $this->defaultsFor(ProfilePages\Sessions::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class => $this->defaultsFor(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class => $this->defaultsFor(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class => $this->defaultsFor(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class),
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions::class => $this->defaultsFor(\Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions::class),
 
             ...$this->defaults ?? [],
         ];
@@ -238,11 +238,11 @@ final class PageManager
     private function defaultsFor(string $page): array
     {
         return match ($page) {
-            ProfilePages\ProfileInfo::class => [
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class => [
                 'enabled' => true,
                 'slug' => 'user',
                 'icon' => 'heroicon-o-user',
-                'className' => ProfilePages\ProfileInfo::class,
+                'className' => \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class,
                 'components' => [
                     Components\Profile\ProfileInfo::class => ['class' => Components\Profile\ProfileInfo::class, 'sort' => 0],
                 ],
@@ -250,11 +250,11 @@ final class PageManager
                 'group' => null,
             ],
 
-            ProfilePages\Settings::class => [
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class => [
                 'enabled' => true,
                 'slug' => 'admin',
                 'icon' => 'heroicon-o-cog-6-tooth',
-                'className' => ProfilePages\Settings::class,
+                'className' => \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings::class,
                 'components' => [
                     Components\Emails\UserEmail::class => ['class' => Components\Emails\UserEmail::class, 'sort' => 0],
                     Components\DeleteAccount::class => ['class' => Components\DeleteAccount::class, 'sort' => 15],
@@ -263,11 +263,11 @@ final class PageManager
                 'group' => null,
             ],
 
-            ProfilePages\Security::class => [
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class => [
                 'enabled' => true,
                 'slug' => 'security',
                 'icon' => 'heroicon-o-shield-exclamation',
-                'className' => ProfilePages\Security::class,
+                'className' => \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security::class,
                 'sort' => 20,
                 'components' => [
                     Components\UpdatePassword::class => ['class' => Components\UpdatePassword::class, 'sort' => 0],
@@ -277,11 +277,11 @@ final class PageManager
                 'group' => null,
             ],
 
-            ProfilePages\Sessions::class => [
+            \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions::class => [
                 'enabled' => true,
                 'slug' => 'sessions',
                 'icon' => 'heroicon-o-signal',
-                'className' => ProfilePages\Sessions::class,
+                'className' => \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Sessions::class,
                 'components' => [
                     Components\Sessions\SessionManager::class => ['class' => Components\Sessions\SessionManager::class, 'sort' => 0],
                 ],

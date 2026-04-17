@@ -6,57 +6,87 @@ namespace Rawilk\ProfileFilament\Livewire\Sudo;
 
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Livewire\Attributes\Locked;
+use Filament\Auth\MultiFactor\Contracts\HasBeforeChallengeHook;
+use Filament\Schemas\Components\Component as FilamentComponent;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Http\Request;
 use Livewire\Component;
-use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
+use Rawilk\ProfileFilament\Auth\Sudo\Concerns\IssuesSudoChallenge;
+use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
+use Rawilk\ProfileFilament\Facades\Sudo;
 
-class SudoChallengeActionForm extends Component implements HasActions, HasForms
+class SudoChallengeActionForm extends Component implements HasActions, HasSchemas
 {
-    use Concerns\HasSudoChallengeForm;
     use InteractsWithActions;
-    use InteractsWithForms;
+    use InteractsWithSchemas;
+    use IssuesSudoChallenge;
 
-    #[Locked]
-    public string $actionType = 'action';
+    /** @var array<string, mixed>|null */
+    public ?array $data = [];
 
     public function mount(): void
     {
-        $this->mode = ProfileFilament::preferredSudoChallengeMethodFor($this->user, $this->challengeOptions);
+        $this->currentProvider = ProfileFilament::preferredSudoChallengeProviderFor(
+            $this->user,
+            $this->enabledSudoProviders,
+        );
+
+        if ($this->currentProviderInstance instanceof HasBeforeChallengeHook) {
+            $this->currentProviderInstance->beforeChallenge($this->user);
+        }
     }
 
     public function render(): string
     {
         return <<<'HTML'
         <div>
-            <x-profile-filament::sudo.form
-                :user="$this->user"
-                :user-handle="$this->userHandle()"
-                :challenge-mode="$this->challengeMode"
-                :alternate-challenge-options="$this->alternateChallengeOptions"
-                :error="$this->error"
-                :form="$this->form"
-            />
+            <x-profile-filament::sudo.form-content
+                class="pf-sudo-modal-form"
+                :heading="$this->currentProviderInstance?->heading($this->user)"
+                :icon="$this->currentProviderInstance?->icon()"
+                :current-provider="$currentProvider"
+            >
+                {{ $this->content }}
+
+                @unless (empty($this->alternateOptions->getComponents()))
+                    <x-slot:alternatives>
+                        {{ $this->alternateOptions }}
+                    </x-slot:alternatives>
+                @endunless
+            </x-profile-filament::sudo.form-content>
         </div>
         HTML;
     }
 
-    public function form(Form $form): Form
+    public function authenticate(Request $request): void
     {
-        return $form
-            ->statePath('data')
-            ->schema(fn () => match ($this->challengeMode) {
-                default => [],
-                SudoChallengeMode::Password => $this->passwordSchema(),
-                SudoChallengeMode::App => $this->authenticatorAppSchema(),
-            });
+        if ($this->isSudoRateLimited($this->user)) {
+            return;
+        }
+
+        $this->form->validate();
+
+        Sudo::activate();
+        SudoModeActivated::dispatch($this->user, $request);
+
+        $this->dispatch('sudo-confirmed');
     }
 
-    protected function onConfirmed(): void
+    public function content(Schema $schema): Schema
     {
-        $this->dispatch('sudo-active');
+        return $schema
+            ->components([
+                $this->getFormContentComponent(),
+            ]);
+    }
+
+    public function getFormContentComponent(): FilamentComponent
+    {
+        return Group::make([EmbeddedSchema::make('form')]);
     }
 }

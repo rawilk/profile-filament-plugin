@@ -6,17 +6,18 @@ namespace Rawilk\ProfileFilament\Livewire\Sessions;
 
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Infolists;
 use Filament\Infolists\Concerns\InteractsWithInfolists;
 use Filament\Infolists\Contracts\HasInfolists;
-use Filament\Infolists\Infolist;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Rawilk\ProfileFilament\Dto\Sessions\Session;
-use Rawilk\ProfileFilament\Filament\Actions\Sessions\RevokeAllSessionsInfolistAction;
-use Rawilk\ProfileFilament\Filament\Actions\Sessions\RevokeSessionAction;
+use Rawilk\ProfileFilament\Filament\Actions\Sessions\LogoutAllSessionsAction;
+use Rawilk\ProfileFilament\Filament\Actions\Sessions\LogoutSingleSessionAction;
+use Rawilk\ProfileFilament\Filament\Schemas\Infolists\SessionManagerInfolist;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 
 /**
@@ -58,37 +59,25 @@ class SessionManager extends ProfileComponent implements HasInfolists
         HTML;
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function logoutSingleSessionAction(): Action
     {
-        return $infolist
-            ->schema([
-                Infolists\Components\Section::make(__('profile-filament::pages/sessions.manager.heading'))
-                    ->description(__('profile-filament::pages/sessions.manager.description'))
-                    ->schema([
-                        Infolists\Components\Actions::make([
-                            $this->revokeAllAction(),
-                        ]),
-
-                        Infolists\Components\View::make('profile-filament::livewire.sessions.session-list')
-                            ->viewData([
-                                $this->sessions,
-                            ])
-                            ->hidden(fn (): bool => $this->sessions->isEmpty()),
-                    ]),
-            ]);
+        return LogoutSingleSessionAction::make();
     }
 
-    public function revokeSessionAction(): Action
+    public function infolist(Schema $schema): Schema
     {
-        return RevokeSessionAction::make();
+        return SessionManagerInfolist::configure(
+            schema: $schema,
+            sessions: $this->sessions,
+            logoutSingleSessionAction: $this->logoutSingleSessionAction(),
+            logoutAllSessionsAction: LogoutAllSessionsAction::make(),
+        );
     }
 
-    public function revokeAllAction(): Infolists\Components\Actions\Action
+    #[On('session-logged-out')]
+    public function onLoggedOut(): void
     {
-        return RevokeAllSessionsInfolistAction::make()
-            ->after(function () {
-                unset($this->sessions);
-            });
+        unset($this->sessions);
     }
 
     protected function sessionsDb(): Builder

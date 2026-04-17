@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Contracts\Webauthn\DeleteWebauthnKeyAction as Deleter;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo;
+use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo2;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
 class DeleteWebauthnKeyAction extends DeleteAction
 {
-    use RequiresSudo;
+    use RequiresSudo2;
 
     protected function setUp(): void
     {

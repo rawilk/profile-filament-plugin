@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Rawilk\ProfileFilament\Support\SudoChallengeProviders;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -28,14 +30,17 @@ return [
         'update_password' => Rawilk\ProfileFilament\Actions\UpdatePasswordAction::class,
         'delete_account' => Rawilk\ProfileFilament\Actions\DeleteAccountAction::class,
 
-        // General two factor
-        'generate_new_recovery_codes' => Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction::class,
+        // General multi-factor
         'mark_two_factor_disabled' => Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction::class,
         'mark_two_factor_enabled' => Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction::class,
 
         // Authenticator apps
         'confirm_authenticator_app' => Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction::class,
         'delete_authenticator_app' => Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction::class,
+
+        // Email authentication
+        'enable_email_authentication' => Rawilk\ProfileFilament\Actions\EmailAuthentication\EnableEmailAuthenticationAction::class,
+        'disable_email_authentication' => Rawilk\ProfileFilament\Actions\EmailAuthentication\DisableEmailAuthenticationAction::class,
 
         // Webauthn
         'delete_webauthn_key' => Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction::class,
@@ -47,7 +52,6 @@ return [
         'upgrade_to_passkey' => Rawilk\ProfileFilament\Actions\Passkeys\UpgradeToPasskeyAction::class,
 
         // Pending user emails
-        'store_old_user_email' => Rawilk\ProfileFilament\Actions\PendingUserEmails\StoreOldUserEmailAction::class,
         'update_user_email' => Rawilk\ProfileFilament\Actions\PendingUserEmails\UpdateUserEmailAction::class,
     ],
 
@@ -64,7 +68,6 @@ return [
         'authenticator_app' => 'authenticator_apps',
         'webauthn_key' => 'webauthn_keys',
         'pending_user_email' => 'pending_user_emails',
-        'old_user_email' => 'old_user_emails',
     ],
 
     /*
@@ -101,28 +104,6 @@ return [
          * change their email address.
          */
         'pending_user_email' => Rawilk\ProfileFilament\Models\PendingUserEmail::class,
-
-        /**
-         * Old User Email
-         *
-         * This model is responsible for storing a user's old email addresses, which
-         * can be used to revert a change if it wasn't made by the user.
-         */
-        'old_user_email' => Rawilk\ProfileFilament\Models\OldUserEmail::class,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Mailables
-    |--------------------------------------------------------------------------
-    |
-    | Here you may define which mailables are used for the notifications from
-    | this package.
-    |
-    */
-    'mail' => [
-        'pending_email_verification' => Rawilk\ProfileFilament\Mail\PendingEmailVerificationMail::class,
-        'pending_email_verified' => Rawilk\ProfileFilament\Mail\PendingEmailVerifiedMail::class,
     ],
 
     /*
@@ -155,33 +136,16 @@ return [
     */
     'sudo' => [
         'expires' => DateInterval::createFromDateString('2 hours'),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pending Email Changes
-    |--------------------------------------------------------------------------
-    |
-    | Here you may define some constraints for when a user changes their email
-    | address.
-    |
-    */
-    'pending_email_changes' => [
-        /**
-         * The amount of time a revert change link should be valid for, in the case
-         * a user needs to revert their email change when it wasn't made by them.
-         */
-        'revert_expiration' => DateInterval::createFromDateString('5 days'),
 
         /**
-         * Log users in after they verify their new emails. (not recommended)
+         * Challenge providers available for sudo mode.
+         * Custom classes must implement \Rawilk\ProfileFilament\Support\SudoChallengeProviders\SudoChallengeProvider
+         *
+         * @deprecated
          */
-        'login_after_verification' => false,
-
-        /**
-         * Set the "remember" cookie after login from verification.
-         */
-        'login_remember' => true,
+        'challenge_providers' => [
+            SudoChallengeProviders\PasswordProvider::class,
+        ],
     ],
 
     /*

@@ -9,21 +9,23 @@ use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Auth\Middleware\Authenticate;
-use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
-use PragmaRX\Google2FA\Google2FA;
 use Psr\Log\NullLogger;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Livewire\AuthenticatorAppActions;
+use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBag;
+use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
+use Rawilk\ProfileFilament\Auth\Sudo\Sudo;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\Http\Controllers\PasskeysController;
 use Rawilk\ProfileFilament\Http\Controllers\WebauthnPublicKeysController;
 use Rawilk\ProfileFilament\Livewire as PackageLivewire;
-use Rawilk\ProfileFilament\Responses\EmailRevertedResponse;
-use Rawilk\ProfileFilament\Responses\PendingEmailVerifiedResponse;
+use Rawilk\ProfileFilament\Responses\BlockEmailChangeVerificationResponse;
+use Rawilk\ProfileFilament\Responses\EmailChangeVerificationResponse;
+use Rawilk\ProfileFilament\Responses\MultiFactorChallengeResponse;
 use Rawilk\ProfileFilament\Services\Mfa;
-use Rawilk\ProfileFilament\Services\Sudo;
 use Rawilk\ProfileFilament\Services\Webauthn;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -59,25 +61,18 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->registerIcons();
 
         $this->app->scoped(
-            Contracts\AuthenticatorAppService::class,
-            fn ($app) => new Services\AuthenticatorAppService(
-                engine: $app->make(Google2FA::class),
-                cache: $app->make(Cache::class),
-            ),
-        );
-
-        $this->app->scoped(
             Mfa::class,
-            fn ($app) => new Mfa(userModel: $app['config']['auth.providers.users.model']),
+            fn () => new Mfa,
+            //            fn ($app) => new Mfa(userModel: $app['config']['auth.providers.users.model']),
         );
 
-        $this->app->scoped(
-            Webauthn::class,
-            fn ($app) => new Webauthn(
-                model: $app['config']['profile-filament.models.webauthn_key'],
-                logger: $app['config']['profile-filament.webauthn.logging_enabled'] === true ? $app['log'] : new NullLogger,
-            ),
-        );
+        //        $this->app->scoped(
+        //            Webauthn::class,
+        //            fn ($app) => new Webauthn(
+        //                model: $app['config']['profile-filament.models.webauthn_key'],
+        //                logger: $app['config']['profile-filament.webauthn.logging_enabled'] === true ? $app['log'] : new NullLogger,
+        //            ),
+        //        );
 
         $this->app->scoped(
             Sudo::class,
@@ -102,14 +97,17 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->bind(Contracts\UpdatePasswordAction::class, fn ($app) => $app->make(config('profile-filament.actions.update_password')));
         $this->app->bind(Contracts\DeleteAccountAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_account')));
 
-        // General two factor
-        $this->app->bind(Contracts\TwoFactor\GenerateNewRecoveryCodesAction::class, fn ($app) => $app->make(config('profile-filament.actions.generate_new_recovery_codes')));
+        // General multi-factor
         $this->app->bind(Contracts\TwoFactor\MarkTwoFactorDisabledAction::class, fn ($app) => $app->make(config('profile-filament.actions.mark_two_factor_disabled')));
         $this->app->bind(Contracts\TwoFactor\MarkTwoFactorEnabledAction::class, fn ($app) => $app->make(config('profile-filament.actions.mark_two_factor_enabled')));
 
         // Authenticator apps
         $this->app->bind(Contracts\AuthenticatorApps\ConfirmTwoFactorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.confirm_authenticator_app')));
         $this->app->bind(Contracts\AuthenticatorApps\DeleteAuthenticatorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_authenticator_app')));
+
+        // Email authentication
+        $this->app->bind(Contracts\EmailAuthentication\EnableEmailAuthenticationAction::class, fn ($app) => $app->make(config('profile-filament.actions.enable_email_authentication')));
+        $this->app->bind(Contracts\EmailAuthentication\DisableEmailAuthenticationAction::class, fn ($app) => $app->make(config('profile-filament.actions.disable_email_authentication')));
 
         // Webauthn
         $this->app->bind(Contracts\Webauthn\DeleteWebauthnKeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_webauthn_key')));
@@ -121,12 +119,15 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->bind(Contracts\Passkeys\UpgradeToPasskeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.upgrade_to_passkey')));
 
         // Pending user emails
-        $this->app->bind(Contracts\PendingUserEmail\StoreOldUserEmailAction::class, fn ($app) => $app->make(config('profile-filament.actions.store_old_user_email')));
         $this->app->bind(Contracts\PendingUserEmail\UpdateUserEmailAction::class, fn ($app) => $app->make(config('profile-filament.actions.update_user_email')));
 
         // Responses
-        $this->app->bind(Contracts\Responses\PendingEmailVerifiedResponse::class, PendingEmailVerifiedResponse::class);
-        $this->app->bind(Contracts\Responses\EmailRevertedResponse::class, EmailRevertedResponse::class);
+        $this->app->bind(Contracts\Responses\EmailChangeVerificationResponse::class, EmailChangeVerificationResponse::class);
+        $this->app->bind(Contracts\Responses\MultiFactorChallengeResponse::class, MultiFactorChallengeResponse::class);
+        $this->app->bind(Contracts\Responses\BlockEmailVerificationResponse::class, BlockEmailChangeVerificationResponse::class);
+
+        // Dto
+        $this->app->bind(MultiFactorEventBagContract::class, MultiFactorEventBag::class);
     }
 
     private function registerAssets(): void
@@ -150,6 +151,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
                 array $assertionMiddleware = [ValidateSignature::class],
                 array $attestationMiddleware = [Authenticate::class],
             ) {
+                return;
                 Route::as('profile-filament::')
                     ->group(function () use ($prefix, $assertionMiddleware, $attestationMiddleware) {
                         Route::post("/{$prefix}/assertion-pk/{user}", [WebauthnPublicKeysController::class, 'assertionPublicKey'])
@@ -173,24 +175,24 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
     private function registerLivewireComponents(): void
     {
-        Livewire::component('recovery-codes', PackageLivewire\TwoFactorAuthentication\RecoveryCodes::class);
-        Livewire::component('authenticator-app-form', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppForm::class);
-        Livewire::component('authenticator-app-list-item', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppListItem::class);
-        Livewire::component('webauthn-keys', PackageLivewire\TwoFactorAuthentication\WebauthnKeys::class);
-        Livewire::component('webauthn-key', PackageLivewire\TwoFactorAuthentication\WebauthnKey::class);
-        Livewire::component('passkey', PackageLivewire\Passkey::class);
-        Livewire::component('mfa-challenge', MfaChallenge::class);
+        //        Livewire::component('authenticator-app-form', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppForm::class);
+        //        Livewire::component('authenticator-app-list-item', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppListItem::class);
+        //        Livewire::component('webauthn-keys', PackageLivewire\TwoFactorAuthentication\WebauthnKeys::class);
+        //        Livewire::component('webauthn-key', PackageLivewire\TwoFactorAuthentication\WebauthnKey::class);
+        //        Livewire::component('passkey', PackageLivewire\Passkey::class);
+        //        Livewire::component('mfa-challenge', MfaChallenge::class);
         Livewire::component('sudo-challenge', SudoChallenge::class);
-        Livewire::component('sudo-challenge-form', PackageLivewire\Sudo\SudoChallengeForm::class);
+        // Livewire::component('sudo-challenge-form', PackageLivewire\Sudo\SudoChallengeForm::class);
         Livewire::component('sudo-challenge-action-form', PackageLivewire\Sudo\SudoChallengeActionForm::class);
+        Livewire::component('authenticator-app-actions', AuthenticatorAppActions::class);
 
         Livewire::component(PackageLivewire\Profile\ProfileInfo::class, PackageLivewire\Profile\ProfileInfo::class);
         Livewire::component(PackageLivewire\Emails\UserEmail::class, PackageLivewire\Emails\UserEmail::class);
         Livewire::component(PackageLivewire\DeleteAccount::class, PackageLivewire\DeleteAccount::class);
         Livewire::component(PackageLivewire\UpdatePassword::class, PackageLivewire\UpdatePassword::class);
-        Livewire::component(PackageLivewire\PasskeyManager::class, PackageLivewire\PasskeyManager::class);
-        Livewire::component(PackageLivewire\PasskeyRegistrationForm::class, PackageLivewire\PasskeyRegistrationForm::class);
-        Livewire::component(PackageLivewire\MfaOverview::class, PackageLivewire\MfaOverview::class);
+        //        Livewire::component(PackageLivewire\PasskeyManager::class, PackageLivewire\PasskeyManager::class);
+        //        Livewire::component(PackageLivewire\PasskeyRegistrationForm::class, PackageLivewire\PasskeyRegistrationForm::class);
+        //        Livewire::component(PackageLivewire\MfaOverview::class, PackageLivewire\MfaOverview::class);
         Livewire::component(PackageLivewire\Sessions\SessionManager::class, PackageLivewire\Sessions\SessionManager::class);
     }
 }

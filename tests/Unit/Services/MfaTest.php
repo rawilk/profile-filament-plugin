@@ -45,7 +45,7 @@ it('caches the challenged user for subsequent calls', function () {
 });
 
 it('aborts if the challenged user cannot be found', function () {
-    session()->put(MfaSession::User->value, 2);
+    session()->put(MfaSession::UserBeingAuthenticated->value, 2);
 
     $this->mfa->challengedUser();
 })->throws(HttpException::class, 'Your user account could not be verified.');
@@ -57,7 +57,7 @@ it('knows if there is a challenged user', function () {
 
     expect($this->mfa->hasChallengedUser())->toBeTrue();
 
-    session()->put(MfaSession::User->value, -1);
+    session()->put(MfaSession::UserBeingAuthenticated->value, -1);
 
     expect($this->mfa->hasChallengedUser())->toBeFalse();
 });
@@ -67,8 +67,8 @@ it('can confirm a user mfa session', function () {
 
     $this->mfa->confirmUserSession($this->user);
 
-    expect(session()->has(MfaSession::User->value))->toBeFalse()
-        ->and(session()->get(MfaSession::Confirmed->value . '.1'))->toBeTrue();
+    expect(session()->has(MfaSession::UserBeingAuthenticated->value))->toBeFalse()
+        ->and(session()->get(MfaSession::ConfirmedAt->value . '.1'))->toBeTrue();
 });
 
 it('knows if a users session has confirmed mfa', function () {
@@ -180,11 +180,11 @@ it('knows if a user has webauthn keys registered', function () {
 });
 
 it('can push a challenged user to the session', function () {
-    expect(session()->has(MfaSession::User->value))->toBeFalse();
+    expect(session()->has(MfaSession::UserBeingAuthenticated->value))->toBeFalse();
 
     $this->mfa->pushChallengedUser(user: $this->user, remember: true);
 
-    expect(session()->get(MfaSession::User->value))->toBe($this->user->getKey())
+    expect(session()->get(MfaSession::UserBeingAuthenticated->value))->toBe($this->user->getKey())
         ->and(session()->get(MfaSession::Remember->value))->toBeTrue();
 
     Event::assertDispatched(TwoFactorAuthenticationChallenged::class);

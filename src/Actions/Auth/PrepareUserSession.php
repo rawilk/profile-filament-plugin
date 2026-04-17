@@ -9,6 +9,9 @@ use Filament\Facades\Filament;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Facades\Mfa;
 
+/**
+ * @deprecated
+ */
 class PrepareUserSession
 {
     /**
@@ -17,7 +20,7 @@ class PrepareUserSession
     public function handle($request, Closure $next)
     {
         session()->forget([
-            MfaSession::User->value,
+            MfaSession::UserBeingAuthenticated->value,
             MfaSession::Remember->value,
         ]);
 

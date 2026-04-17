@@ -246,7 +246,7 @@ trait ChallengesMfa
     protected function resolveUser(): ?User
     {
         if (filament()->auth()->check()) {
-            session()->put(MfaSession::User->value, filament()->auth()->id());
+            session()->put(MfaSession::UserBeingAuthenticated->value, filament()->auth()->id());
 
             return filament()->auth()->user();
         }

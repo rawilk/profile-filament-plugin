@@ -7,6 +7,7 @@ namespace Rawilk\ProfileFilament;
 use Illuminate\Validation\Rules\Password;
 use InvalidArgumentException;
 
+/** @deprecated  */
 final class Features
 {
     /**

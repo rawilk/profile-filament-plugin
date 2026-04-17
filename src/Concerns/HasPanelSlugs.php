@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Concerns;
 
 use Filament\Panel;
 
+/** @deprecated  */
 trait HasPanelSlugs
 {
     protected static array $panelSlugs = [];

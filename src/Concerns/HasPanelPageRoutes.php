@@ -5,30 +5,41 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Concerns;
 
 use Filament\Facades\Filament;
+use Filament\Pages\PageConfiguration;
 use Filament\Panel;
 use Illuminate\Support\Facades\Route;
 
+/** @deprecated  */
 trait HasPanelPageRoutes
 {
     use HasPanelSlugs;
 
-    public static function registerRoutes(Panel $panel): void
+    public static function registerRoutes(Panel $panel, ?PageConfiguration $configuration = null): void
     {
         if (filled(static::getCluster())) {
             Route::name(static::prependPanelClusterRouteBaseName($panel, 'pages.'))
                 ->prefix(static::prependPanelClusterSlug($panel, ''))
-                ->group(fn () => static::routes($panel));
+                ->group(fn () => static::routes($panel, $configuration));
 
             return;
         }
 
-        Route::name('pages.')->group(fn () => static::routes($panel));
+        Route::name('pages.')->group(fn () => static::routes($panel, $configuration));
     }
 
-    public static function routes(Panel $panel): void
+    public static function routes(Panel $panel, ?PageConfiguration $configuration = null): void
     {
+        $middleware = static::getRouteMiddleware($panel);
+
+        if ($configuration) {
+            $middleware = [
+                ...$middleware,
+                "page-configuration:{$configuration->getKey()}",
+            ];
+        }
+
         Route::get(static::getPanelRoutePath($panel), static::class)
-            ->middleware(static::getRouteMiddleware($panel))
+            ->middleware($middleware)
             ->withoutMiddleware(static::getWithoutRouteMiddleware($panel))
             ->name(static::getPanelRelativeRouteName($panel));
     }
@@ -61,9 +72,9 @@ trait HasPanelPageRoutes
         return '/' . static::getPanelSlug($panel);
     }
 
-    public static function getRouteName(?string $panel = null): string
+    public static function getRouteName(?Panel $panel = null): string
     {
-        $panel = $panel ? Filament::getPanel($panel) : Filament::getDefaultPanel();
+        $panel ??= Filament::getCurrentOrDefaultPanel();
 
         $routeName = 'pages.' . static::getPanelRelativeRouteName($panel);
         $routeName = static::prependPanelClusterRouteBaseName($panel, $routeName);
@@ -73,11 +84,11 @@ trait HasPanelPageRoutes
 
     public static function getNavigationUrl(): string
     {
-        return static::getUrl(panel: filament()->getId());
+        return static::getUrl(panel: Filament::getId());
     }
 
     public static function getNavigationItemActiveRoutePattern(): string
     {
-        return static::getRouteName(panel: filament()->getId());
+        return static::getRouteName(panel: Filament::getCurrentOrDefaultPanel());
     }
 }

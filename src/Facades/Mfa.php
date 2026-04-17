@@ -8,16 +8,12 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static bool canUseAuthenticatorAppsForChallenge(User $user = null)
- * @method static bool canUseWebauthnForChallenge(User $user = null)
  * @method static User challengedUser()
  * @method static void confirmUserSession(User $user)
  * @method static bool isConfirmedInSession(User $user)
- * @method static bool hasChallengedUser()
- * @method static bool isValidRecoveryCode(string $code)
- * @method static bool isValidTotpCode(string $code)
  * @method static void pushChallengedUser(User $user, bool $remember = false)
- * @method static bool userHasMfaEnabled(User|null $user = null)
+ * @method static void flushPendingSession()
+ * @method static bool passwordConfirmationHasExpired()
  * @method static \Rawilk\ProfileFilament\Services\Mfa usingChallengedUser(?User $user)
  *
  * @see \Rawilk\ProfileFilament\Services\Mfa

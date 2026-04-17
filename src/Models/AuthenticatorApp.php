@@ -4,14 +4,9 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\HtmlString;
-use Rawilk\ProfileFilament\Facades\ProfileFilament;
-
-use function Rawilk\ProfileFilament\wrapDateInTimeTag;
 
 /**
  * @property int $id
@@ -21,11 +16,10 @@ use function Rawilk\ProfileFilament\wrapDateInTimeTag;
  * @property null|\Illuminate\Support\Carbon $last_used_at
  * @property null|\Illuminate\Support\Carbon $created_at
  * @property null|\Illuminate\Support\Carbon $updated_at
- * @property-read HtmlString $last_used
- * @property-read HtmlString $registered_at
  */
 class AuthenticatorApp extends Model
 {
+    use Concerns\HasAuthenticatorTimestamps;
     use HasFactory;
 
     protected $hidden = [
@@ -44,34 +38,6 @@ class AuthenticatorApp extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'));
-    }
-
-    public function lastUsed(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                $date = blank($this->last_used_at)
-                    ? __('profile-filament::pages/security.mfa.method_never_used')
-                    : wrapDateInTimeTag($this->last_used_at->tz(ProfileFilament::userTimezone()), 'M d, Y g:i a');
-
-                $translation = __('profile-filament::pages/security.mfa.method_last_used_date', ['date' => $date]);
-
-                return str($translation)->inlineMarkdown()->toHtmlString();
-            },
-        )->shouldCache();
-    }
-
-    protected function registeredAt(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                $date = $this->created_at->tz(ProfileFilament::userTimezone());
-
-                $translation = __('profile-filament::pages/security.mfa.method_registration_date', ['date' => wrapDateInTimeTag($date)]);
-
-                return str($translation)->inlineMarkdown()->toHtmlString();
-            },
-        )->shouldCache();
     }
 
     protected function casts(): array

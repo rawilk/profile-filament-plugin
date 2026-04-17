@@ -26,7 +26,7 @@ $panel->plugin(
             enabled: true,
             slug: 'user',
             icon: 'heroicon-o-user-circle',
-            className: \Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo::class,
+            className: \Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo::class,
             components: [],
             sort: 0,
             group: null,
@@ -63,18 +63,18 @@ If you're using a completely custom page, make sure you're defining the `$cluste
 
 ```php
 use Filament\Pages\Page;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile;
+use Rawilk\ProfileFilament\Filament\Clusters\ProfileCluster;
 
 class MyCustomClass extends Page
 {
-    protected static ?string $cluster = Profile::class;
+    protected static ?string $cluster = ProfileCluster::class;
 }
 ```
 
 Here is an example on how you could override the `ProfileInfo` page with your own page class:
 
 ```php
-use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo;
+use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo;
 
 class CustomProfile extends ProfileInfo
 {
@@ -142,7 +142,7 @@ $panel->plugin(
 )
 ```
 
-If you want the plugin use the `$sort` property on your component class like we defined above, you can add the component like this instead:
+If you want the plugin to use the `$sort` property on your component class like we defined above, you can add the component like this instead:
 
 ```php
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
@@ -160,23 +160,26 @@ $panel->plugin(
 
 ## Swap Components
 
-Each default page offered by the plugin offers a set of one or more livewire components, for various functionality, such as updating your profile information. While the default components may be suitable for basic applications, you may find yourself needing to customize some of them to better fit your application's requirements. This is most easily accomplished with the `swapComponent` method on the plugin. A common component you may need to override is the `ProfileInfo` component.
+Each default page offered by the plugin offers a set of one or more livewire components, for various functionality, such as updating your profile information. While the default components may be suitable for basic applications, you may find yourself needing to customize some of them to better fit your application's requirements. This is most easily achieved with the `swapComponent` method on the plugin. A common component you may need to override is the `ProfileInfo` component.
 
-Here's an example of how you could define your own class, and then swap it out:
+Here's an example of how you could define your own class and then swap it out:
 
 ```php
 namespace App\Livewire;
 
-use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
+use Filament\Schemas\Schema;
+use Rawilk\ProfileFilament\Filament\Schemas\Infolists\ProfileInfolist;use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
 class CustomProfileInfo extends ProfileInfo
 {
-    public function formSchema(): array
+    public function infolist(Schema $schema): Schema
     {
-        return [
-            $this->nameInput(),
-            // Define other form inputs here
-        ];
+        return ProfileInfolist::configure(
+            schema: $schema,
+            record: auth()->user(),
+        )->components([
+            // Your schema here.
+        ]);
     }
 }
 ```
@@ -187,7 +190,7 @@ Now in your panel's service provider, you can swap out the component:
 use App\Livewire\CustomProfileInfo;
 use Rawilk\ProfileFilament\Features;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Filament\Pages\Profile\ProfileInfo as ProfilePage;
+use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo as ProfilePage;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
 $panel->plugin(
@@ -206,6 +209,22 @@ Here is a breakdown of the parameters required by the `swapComponent` function:
 - `component` - The class name of the component you're swapping.
 - `newComponent` - The class name of your custom livewire component.
 
+### Swap Components Alternative
+
+You may not need to completely swap out livewire components from this package if you only need to change some simple things. Many of the livewire components from this package contain infolists and forms that can be configured instead from a service provider. From the profile info example above, if you only wanted to modify the form to edit your profile information, you could just modify the form's schema in a service provider like this:
+
+```php
+use Rawilk\ProfileFilament\Filament\Actions\EditProfileInfoAction;
+
+EditProfileInfoAction::configureUsing(function (EditProfileInfoAction $action) {
+    $action->schema([
+        // Your form components here.
+    ]);
+});
+```
+
+> {note} If anything you want to modify isn't documented, you may need to source dive to find out the possibilities for modifying it. PR's to improve the docs are always welcome as well.
+
 ## Component Sort Order
 
 The order the livewire components for each page are rendered in can be customized using the `setComponentSort` method on the plugin. The method takes the following parameters:
@@ -218,7 +237,7 @@ For example, by default on the account security page, we render the update passw
 
 ```php
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Filament\Pages\Profile\Security;
+use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Security;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
 use Rawilk\ProfileFilament\Livewire\MfaOverview;
 

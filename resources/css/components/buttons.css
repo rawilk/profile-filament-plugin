@@ -1,0 +1,13 @@
+.pf-flat-button-neutral {
+    --hover-bg: var(--color-gray-100);
+    --text: var(--color-neutral-400);
+    --hover-text: var(--color-neutral-600);
+    --dark-text: var(--color-neutral-500);
+    --dark-hover-bg: var(--color-neutral-700);
+    --dark-hover-text: var(--color-neutral-200);
+
+    &:hover > .fi-icon {
+        --text: var(--color-neutral-600);
+        --dark-text: var(--color-neutral-200);
+    }
+}

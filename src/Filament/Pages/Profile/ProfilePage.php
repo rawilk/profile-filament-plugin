@@ -4,86 +4,80 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Filament\Pages\Profile;
 
+use Filament\Facades\Filament;
 use Filament\Pages\Page;
-use Illuminate\Support\Collection;
+use Filament\Pages\PageConfiguration;
+use Filament\Panel;
 use Livewire\Attributes\Computed;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile;
+use Rawilk\ProfileFilament\Filament\Clusters\ProfileCluster;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
- * @property-read array<string, \Livewire\Component> $registeredComponents
+ * @property-read array<int, \Livewire\Component> $livewireComponents
  */
 abstract class ProfilePage extends Page
 {
-    protected static ?string $cluster = Profile::class;
+    protected static ?string $cluster = ProfileCluster::class;
 
-    protected static string $view = 'profile-filament::filament.clusters.profile-page';
+    protected string $view = 'profile-filament::filament.clusters.profile-page';
 
-    public static function canAccess(): bool
+    public static function getRouteName(?Panel $panel = null): string
     {
-        return static::shouldRegisterNavigation();
+        $panel ??= Filament::getCurrentOrDefaultPanel();
+
+        if ($configuration = static::resolveConfiguration($panel)) {
+            $routeName = 'pages.' . static::getRelativeRouteNameFromConfiguration($configuration);
+            $routeName = static::prependClusterRouteBaseName($panel, $routeName);
+
+            return $panel->generateRouteName($routeName);
+        }
+
+        return parent::getRouteName($panel);
     }
 
-    public static function getNavigationIcon(): ?string
+    public static function resolveConfiguration(?Panel $panel = null): ?PageConfiguration
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->getIcon(static::class);
+        $panel ??= Filament::getCurrentOrDefaultPanel();
+
+        return $panel->getPlugin(ProfileFilamentPlugin::PLUGIN_ID)->getPageConfiguration(static::class);
     }
 
-    public static function getNavigationGroup(): ?string
+    public static function getRelativeRouteNameFromConfiguration(PageConfiguration $configuration): string
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->pageGroup(static::class);
+        return (string) str(static::getSlugFromConfiguration($configuration))->replace('/', '.');
     }
 
-    public static function getNavigationSort(): ?int
+    public static function getSlugFromConfiguration(PageConfiguration $configuration): string
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->pageSort(static::class);
-    }
+        if (filled($configSlug = $configuration->getSlug())) {
+            return $configSlug;
+        }
 
-    // Fallback
-    public static function getSlug(): string
-    {
-        return (string) rescue(
-            callback: fn (): string => filament(ProfileFilamentPlugin::PLUGIN_ID)->getSlug(static::class),
-            rescue: fn (): string => '#',
-            report: false,
-        );
-    }
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->isEnabled(static::class);
-    }
-
-    public function getBreadcrumb(): ?string
-    {
-        return static::$breadcrumb ?? static::getNavigationLabel();
-    }
-
-    public function getBreadcrumbs(): array
-    {
-        $rootPage = filament(ProfileFilamentPlugin::PLUGIN_ID)->getRootProfilePage();
-
-        $breadcrumb = $this->isRootProfilePage() ? null : $this->getBreadcrumb();
-
-        return [
-            ...(filled($rootPage) ? [$rootPage::getUrl(panel: filament()->getId()) => app($rootPage)->getBreadcrumb()] : []),
-            ...(filled($breadcrumb) ? [$breadcrumb] : []),
-        ];
+        return static::getDefaultSlug() . '/' . $configuration->getKey();
     }
 
     #[Computed]
-    public function registeredComponents(): Collection
+    public function pageConfiguration(): ?PageConfiguration
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->componentsFor(static::class);
+        return static::getConfiguration();
     }
 
-    protected function isRootProfilePage(): bool
+    #[Computed]
+    public function livewireComponents(): array
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->isRootProfilePage(static::class);
+        if ($this->pageConfiguration) {
+            $components = $this->pageConfiguration->getLivewireComponents();
+
+            if (is_array($components)) {
+                return $components;
+            }
+        }
+
+        return $this->defaultLivewireComponents();
     }
 
-    protected function needsSudoChallengeForm(): bool
+    protected function defaultLivewireComponents(): array
     {
-        return false;
+        return [];
     }
 }

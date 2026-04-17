@@ -18,16 +18,17 @@ use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Facades\Sudo;
-use Rawilk\ProfileFilament\Livewire\Sudo\Concerns\HasSudoChallengeForm;
+use Rawilk\ProfileFilament\Livewire\Sudo\Concerns\HasSudoChallengeForm2;
 
 use function Filament\Support\get_color_css_variables;
 
+/** @deprecated */
 class SudoChallenge extends SimplePage
 {
-    use HasSudoChallengeForm;
+    use HasSudoChallengeForm2;
     use WithRateLimiting;
 
-    protected static string $view = 'profile-filament::pages.sudo-challenge';
+    protected string $view = 'profile-filament::pages.sudo-challenge';
 
     public static function setLayout(string $layout): void
     {
@@ -40,7 +41,7 @@ class SudoChallenge extends SimplePage
             redirect()->intended(filament()->getHomeUrl() ?? filament()->getUrl());
         }
 
-        $this->mode = ProfileFilament::preferredSudoChallengeMethodFor($this->user, $this->challengeOptions);
+        $this->mode = ProfileFilament::preferredSudoChallengeProviderFor($this->user, $this->challengeOptions);
     }
 
     public function getTitle(): string|Htmlable

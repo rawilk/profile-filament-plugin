@@ -1,16 +1,23 @@
-<x-filament-panels::page.simple class="fi-sudo-challenge">
-    <x-filament-panels::form
-        wire:submit="confirm"
-        :wire:key="$this->getId() . '.forms.data'"
-        class="mt-3"
+<x-filament-panels::page.simple>
+    <x-profile-filament::sudo.signed-in-as
+        :user-handle="filament()->auth()->user()->email"
+    />
+
+    <x-profile-filament::sudo.form-content
+        :heading="$this->currentProviderInstance?->heading($this->user)"
+        :icon="$this->currentProviderInstance?->icon()"
+        :current-provider="$currentProvider"
     >
-        <x-profile-filament::sudo.form
-            :user="$this->user"
-            :user-handle="$this->userHandle()"
-            :challenge-mode="$this->challengeMode"
-            :alternate-challenge-options="$this->alternateChallengeOptions"
-            :error="$this->error"
-            :form="$this->form"
-        />
-    </x-filament-panels::form>
+        {{ $this->content }}
+
+        @unless (empty($this->alternateOptions->getComponents()))
+            <x-slot:alternatives>
+                {{ $this->alternateOptions }}
+            </x-slot:alternatives>
+        @endunless
+    </x-profile-filament::sudo.form-content>
+
+    <div class="pf-sudo-tip text-xs">
+        {{ str(__('profile-filament::auth/sudo/sudo.challenge.tip'))->inlineMarkdown()->toHtmlString() }}
+    </div>
 </x-filament-panels::page.simple>

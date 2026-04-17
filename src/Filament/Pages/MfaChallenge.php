@@ -19,12 +19,13 @@ use Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode;
 use Rawilk\ProfileFilament\Facades\Mfa;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
+/** @deprecated */
 class MfaChallenge extends SimplePage
 {
     use Concerns\ChallengesMfa;
     use WithRateLimiting;
 
-    protected static string $view = 'profile-filament::pages.mfa-challenge';
+    protected string $view = 'profile-filament::pages.mfa-challenge';
 
     public static function setLayout(string $layout): void
     {
@@ -45,7 +46,7 @@ class MfaChallenge extends SimplePage
             return;
         }
 
-        $this->mode = ProfileFilament::preferredMfaMethodFor($this->user, $this->challengeOptions);
+        $this->mode = ProfileFilament::preferredMfaProviderFor($this->user, $this->challengeOptions);
     }
 
     public function getTitle(): string|Htmlable

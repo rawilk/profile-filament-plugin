@@ -7,11 +7,11 @@ namespace Rawilk\ProfileFilament\Filament\Actions\Mfa;
 use Filament\Actions\Action;
 use Filament\Support\Enums\ActionSize;
 use Livewire\Component;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo;
+use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo2;
 
 class ToggleRecoveryCodesAction extends Action
 {
-    use RequiresSudo;
+    use RequiresSudo2;
 
     protected function setUp(): void
     {

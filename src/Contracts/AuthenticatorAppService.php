@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Contracts;
 
+/** @deprecated */
 interface AuthenticatorAppService
 {
     public function generateSecretKey(): string;

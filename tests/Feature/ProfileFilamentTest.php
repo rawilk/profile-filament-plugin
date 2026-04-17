@@ -53,13 +53,13 @@ it('can determine if mfa should be enforced', function () {
 it('can get the preferred mfa method for a user', function () {
     $user = User::factory()->make();
 
-    expect($this->service->preferredMfaMethodFor($user, []))->toBe(MfaChallengeMode::RecoveryCode->value)
-        ->and($this->service->preferredMfaMethodFor($user, [MfaChallengeMode::App, MfaChallengeMode::Webauthn->value]))->toBe(MfaChallengeMode::App->value)
-        ->and($this->service->preferredMfaMethodFor($user, [MfaChallengeMode::Webauthn]))->toBe(MfaChallengeMode::Webauthn->value);
+    expect($this->service->preferredMfaProviderFor($user, []))->toBe(MfaChallengeMode::RecoveryCode->value)
+        ->and($this->service->preferredMfaProviderFor($user, [MfaChallengeMode::App, MfaChallengeMode::Webauthn->value]))->toBe(MfaChallengeMode::App->value)
+        ->and($this->service->preferredMfaProviderFor($user, [MfaChallengeMode::Webauthn]))->toBe(MfaChallengeMode::Webauthn->value);
 
     ProfileFilament::getPreferredMfaMethodUsing(fn (): string => 'foo');
 
-    expect($this->service->preferredMfaMethodFor($user, []))->toBe('foo');
+    expect($this->service->preferredMfaProviderFor($user, []))->toBe('foo');
 });
 
 it('can get the preferred sudo challenge method for a user', function () {
@@ -69,20 +69,20 @@ it('can get the preferred sudo challenge method for a user', function () {
         MfaChallengeMode::App->value,
     ];
 
-    expect($this->service->preferredSudoChallengeMethodFor($user, $methods))->toBe(SudoChallengeMode::Password->value);
+    expect($this->service->preferredSudoChallengeProviderFor($user, $methods))->toBe(SudoChallengeMode::Password->value);
 
     $user->two_factor_enabled = true;
 
     ProfileFilament::getPreferredMfaMethodUsing(fn ($user, $availableMethods): string => $availableMethods[0]);
 
-    expect($this->service->preferredSudoChallengeMethodFor($user, $methods))->toBe(MfaChallengeMode::App->value);
+    expect($this->service->preferredSudoChallengeProviderFor($user, $methods))->toBe(MfaChallengeMode::App->value);
 });
 
 test('recovery code is not allowed for sudo challenge', function () {
     $user = User::factory()->withMfa()->make();
     ProfileFilament::getPreferredMfaMethodUsing(fn () => MfaChallengeMode::RecoveryCode->value);
 
-    expect($this->service->preferredSudoChallengeMethodFor($user, []))->toBe(SudoChallengeMode::Password->value);
+    expect($this->service->preferredSudoChallengeProviderFor($user, []))->toBe(SudoChallengeMode::Password->value);
 });
 
 it('gets the pipes to send mfa challenges through for authentication', function () {

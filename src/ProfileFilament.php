@@ -4,78 +4,72 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament;
 
+use Closure;
+use Filament\Facades\Filament;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as User;
-use Illuminate\Http\Request;
-use Rawilk\ProfileFilament\Actions\Auth\PrepareUserSession;
-use Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode;
-use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\URL;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Sudo\Contracts\SudoChallengeProvider;
 use Rawilk\ProfileFilament\Facades\Mfa;
 
 class ProfileFilament
 {
     /**
      * The callback that is responsible for finding the authenticated user's timezone.
-     *
-     * @var callable|null
      */
-    public static $findUserTimezoneUsingCallback;
+    public static ?Closure $findUserTimezoneUsingCallback = null;
 
     /**
-     * The callback that is responsible for determining if mfa should
-     * be enforced by our middleware.
-     *
-     * @var callable|null
+     * The callback that should be used to create the verify email change url.
      */
-    public static $shouldCheckForMfaCallback;
+    public static ?Closure $createVerifyEmailChangeUrlCallback = null;
 
     /**
-     * The callback that is responsible for determining a user's preferred
-     * mfa method.
-     *
-     * @var callable|null
+     * The callback that should be used to create the block email change url.
      */
-    public static $getPreferredMfaMethodCallback;
+    public static ?Closure $createBlockEmailChangeUrlCallback = null;
 
     /**
-     * The callback that is responsible for determining the pipes
-     * to be called for a two-factor challenge.
-     *
-     * @var callable|null
+     * The callback that should be used to create the email verification url.
      */
-    public static $mfaAuthenticationPipelineCallback;
+    public static ?Closure $createEmailVerificationUrlCallback = null;
 
     /**
      * Register a callback that is responsible for retrieving the authenticated user's timezone.
      */
-    public static function findUserTimezoneUsing(?callable $callback): void
+    public static function findUserTimezoneUsing(?Closure $callback): void
     {
         static::$findUserTimezoneUsingCallback = $callback;
     }
 
     /**
-     * Register a callback that is responsible for determining if our middleware
-     * should enforce mfa.
+     * Set a callback that should be used when creating the verify email change url.
      */
-    public static function shouldCheckForMfaUsing(?callable $callback): void
+    public static function createVerifyEmailChangeUrlUsing(?Closure $callback): void
     {
-        static::$shouldCheckForMfaCallback = $callback;
+        static::$createVerifyEmailChangeUrlCallback = $callback;
     }
 
     /**
-     * Register a callback that is responsible for determining a user's preferred mfa method.
+     * Set a callback that should be used when creating the block email change url.
      */
-    public static function getPreferredMfaMethodUsing(?callable $callback): void
+    public static function createBlockEmailChangeUrlUsing(?Closure $callback): void
     {
-        static::$getPreferredMfaMethodCallback = $callback;
+        static::$createBlockEmailChangeUrlCallback = $callback;
     }
 
     /**
-     * Register a callback that is responsible for determining the pipes to send
-     * a two-factor authentication challenge through.
+     * Set a callback that should be used when creating the email verification url.
      */
-    public static function mfaAuthenticationPipelineUsing(?callable $callback): void
+    public static function createEmailVerificationUrlUsing(?Closure $callback): void
     {
-        static::$mfaAuthenticationPipelineCallback = $callback;
+        static::$createEmailVerificationUrlCallback = $callback;
     }
 
     /**
@@ -92,72 +86,96 @@ class ProfileFilament
         return $userTimezone ?? 'UTC';
     }
 
-    /**
-     * Determine if mfa should be enforced for a given request and user. The most common
-     * use case for this is when user impersonation is being used in an application.
-     */
-    public function shouldCheckForMfa(Request $request, User $user): bool
+    public function getVerifyEmailChangeUrl(MustVerifyEmail|Model|Authenticatable $user, string $newEmail, array $parameters = []): string
     {
-        if (is_callable(static::$shouldCheckForMfaCallback)) {
-            return call_user_func(static::$shouldCheckForMfaCallback, $request, $user);
+        if (static::$createVerifyEmailChangeUrlCallback) {
+            return call_user_func(static::$createVerifyEmailChangeUrlCallback, $user, $newEmail, $parameters);
         }
 
-        return true;
+        return URL::temporarySignedRoute(
+            Filament::getCurrentOrDefaultPanel()->generateRouteName('auth.email-change-verification.verify'),
+            now()->addMinutes(config('auth.verification.expire', 60)),
+            [
+                'id' => $user->getRouteKey(),
+                'email' => Crypt::encryptString($newEmail),
+                ...$parameters,
+            ],
+        );
+    }
+
+    public function getBlockEmailChangeVerificationUrl(MustVerifyEmail|Model|Authenticatable $user, string $newEmail, array $parameters = []): string
+    {
+        if (static::$createBlockEmailChangeUrlCallback) {
+            return call_user_func(static::$createBlockEmailChangeUrlCallback, $user, $newEmail, $parameters);
+        }
+
+        return URL::temporarySignedRoute(
+            Filament::getCurrentOrDefaultPanel()->generateRouteName('auth.email-change-verification.block-verification'),
+            now()->addMinutes(config('auth.verification.expire', 60)),
+            [
+                'id' => $user->getRouteKey(),
+                'email' => Crypt::encryptString($newEmail),
+                ...$parameters,
+            ],
+        );
+    }
+
+    public function getEmailVerificationUrl(MustVerifyEmail|Model|Authenticatable $user, array $parameters = []): string
+    {
+        if (static::$createEmailVerificationUrlCallback) {
+            return call_user_func(static::$createEmailVerificationUrlCallback, $user, $parameters);
+        }
+
+        return URL::temporarySignedRoute(
+            Filament::getCurrentOrDefaultPanel()->generateRouteName('auth.email-verification.verify'),
+            now()->addMinutes(config('auth.verification.expire', 60)),
+            [
+                'id' => $user->getRouteKey(),
+                'hash' => hash('sha3-256', $user->getEmailForVerification()),
+                ...$parameters,
+            ],
+        );
     }
 
     /**
-     * Retrieve the preferred mfa method for a given user.
-     */
-    public function preferredMfaMethodFor(User $user, array $availableMethods): string
-    {
-        if (is_callable(static::$getPreferredMfaMethodCallback)) {
-            return call_user_func(static::$getPreferredMfaMethodCallback, $user, $availableMethods, false);
-        }
-
-        // By default, return the first mfa method we find.
-        if (in_array(MfaChallengeMode::App, $availableMethods, true)) {
-            return MfaChallengeMode::App->value;
-        }
-
-        if (in_array(MfaChallengeMode::Webauthn, $availableMethods, true)) {
-            return MfaChallengeMode::Webauthn->value;
-        }
-
-        return MfaChallengeMode::RecoveryCode->value;
-    }
-
-    public function preferredSudoChallengeMethodFor(User $user, array $availableMethods): string
-    {
-        if (! Mfa::userHasMfaEnabled($user)) {
-            return SudoChallengeMode::Password->value;
-        }
-
-        $preferredMethod = is_callable(static::$getPreferredMfaMethodCallback)
-            ? call_user_func(static::$getPreferredMfaMethodCallback, $user, $availableMethods, true)
-            : SudoChallengeMode::Password->value;
-
-        // Recovery codes cannot be used for a sudo challenge.
-        if ($preferredMethod === MfaChallengeMode::RecoveryCode->value) {
-            return SudoChallengeMode::Password->value;
-        }
-
-        return $preferredMethod;
-    }
-
-    /**
-     * Get the pipes to send a two-factor authentication challenge request through.
+     * Determine the initial multifactor authentication provider to show for a given user.
      *
-     * Note: This does not apply to the middleware, as we are already authenticated
-     * into the system at this point.
+     * @param  HasMultiFactorAuthentication&Authenticatable  $user
      */
-    public function getMfaAuthenticationPipes(): array
+    public function preferredMfaProviderFor(User $user, Collection $enabledProviders): string
     {
-        if (is_callable(static::$mfaAuthenticationPipelineCallback)) {
-            return call_user_func(static::$mfaAuthenticationPipelineCallback);
+        // Use the user's preferred mfa provider or just use the first enabled provider if no preference is found.
+        $preferredProvider = $user instanceof HasMultiFactorAuthentication
+            ? $user->getPreferredMfaProvider()
+            : null;
+
+        if ($preferredProvider) {
+            return $enabledProviders->firstWhere(
+                fn (MultiFactorAuthenticationProvider $provider) => $provider->getId() === $preferredProvider,
+            ) ?? $enabledProviders->first()?->getId();
         }
 
-        return [
-            PrepareUserSession::class,
-        ];
+        return $enabledProviders->first()?->getId();
+    }
+
+    /**
+     * Determine the initial sudo challenge provider to show for a given user.
+     *
+     * @param  User&HasMultiFactorAuthentication  $user
+     */
+    public function preferredSudoChallengeProviderFor(User $user, Collection $enabledProviders): ?string
+    {
+        // Use the user's preferred mfa provider or just use the first enabled provider if no preference is found.
+        $preferredProvider = $user instanceof HasMultiFactorAuthentication
+            ? $user->getPreferredMfaProvider()
+            : null;
+
+        if ($preferredProvider) {
+            return $enabledProviders->firstWhere(
+                fn (SudoChallengeProvider $provider) => $provider->getId() === $preferredProvider,
+            ) ?? $enabledProviders->first()?->getId();
+        }
+
+        return $enabledProviders->first()?->getId();
     }
 }

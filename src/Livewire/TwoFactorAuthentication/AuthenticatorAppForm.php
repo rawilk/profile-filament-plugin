@@ -35,6 +35,8 @@ use Rawilk\ProfileFilament\Livewire\ProfileComponent;
  * @property-read Authenticatable $user
  * @property-read Collection $sortedAuthenticatorApps
  * @property-read Form $form
+ *
+ * @deprecated
  */
 class AuthenticatorAppForm extends ProfileComponent
 {

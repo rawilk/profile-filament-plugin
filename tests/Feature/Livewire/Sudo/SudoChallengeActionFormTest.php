@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
-use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeActionForm;
+use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeActionForm2;
 use Rawilk\ProfileFilament\ProfileFilament;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -27,13 +27,13 @@ afterEach(function () {
 });
 
 it('renders', function () {
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->assertSuccessful()
         ->assertSeeText($this->user->email);
 });
 
 it('can complete a sudo challenge', function () {
-    livewire(SudoChallengeActionForm::class, [
+    livewire(SudoChallengeActionForm2::class, [
         'mode' => SudoChallengeMode::Password->value,
     ])
         ->call('setChallengeMode', SudoChallengeMode::Password->value)
@@ -48,6 +48,6 @@ it('can complete a sudo challenge', function () {
 it('initially shows a users preferred sudo challenge mode', function () {
     ProfileFilament::getPreferredMfaMethodUsing(fn () => SudoChallengeMode::App->value);
 
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->assertSet('challengeMode', SudoChallengeMode::App);
 });

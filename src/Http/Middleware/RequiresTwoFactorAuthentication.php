@@ -15,6 +15,7 @@ use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
+/** @deprecated */
 class RequiresTwoFactorAuthentication
 {
     public function handle(Request $request, Closure $next): Response

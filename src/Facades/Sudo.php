@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Facade;
  * @method static void extend()
  * @method static bool isActive()
  *
- * @see \Rawilk\ProfileFilament\Services\Sudo
+ * @see \Rawilk\ProfileFilament\Auth\Sudo\Sudo
  */
 class Sudo extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Rawilk\ProfileFilament\Services\Sudo::class;
+        return \Rawilk\ProfileFilament\Auth\Sudo\Sudo::class;
     }
 }

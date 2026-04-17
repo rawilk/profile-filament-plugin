@@ -7,7 +7,7 @@ use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
 use Rawilk\ProfileFilament\Enums\Session\SudoSession;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\Sudo;
-use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeActionForm;
+use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeActionForm2;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Services\Webauthn;
@@ -43,7 +43,7 @@ afterEach(function () {
 });
 
 it('can set a new challenge mode', function (SudoChallengeMode $mode) {
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', $mode->value)
         ->assertSet('challengeMode', $mode)
         ->assertSet('mode', $mode->value);
@@ -54,13 +54,13 @@ it('can set a new challenge mode', function (SudoChallengeMode $mode) {
 ]);
 
 it('shows a password input for password challenge mode', function () {
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::Password->value)
         ->assertFormFieldIsVisible('password');
 });
 
 it('shows a totp code input for app challenge mode', function () {
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::App->value)
         ->assertFormFieldIsVisible('totp');
 });
@@ -77,7 +77,7 @@ it('shows the webauthn registration form when in webauthn challenge mode', funct
         ],
     );
 
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::Webauthn->value)
         ->assertSee(Js::from($expectedUrl), escape: false)
         ->assertActionVisible('startWebauthn')
@@ -85,7 +85,7 @@ it('shows the webauthn registration form when in webauthn challenge mode', funct
 });
 
 test('user identity can be confirmed with a password', function () {
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::Password->value)
         ->fillForm([
             'password' => 'secret',
@@ -103,7 +103,7 @@ test('user identity can be confirmed with a password', function () {
 });
 
 test('a correct password is required to confirm identity', function () {
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::Password->value)
         ->fillForm([
             'password' => 'invalid',
@@ -125,7 +125,7 @@ it('can confirm identity with totp', function () {
 
     $app = AuthenticatorApp::factory()->for($this->user)->create(['secret' => $userSecret]);
 
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::App->value)
         ->fillForm([
             'totp' => $validOtp,
@@ -145,7 +145,7 @@ it('can confirm identity with totp', function () {
 });
 
 test('a valid totp is required to confirm identity', function () {
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::App->value)
         ->fillForm([
             'totp' => 'invalid',
@@ -161,7 +161,7 @@ test('a valid totp is required to confirm identity', function () {
 it('can use webauthn to confirm identity', function () {
     storeAssertionOptionsInSession($this->user);
 
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::Webauthn->value)
         ->call('confirm', assertion: FakeWebauthn::assertionResponse())
         ->assertSuccessful()
@@ -182,7 +182,7 @@ test('a valid webauthn assertion is required to confirm identity', function () {
     $assertion = FakeWebauthn::assertionResponse();
     data_set($assertion, 'response.clientDataJSON', 'invalid');
 
-    livewire(SudoChallengeActionForm::class)
+    livewire(SudoChallengeActionForm2::class)
         ->call('setChallengeMode', SudoChallengeMode::Webauthn->value)
         ->call('confirm', assertion: $assertion)
         ->assertSet('error', __('profile-filament::messages.sudo_challenge.webauthn.invalid'))

@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
+/** @deprecated */
 trait UsesSudoChallengeAction
 {
     protected function ensureSudoIsActive(?string $method = null, array $data = [], ?string $caller = null): bool

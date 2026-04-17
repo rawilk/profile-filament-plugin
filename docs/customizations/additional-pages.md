@@ -19,7 +19,7 @@ namespace App\Filament\Pages;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 use Rawilk\ProfileFilament\Concerns\HasPanelPageRoutes;
-use Rawilk\ProfileFilament\Filament\Clusters\Profile;
+use Rawilk\ProfileFilament\Filament\Clusters\ProfileCluster;
 
 class Notifications extends Page
 {
@@ -27,7 +27,7 @@ class Notifications extends Page
 
     protected static string $view = 'filament.pages.notifications';
 
-    protected static ?string $cluster = Profile::class;
+    protected static ?string $cluster = ProfileCluster::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-bell';
 

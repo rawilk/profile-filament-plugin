@@ -17,13 +17,5 @@ return new class extends Migration
             $table->string('token');
             $table->dateTime('created_at')->nullable();
         });
-
-        Schema::create(config('profile-filament.table_names.old_user_email'), function (Blueprint $table) {
-            $table->id();
-            $table->morphs('user');
-            $table->string('email')->index();
-            $table->string('token');
-            $table->dateTime('created_at')->nullable();
-        });
     }
 };

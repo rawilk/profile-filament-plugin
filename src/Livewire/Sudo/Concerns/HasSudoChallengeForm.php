@@ -5,109 +5,56 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Livewire\Sudo\Concerns;
 
 use Filament\Actions\Action;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Support\Exceptions\Halt;
+use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Timebox;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
-use Rawilk\FilamentPasswordInput\Password;
-use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
-use Rawilk\ProfileFilament\Enums\Session\SudoSession;
+use Rawilk\ProfileFilament\Dto\SudoChallengeAssertions\SudoChallengeAssertion;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
-use Rawilk\ProfileFilament\Facades\Mfa;
 use Rawilk\ProfileFilament\Facades\Sudo;
-use Rawilk\ProfileFilament\Facades\Webauthn;
-use Throwable;
+use Rawilk\ProfileFilament\Support\SudoChallengeProviders\Factory as SudoChallengeModeFactory;
 
 /**
- * @property-read Collection<int, array> $alternateChallengeOptions
- * @property-read array<int, SudoChallengeMode> $challengeOptions
- * @property-read null|SudoChallengeMode $challengeMode
+ * @property-read Collection $challengeOptions All available challenge providers for the authenticated user
+ * @property-read string $challengeProvider The classname of the current challenge provider
+ * @property-read \Filament\Schemas\Components\Form $form
  * @property-read Authenticatable $user
- * @property-read bool $userHasPasskeys
- * @property Form $form
  */
 trait HasSudoChallengeForm
 {
     public ?array $data = [];
 
-    #[Locked]
-    public ?string $mode = null;
-
-    #[Locked]
-    public ?string $error = null;
-
-    #[Locked]
-    public bool $hasWebauthnError = false;
-
     /**
-     * If the user has more than one challenge option available,
-     * these will be the challenge modes that are not the
-     * selected mode.
+     * The slug of the current sudo challenge provider.
      */
-    #[Computed]
-    public function alternateChallengeOptions(): Collection
-    {
-        return collect($this->challengeOptions)
-            ->reject(fn (SudoChallengeMode $mode) => $mode === $this->challengeMode)
-            ->map(function (SudoChallengeMode $mode): array {
-                return [
-                    'mode' => $mode,
-                    'label' => $mode->linkLabel($this->user),
-                ];
-            });
-    }
+    #[Locked]
+    public ?string $selectedProvider = null;
 
-    #[Computed]
-    public function challengeMode(): ?SudoChallengeMode
-    {
-        if (! $this->mode) {
-            return null;
-        }
-
-        return SudoChallengeMode::tryFrom($this->mode);
-    }
-
-    #[Computed]
-    public function challengeOptions(): array
-    {
-        $options = [];
-
-        if (Mfa::canUseAuthenticatorAppsForChallenge($this->user)) {
-            $options[] = SudoChallengeMode::App;
-        }
-
-        // Passkeys or security key
-        if (Mfa::canUseWebauthnForChallenge($this->user)) {
-            $options[] = SudoChallengeMode::Webauthn;
-        }
-
-        if (filled($this->user->getAuthPassword())) {
-            $options[] = SudoChallengeMode::Password;
-        }
-
-        return $options;
-    }
+    #[Locked]
+    public ?SudoChallengeAssertion $challengeAssertion = null;
 
     #[Computed]
     public function user(): Authenticatable
     {
-        return filament()->auth()->user();
+        return Filament::auth()->user();
     }
 
     #[Computed]
-    public function userHasPasskeys(): bool
+    public function challengeOptions(): Collection
     {
-        return $this->user->hasPasskeys();
+        return app(SudoChallengeModeFactory::class)($this->user);
+    }
+
+    #[Computed]
+    public function challengeProvider(): ?string
+    {
+        return $this->challengeOptions->firstWhere(
+            fn (string $challengeMode): bool => $challengeMode::slug() === $this->selectedProvider,
+        );
     }
 
     public function mountHasSudoChallengeForm(): void
@@ -115,174 +62,50 @@ trait HasSudoChallengeForm
         $this->form->fill();
     }
 
-    public function submitAction(): Action
+    public function confirm(Request $request, ?array $extra = null): void
     {
-        return Action::make('submit')
-            ->action('confirm')
-            ->color('primary')
-            ->hidden(fn (): bool => $this->challengeMode === SudoChallengeMode::Webauthn)
-            ->label(
-                fn () => $this->challengeMode?->actionButton($this->user) ?? __('profile-filament::messages.sudo_challenge.password.submit')
-            )
-            ->extraAttributes(['class' => 'w-full']);
-    }
+        if (! $this->challengeProvider) {
+            return;
+        }
 
-    public function startWebauthnAction(): Action
-    {
-        return Action::make('startWebauthn')
-            ->label(function (): string {
-                if ($this->hasWebauthnError) {
-                    return $this->userHasPasskeys
-                        ? __('profile-filament::messages.sudo_challenge.webauthn.retry_including_passkeys')
-                        : __('profile-filament::messages.sudo_challenge.webauthn.retry');
-                }
+        App::make(Timebox::class)->call(callback: function (Timebox $timebox) use ($request, $extra) {
+            $this->challengeAssertion = $this->challengeProvider::assert(
+                data: $this->form->getState(),
+                user: $this->user,
+                request: $request,
+                extra: $extra,
+            );
 
-                return $this->userHasPasskeys
-                    ? __('profile-filament::messages.sudo_challenge.webauthn.submit_including_passkeys')
-                    : __('profile-filament::messages.sudo_challenge.webauthn.submit');
-            })
-            ->visible(fn (): bool => $this->challengeMode === SudoChallengeMode::Webauthn)
-            ->color('primary')
-            ->extraAttributes([
-                'class' => 'w-full',
-            ])
-            ->alpineClickHandler('login');
-    }
+            if ($this->challengeAssertion->isValid()) {
+                $timebox->returnEarly();
+            }
+        }, microseconds: 300 * 1000);
 
-    public function setChallengeMode(string $mode): void
-    {
-        $this->form->fill();
-        $this->clearValidation();
-
-        $this->mode = $mode;
-        $this->error = null;
-        $this->hasWebauthnError = false;
-
-        unset($this->challengeMode, $this->challengeOptions, $this->alternateChallengeOptions);
-    }
-
-    public function confirm(Request $request, ?array $assertion = null): void
-    {
-        try {
-            $this->confirmIdentity($assertion);
-        } catch (Halt) {
+        if (! $this->challengeAssertion->isValid()) {
             return;
         }
 
         Sudo::activate();
         SudoModeActivated::dispatch($this->user, $request);
 
-        $this->onConfirmed();
+        $this->dispatch('sudo-confirmed');
     }
 
-    protected function onConfirmed(): void
+    public function submitAction(): Action
     {
-    }
-
-    protected function userHandle(): ?string
-    {
-        return $this->user->email;
-    }
-
-    protected function passwordSchema(): array
-    {
-        return [
-            Password::make('password')
-                ->id("{$this->getId()}.password")
-                ->label(__('profile-filament::messages.sudo_challenge.password.input_label'))
-                ->required()
-                ->hint(
-                    filament()->hasPasswordReset()
-                        ? new HtmlString(Blade::render(<<<'HTML'
-                        <x-filament::link :href="filament()->getRequestPasswordResetUrl()">
-                            {{ __('filament-panels::pages/auth/login.actions.request_password_reset.label') }}
-                        </x-filament::link>
-                        HTML))
-                        : null,
-                )
-                ->extraAlpineAttributes([
-                    'x-on:keydown.enter.stop.prevent' => '$wire.confirm',
-                ]),
-        ];
-    }
-
-    protected function authenticatorAppSchema(): array
-    {
-        return [
-            Forms\Components\TextInput::make('totp')
-                ->hiddenLabel()
-                ->id("{$this->getId()}.totp")
-                ->placeholder(__('profile-filament::messages.sudo_challenge.totp.placeholder'))
-                ->helperText(__('profile-filament::messages.sudo_challenge.totp.help_text'))
-                ->required()
-                ->extraAlpineAttributes([
-                    'x-on:keydown.enter.stop.prevent' => '$wire.confirm',
-                ]),
-        ];
-    }
-
-    protected function webauthnOptionsUrl(): string
-    {
-        return URL::temporarySignedRoute(
-            name: 'profile-filament::webauthn.assertion_pk',
-            expiration: now()->addHour(),
-            parameters: [
-                'user' => $this->user->getRouteKey(),
-                's' => SudoSession::WebauthnAssertionPk->value,
-            ],
-        );
-    }
-
-    protected function confirmIdentity(?array $assertion = null): void
-    {
-        $this->error = null;
-        $this->hasWebauthnError = false;
-
-        App::make(Timebox::class)->call(callback: function (Timebox $timebox) use ($assertion) {
-            switch ($this->challengeMode) {
-                case SudoChallengeMode::App:
-                    $data = $this->form->getState();
-
-                    if (! Mfa::usingChallengedUser($this->user)->isValidTotpCode($data['totp'])) {
-                        $this->error = __('profile-filament::messages.sudo_challenge.totp.invalid');
-
-                        throw new Halt;
-                    }
-
-                    break;
-
-                case SudoChallengeMode::Password:
-                    $data = $this->form->getState();
-
-                    if (! Hash::check($data['password'], $this->user->getAuthPassword())) {
-                        $this->error = __('profile-filament::messages.sudo_challenge.password.invalid');
-
-                        throw new Halt;
-                    }
-
-                    break;
-
-                case SudoChallengeMode::Webauthn:
-                    try {
-                        Webauthn::verifyAssertion(
-                            user: $this->user,
-                            assertionResponse: $assertion,
-                            storedPublicKey: session()->pull(SudoSession::WebauthnAssertionPk->value),
-                        );
-                    } catch (Throwable $e) {
-                        $this->error = __('profile-filament::messages.sudo_challenge.webauthn.invalid');
-                        $this->hasWebauthnError = true;
-
-                        throw new Halt;
-                    }
-
-                    break;
-
-                default:
-                    throw new Halt;
-            }
-
-            $timebox->returnEarly();
-        }, microseconds: 300 * 1000);
+        return Action::make('submit')
+            ->action('confirm')
+            ->color('primary')
+            ->label(
+                fn () => $this->challengeProvider
+                    ? $this->challengeProvider::submitLabel($this->user)
+                    : __('profile-filament::messages.sudo_challenge.password.submit'),
+            )
+            ->hidden(
+                fn () => $this->challengeProvider
+                    ? $this->challengeProvider::submitIsHidden($this->user)
+                    : false,
+            )
+            ->extraAttributes(['class' => 'w-full']);
     }
 }

@@ -6,11 +6,11 @@ namespace Rawilk\ProfileFilament\Filament\Actions\Mfa;
 
 use Filament\Actions\Action;
 use Livewire\Component;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo;
+use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo2;
 
 class AddWebauthnKeyAction extends Action
 {
-    use RequiresSudo;
+    use RequiresSudo2;
 
     protected function setUp(): void
     {

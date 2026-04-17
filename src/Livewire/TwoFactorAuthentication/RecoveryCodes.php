@@ -13,6 +13,8 @@ use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 
 /**
  * @property-read array $recoveryCodes
+ *
+ * @deprecated
  */
 class RecoveryCodes extends ProfileComponent
 {

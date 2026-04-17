@@ -33,7 +33,7 @@ function challengeUser(?User $user = null): void
 {
     $user ??= test()->user;
 
-    session()->put(MfaSession::User->value, $user->getKey());
+    session()->put(MfaSession::UserBeingAuthenticated->value, $user->getKey());
 }
 
 function queryCount(): int

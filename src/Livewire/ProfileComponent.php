@@ -8,8 +8,8 @@ use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Contracts\Plugin;
 use Filament\FilamentManager;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -18,10 +18,10 @@ use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 /**
  * @property-read ProfileFilamentPlugin $profilePlugin
  */
-abstract class ProfileComponent extends Component implements HasActions, HasForms
+abstract class ProfileComponent extends Component implements HasActions, HasSchemas
 {
     use InteractsWithActions;
-    use InteractsWithForms;
+    use InteractsWithSchemas;
 
     #[Computed]
     public function profilePlugin(): FilamentManager|Plugin|ProfileFilamentPlugin

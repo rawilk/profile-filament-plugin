@@ -5,15 +5,26 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Concerns;
 
 use Filament\Facades\Filament;
+use Filament\Pages\PageConfiguration;
 use Filament\Panel;
 use Illuminate\Support\Facades\Route;
 
+/** @deprecated  */
 trait HasPanelClusterRoutes
 {
-    public static function routes(Panel $panel): void
+    public static function routes(Panel $panel, ?PageConfiguration $configuration = null): void
     {
+        $middleware = static::getRouteMiddleware($panel);
+
+        if ($configuration) {
+            $middleware = [
+                ...$middleware,
+                "page-configuration:{$configuration->getKey()}",
+            ];
+        }
+
         Route::get(static::getPanelRoutePath($panel), static::class)
-            ->middleware(static::getRouteMiddleware($panel))
+            ->middleware($middleware)
             ->withoutMiddleware(static::getWithoutRouteMiddleware($panel))
             ->name(static::getPanelRelativeRouteName($panel));
     }
@@ -40,9 +51,9 @@ trait HasPanelClusterRoutes
         return static::getPanelSlug($panel) . "/{$slug}";
     }
 
-    public static function getRouteName(?string $panel = null): string
+    public static function getRouteName(?Panel $panel = null): string
     {
-        $panel = $panel ? Filament::getPanel($panel) : Filament::getCurrentPanel();
+        $panel ??= Filament::getCurrentOrDefaultPanel();
 
         return $panel->generateRouteName(
             static::getPanelRelativeRouteName($panel)

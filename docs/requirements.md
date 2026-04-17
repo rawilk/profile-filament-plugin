@@ -7,7 +7,7 @@ sort: 2
 
 - PHP **8.2** or greater
 - Laravel **11.23** or greater
-- Filament **3.2.96** or greater
+- Filament **5.0** or greater
 
 ## Session Management
 

@@ -10,6 +10,7 @@ use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
 use Rawilk\ProfileFilament\Facades\Mfa;
 use Rawilk\ProfileFilament\Facades\Sudo;
 
+/** @deprecated  */
 trait ChallengesSudoMode
 {
     protected function sudoModeIsActive(): bool

@@ -1,2 +1,58 @@
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import './overrides.css';
+@import './components/buttons.css' layer(components);
+
+@theme {
+    --color-custom-50: var(--c-50);
+    --color-custom-100: var(--c-100);
+    --color-custom-200: var(--c-200);
+    --color-custom-300: var(--c-300);
+    --color-custom-400: var(--c-400);
+    --color-custom-500: var(--c-500);
+    --color-custom-600: var(--c-600);
+    --color-custom-700: var(--c-700);
+    --color-custom-800: var(--c-800);
+    --color-custom-900: var(--c-900);
+    --color-custom-950: var(--c-950);
+
+    --color-danger-50: var(--danger-50);
+    --color-danger-100: var(--danger-100);
+    --color-danger-200: var(--danger-200);
+    --color-danger-300: var(--danger-300);
+    --color-danger-400: var(--danger-400);
+    --color-danger-500: var(--danger-500);
+    --color-danger-600: var(--danger-600);
+    --color-danger-700: var(--danger-700);
+    --color-danger-800: var(--danger-800);
+    --color-danger-900: var(--danger-900);
+    --color-danger-950: var(--danger-950);
+
+    --color-primary-50: var(--primary-50);
+    --color-primary-100: var(--primary-100);
+    --color-primary-200: var(--primary-200);
+    --color-primary-300: var(--primary-300);
+    --color-primary-400: var(--primary-400);
+    --color-primary-500: var(--primary-500);
+    --color-primary-600: var(--primary-600);
+    --color-primary-700: var(--primary-700);
+    --color-primary-800: var(--primary-800);
+    --color-primary-900: var(--primary-900);
+    --color-primary-950: var(--primary-950);
+
+    --color-success-50: var(--success-50);
+    --color-success-100: var(--success-100);
+    --color-success-200: var(--success-200);
+    --color-success-300: var(--success-300);
+    --color-success-400: var(--success-400);
+    --color-success-500: var(--success-500);
+    --color-success-600: var(--success-600);
+    --color-success-700: var(--success-700);
+    --color-success-800: var(--success-800);
+    --color-success-900: var(--success-900);
+    --color-success-950: var(--success-950);
+}
+
+@source '../../resources/views/**/*.blade.php';
+@source '../../src/Livewire/**/*.php';
+@source '../../src/Filament/**/*.php';
+@source '../../src/Auth/**/Actions/**/*.php';

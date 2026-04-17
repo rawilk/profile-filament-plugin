@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Support;
 
 use Closure;
-use Detection\Cache\CacheException;
-use Detection\Exception\MobileDetectException;
 use Detection\MobileDetect;
 
 /**
@@ -49,6 +47,13 @@ class Agent extends MobileDetect
         'WeChat' => 'MicroMessenger',
     ];
 
+    /**
+     * Key value store for resolved strings.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $store = [];
+
     public function platform()
     {
         return $this->retrieveUsingCacheOrResolve('profile-filament.platform', function () {
@@ -78,7 +83,7 @@ class Agent extends MobileDetect
         return $this->retrieveUsingCacheOrResolve('profile-filament.desktop', function () {
             // Check specifically for cloudfront headers if the useragent === 'Amazon CloudFront'
             if (
-                $this->getUserAgent() === (static::$cloudFrontUA ?? 'Amazon CloudFront')
+                $this->getUserAgent() === static::$cloudFrontUA
                 && $this->getHttpHeader('HTTP_CLOUDFRONT_IS_DESKTOP_VIEWER') === 'true'
             ) {
                 return true;
@@ -88,7 +93,10 @@ class Agent extends MobileDetect
         });
     }
 
-    protected function findDetectionRulesAgainstUserAgent(array $rules)
+    /**
+     * Match a detection rule and return the matched key.
+     */
+    protected function findDetectionRulesAgainstUserAgent(array $rules): ?string
     {
         $userAgent = $this->getUserAgent();
 
@@ -105,23 +113,30 @@ class Agent extends MobileDetect
         return null;
     }
 
-    protected function retrieveUsingCacheOrResolve(string $key, Closure $callback)
+    /**
+     * Retrieve from the given key from the cache or resolve the value.
+     *
+     * @param  Closure():mixed  $callback
+     */
+    protected function retrieveUsingCacheOrResolve(string $key, Closure $callback): mixed
     {
-        try {
-            $cacheKey = $this->createCacheKey($key);
+        $cacheKey = $this->createCacheKey($key);
 
-            if (! is_null($cacheItem = $this->cache->get($cacheKey))) {
-                return $cacheItem->get();
-            }
-
-            return tap(call_user_func($callback), function ($result) use ($cacheKey) {
-                $this->cache->set($cacheKey, $result);
-            });
-        } catch (CacheException $e) {
-            throw new MobileDetectException("Cache problem in for {$key}: {$e->getMessage()}");
+        if (! is_null($cacheItem = $this->store[$cacheKey] ?? null)) {
+            return $cacheItem;
         }
+
+        return tap(call_user_func($callback), function ($result) use ($cacheKey) {
+            $this->store[$cacheKey] = $result;
+        });
     }
 
+    /**
+     * Merge multiple rules into one array.
+     *
+     * @param  array  $all
+     * @return array<string, string>
+     */
     protected function mergeRules(...$all): array
     {
         $merged = [];

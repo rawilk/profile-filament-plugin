@@ -10,12 +10,12 @@ use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\View\View;
 use Livewire\Component;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo;
+use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo2;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKey;
 
 class RegisterPasskeyAction extends Action
 {
-    use RequiresSudo;
+    use RequiresSudo2;
 
     protected null|Closure|WebauthnKey|Model $webauthnKeyToUpgrade = null;
 

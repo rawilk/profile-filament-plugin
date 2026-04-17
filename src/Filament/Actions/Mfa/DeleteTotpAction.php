@@ -12,12 +12,13 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorApps\DeleteAuthenticatorAppAction;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo;
+use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo2;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
+/** @deprecated */
 class DeleteTotpAction extends DeleteAction
 {
-    use RequiresSudo;
+    use RequiresSudo2;
 
     protected function setUp(): void
     {
