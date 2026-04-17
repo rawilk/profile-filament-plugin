@@ -6,7 +6,6 @@ namespace Rawilk\ProfileFilament\Filament\Pages\ProfileTemp;
 
 use Illuminate\Contracts\Support\Htmlable;
 use Rawilk\ProfileFilament\Concerns;
-use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfilePage;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class Security extends ProfilePage
