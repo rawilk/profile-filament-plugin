@@ -7,7 +7,7 @@ namespace Rawilk\ProfileFilament\Events\Profile;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 
-class ProfileInformationUpdated extends ProfileFilamentEvent
+class ProfileInformationWasUpdated extends ProfileFilamentEvent
 {
     public function __construct(public User $user)
     {

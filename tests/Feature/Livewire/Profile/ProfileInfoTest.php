@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Events\Profile\ProfileInformationUpdated;
+use Rawilk\ProfileFilament\Events\Profile\ProfileInformationWasUpdated;
 use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -30,7 +30,7 @@ it('can edit a users profile information', function () {
         ])
         ->assertHasNoInfolistActionErrors();
 
-    Event::assertDispatched(ProfileInformationUpdated::class);
+    Event::assertDispatched(ProfileInformationWasUpdated::class);
 
     expect($this->user->refresh())
         ->name->toBe('New Name');

@@ -9,7 +9,7 @@ use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Facades\Filament;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
-use Rawilk\ProfileFilament\Events\Profile\ProfileInformationUpdated;
+use Rawilk\ProfileFilament\Events\Profile\ProfileInformationWasUpdated;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\ProfileNameInput;
 
 class EditProfileInfoAction extends Action
@@ -51,7 +51,7 @@ class EditProfileInfoAction extends Action
                 return;
             }
 
-            ProfileInformationUpdated::dispatch(Filament::auth()->user());
+            ProfileInformationWasUpdated::dispatch(Filament::auth()->user());
 
             $this->success();
         });
