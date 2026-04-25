@@ -10,9 +10,6 @@ enum SudoSession: string
 {
     case ConfirmedAt = 'sudo.confirmed_at';
 
-    /** @deprecated */
-    case WebauthnAssertionPk = 'sudo.webauthn:assertion:public_key';
-
     public function forget(): void
     {
         session()->forget($this->value);
