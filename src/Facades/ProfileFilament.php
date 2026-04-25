@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
+use Rawilk\ProfileFilament\ProfileFilament as ProfileFilamentService;
 
 /**
  * @method static string getBlockEmailChangeVerificationUrl(MustVerifyEmail|Model|User $user, string $newEmail, array $parameters = [])
@@ -18,12 +19,12 @@ use Illuminate\Support\Facades\Facade;
  * @method static string preferredSudoChallengeProviderFor(User $user, Collection $enabledProviders)
  * @method static string userTimezone(User $user = null)
  *
- * @see \Rawilk\ProfileFilament\ProfileFilament
+ * @see ProfileFilamentService
  */
 class ProfileFilament extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Rawilk\ProfileFilament\ProfileFilament::class;
+        return ProfileFilamentService::class;
     }
 }
