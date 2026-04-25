@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
 use Rawilk\ProfileFilament\Auth\Sudo\Http\Middleware\RequiresSudoMode;
-use Rawilk\ProfileFilament\Enums\Session\SudoSession;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
 use Rawilk\ProfileFilament\Auth\Sudo\Services\Sudo;
-use Rawilk\ProfileFilament\Enums\Session\SudoSession;
 
 beforeEach(function () {
     $this->sudo = new Sudo(

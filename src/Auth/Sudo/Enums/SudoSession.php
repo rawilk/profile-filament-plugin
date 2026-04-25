@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Enums\Session;
+namespace Rawilk\ProfileFilament\Auth\Sudo\Enums;
 
 use Illuminate\Support\Facades\Date;
 

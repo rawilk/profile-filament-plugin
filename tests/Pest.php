@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
-use Rawilk\ProfileFilament\Enums\Session\SudoSession;
+use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
 use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Facades\Webauthn;
 use Rawilk\ProfileFilament\Features;

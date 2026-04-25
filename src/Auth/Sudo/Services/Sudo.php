@@ -7,7 +7,7 @@ namespace Rawilk\ProfileFilament\Auth\Sudo\Services;
 use DateInterval;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Traits\Macroable;
-use Rawilk\ProfileFilament\Enums\Session\SudoSession;
+use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
 
 class Sudo
 {

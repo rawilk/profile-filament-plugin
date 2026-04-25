@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
-use Rawilk\ProfileFilament\Enums\Session\SudoSession;
+use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
 
 // Add better handling for 'toBe' assertion for Eloquent models.
 expect()->intercept('toBe', Model::class, function (Model $model) {
