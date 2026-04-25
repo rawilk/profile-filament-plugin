@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Http\Middleware;
+namespace Rawilk\ProfileFilament\Auth\Sudo\Http\Middleware;
 
 use Closure;
 use Filament\Facades\Filament;

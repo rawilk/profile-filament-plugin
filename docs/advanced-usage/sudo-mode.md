@@ -169,7 +169,7 @@ To protect sensitive routes, you can apply the `RequiresSudoMode` middleware to 
 ```php
 // routes/web.php
 
-use Rawilk\ProfileFilament\Http\Middleware\RequiresSudoMode;
+use Rawilk\ProfileFilament\Auth\Sudo\Http\Middleware\RequiresSudoMode;
 
 Route::get('/protected-route', 'YourController@index')->middleware([RequiresSudoMode::class]);
 ```
