@@ -11,7 +11,6 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsWithSudo;
-use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 
 /**
@@ -46,8 +45,6 @@ trait RequiresSudoChallenge
         ]);
 
         $this->mountUsing(function (HasActions $livewire, Request $request) {
-            //            /* temp */ Sudo::deactivate();
-
             if ($callback = $this->getMountUsingCallback()) {
                 $this->evaluate($callback);
             }
