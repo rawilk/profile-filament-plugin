@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
-use Rawilk\ProfileFilament\Enums\Session\MfaSession;
+use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
 use Rawilk\ProfileFilament\Facades\Webauthn;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Testing\Support\FakeWebauthn;

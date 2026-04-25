@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use PragmaRX\Google2FA\Google2FA;
+use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode;
-use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;

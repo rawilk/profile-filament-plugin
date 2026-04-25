@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyRegistered;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKeys;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
