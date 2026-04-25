@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Email\Filament\Actions;
 
 use Closure;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
