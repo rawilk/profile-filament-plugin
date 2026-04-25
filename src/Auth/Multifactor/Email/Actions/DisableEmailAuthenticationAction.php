@@ -9,7 +9,7 @@ use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\DisableEmailAuthenticationAction as DisableEmailAuthenticationContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\HasEmailAuthentication;
-use Rawilk\ProfileFilament\Events\EmailAuthentication\EmailAuthenticationWasDisabled;
+use Rawilk\ProfileFilament\Auth\Multifactor\Email\Events\EmailAuthenticationWasDisabled;
 
 class DisableEmailAuthenticationAction implements DisableEmailAuthenticationContract
 {
