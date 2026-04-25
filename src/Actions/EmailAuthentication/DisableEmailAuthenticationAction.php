@@ -6,9 +6,9 @@ namespace Rawilk\ProfileFilament\Actions\EmailAuthentication;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use LogicException;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\HasEmailAuthentication;
 use Rawilk\ProfileFilament\Contracts\EmailAuthentication\DisableEmailAuthenticationAction as DisableEmailAuthenticationContract;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorDisabledAction;
 use Rawilk\ProfileFilament\Events\EmailAuthentication\EmailAuthenticationWasDisabled;
 
 class DisableEmailAuthenticationAction implements DisableEmailAuthenticationContract
@@ -25,7 +25,7 @@ class DisableEmailAuthenticationAction implements DisableEmailAuthenticationCont
 
         $user->toggleEmailAuthentication(false);
 
-        app(MarkTwoFactorDisabledAction::class)($user);
+        app(MarkMultiFactorDisabledAction::class)($user);
 
         EmailAuthenticationWasDisabled::dispatch($user);
     }

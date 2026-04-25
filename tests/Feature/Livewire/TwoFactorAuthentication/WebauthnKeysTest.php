@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyRegistered;
@@ -22,7 +22,7 @@ beforeEach(function () {
     disableSudoMode();
 
     config([
-        'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
+        'profile-filament.actions.mark_two_factor_enabled' => MarkMultiFactorEnabledAction::class,
         'profile-filament.actions.register_webauthn_key' => RegisterWebauthnKeyAction::class,
     ]);
 

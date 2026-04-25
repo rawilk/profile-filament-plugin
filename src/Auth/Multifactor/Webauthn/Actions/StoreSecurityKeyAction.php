@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions;
 
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Exceptions\InvalidSecurityKey;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Exceptions\InvalidSecurityKeyOptions;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Support\CredentialRecordConverter;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Support\Serializer;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyRegistered;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Support\Config;
@@ -48,7 +48,7 @@ class StoreSecurityKeyAction
             'is_passkey' => $attachmentType === AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_PLATFORM,
         ]);
 
-        app(MarkTwoFactorEnabledAction::class)($user);
+        app(MarkMultiFactorEnabledAction::class)($user);
 
         WebauthnKeyRegistered::dispatch($securityKey, $user);
 

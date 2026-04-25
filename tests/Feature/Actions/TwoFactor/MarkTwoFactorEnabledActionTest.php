@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Event;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -15,7 +15,7 @@ it('enables mfa for a user', function () {
 
     expect($user->two_factor_enabled)->toBeFalse();
 
-    app(MarkTwoFactorEnabledAction::class)($user);
+    app(MarkMultiFactorEnabledAction::class)($user);
 
     expect($user->refresh())
         ->two_factor_enabled->toBeTrue()
@@ -38,7 +38,7 @@ it('does nothing if mfa is already enabled', function () {
 
     $user->save();
 
-    app(MarkTwoFactorEnabledAction::class)($user);
+    app(MarkMultiFactorEnabledAction::class)($user);
 
     Event::assertNotDispatched(TwoFactorAuthenticationWasEnabled::class);
 

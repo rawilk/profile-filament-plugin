@@ -32,8 +32,8 @@ return [
         'delete_account' => Rawilk\ProfileFilament\Actions\DeleteAccountAction::class,
 
         // General multi-factor
-        'mark_two_factor_disabled' => Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction::class,
-        'mark_two_factor_enabled' => Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction::class,
+        'mark_multifactor_disabled' => Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorDisabledAction::class,
+        'mark_multifactor_enabled' => Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction::class,
 
         // Authenticator apps
         'delete_authenticator_app' => Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction::class,

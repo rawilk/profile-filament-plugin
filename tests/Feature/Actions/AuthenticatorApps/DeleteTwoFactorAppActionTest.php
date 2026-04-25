@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppRemoved;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
@@ -11,7 +11,7 @@ use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
     config([
-        'profile-filament.actions.mark_two_factor_disabled' => MarkTwoFactorDisabledAction::class,
+        'profile-filament.actions.mark_two_factor_disabled' => MarkMultiFactorDisabledAction::class,
     ]);
 
     Event::fake();
@@ -35,7 +35,7 @@ it('deletes an authenticator app for a user', function () {
 });
 
 it('calls the action to disable mfa for a user', function () {
-    $this->mock(MarkTwoFactorDisabledAction::class)
+    $this->mock(MarkMultiFactorDisabledAction::class)
         ->shouldReceive('__invoke')
         ->with($this->record->user)
         ->once();

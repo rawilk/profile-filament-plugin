@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyRegistered;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Testing\Support\FakeWebauthn;
@@ -15,7 +15,7 @@ beforeEach(function () {
     Event::fake();
 
     config([
-        'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
+        'profile-filament.actions.mark_two_factor_enabled' => MarkMultiFactorEnabledAction::class,
         'profile-filament.models.webauthn_key' => WebauthnKey::class,
     ]);
 
@@ -47,7 +47,7 @@ it('registers a new passkey for a user', function () {
 });
 
 it('calls the action to enable mfa for a user', function () {
-    $this->mock(MarkTwoFactorEnabledAction::class)
+    $this->mock(MarkMultiFactorEnabledAction::class)
         ->shouldReceive('__invoke')
         ->with($this->user)
         ->once();

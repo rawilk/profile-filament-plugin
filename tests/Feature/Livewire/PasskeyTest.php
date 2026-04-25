@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Actions\Passkeys\DeletePasskeyAction;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyDeleted;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyUpdated;
@@ -20,7 +20,7 @@ beforeEach(function () {
 
     config([
         'profile-filament.actions.delete_passkey' => DeletePasskeyAction::class,
-        'profile-filament.actions.mark_two_factor_disabled' => MarkTwoFactorDisabledAction::class,
+        'profile-filament.actions.mark_two_factor_disabled' => MarkMultiFactorDisabledAction::class,
     ]);
 
     $this->passkey = WebauthnKey::factory()->passkey()->for(User::factory()->withMfa())->create([

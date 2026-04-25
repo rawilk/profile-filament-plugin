@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasDisabled;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
@@ -22,7 +22,7 @@ beforeEach(function () {
 });
 
 it('disables mfa for a user', function () {
-    app(MarkTwoFactorDisabledAction::class)($this->user);
+    app(MarkMultiFactorDisabledAction::class)($this->user);
 
     Event::assertDispatched(function (TwoFactorAuthenticationWasDisabled $event) {
         expect($event->user)->toBe($this->user);
@@ -38,7 +38,7 @@ it('disables mfa for a user', function () {
 it('does not disable mfa if user has authenticator apps registered to them', function () {
     AuthenticatorApp::factory()->for($this->user)->create();
 
-    app(MarkTwoFactorDisabledAction::class)($this->user);
+    app(MarkMultiFactorDisabledAction::class)($this->user);
 
     Event::assertNotDispatched(TwoFactorAuthenticationWasDisabled::class);
 
@@ -49,7 +49,7 @@ it('does not disable mfa if user has authenticator apps registered to them', fun
 it('does not disable mfa if user has webauthn keys registered to them', function () {
     WebauthnKey::factory()->for($this->user)->create();
 
-    app(MarkTwoFactorDisabledAction::class)($this->user);
+    app(MarkMultiFactorDisabledAction::class)($this->user);
 
     Event::assertNotDispatched(TwoFactorAuthenticationWasDisabled::class);
 

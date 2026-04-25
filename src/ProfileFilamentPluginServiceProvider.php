@@ -100,8 +100,8 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->bind(Contracts\DeleteAccountAction::class, fn ($app) => $app->make(Config::getActionClass('delete_account')));
 
         // General multi-factor
-        $this->app->bind(Contracts\TwoFactor\MarkTwoFactorDisabledAction::class, fn ($app) => $app->make(Config::getActionClass('mark_two_factor_disabled')));
-        $this->app->bind(Contracts\TwoFactor\MarkTwoFactorEnabledAction::class, fn ($app) => $app->make(Config::getActionClass('mark_two_factor_enabled')));
+        $this->app->bind(Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction::class, fn ($app) => $app->make(Config::getActionClass('mark_multifactor_disabled')));
+        $this->app->bind(Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction::class, fn ($app) => $app->make(Config::getActionClass('mark_multifactor_enabled')));
 
         // Authenticator apps
         $this->app->bind(Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction::class, fn ($app) => $app->make(Config::getActionClass('store_authenticator_app')));

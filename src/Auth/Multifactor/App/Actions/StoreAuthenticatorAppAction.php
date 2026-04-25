@@ -6,7 +6,7 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction as StoreAuthenticatorAppActionContract;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppAdded;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Support\Config;
@@ -34,7 +34,7 @@ class StoreAuthenticatorAppAction implements StoreAuthenticatorAppActionContract
             $authenticator->save();
         });
 
-        app(MarkTwoFactorEnabledAction::class)($user);
+        app(MarkMultiFactorEnabledAction::class)($user);
 
         TwoFactorAppAdded::dispatch($user, $authenticator);
     }

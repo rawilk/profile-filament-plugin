@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
     config([
-        'profile-filament.actions.mark_two_factor_disabled' => MarkTwoFactorEnabledAction::class,
+        'profile-filament.actions.mark_two_factor_disabled' => MarkMultiFactorEnabledAction::class,
     ]);
 
     Event::fake();
@@ -35,7 +35,7 @@ it('deletes a webauthn key', function () {
 });
 
 it('calls the action to disable mfa for a user', function () {
-    $this->mock(MarkTwoFactorEnabledAction::class)
+    $this->mock(MarkMultiFactorEnabledAction::class)
         ->shouldReceive('__invoke')
         ->with($this->record->user)
         ->once();

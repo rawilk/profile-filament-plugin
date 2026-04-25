@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Actions\TwoFactor;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction as MarkTwoFactorEnabledActionContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction as MarkMultiFactorEnabledContract;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
 
-class MarkTwoFactorEnabledAction implements MarkTwoFactorEnabledActionContract
+class MarkMultiFactorEnabledAction implements MarkMultiFactorEnabledContract
 {
     public function __invoke(User $user)
     {

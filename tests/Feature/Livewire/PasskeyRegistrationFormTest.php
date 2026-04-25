@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction;
 use Rawilk\ProfileFilament\Actions\Passkeys\UpgradeToPasskeyAction;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyRegistered;
@@ -30,7 +30,7 @@ beforeEach(function () {
 
     config([
         'profile-filament.actions.register_passkey' => RegisterPasskeyAction::class,
-        'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
+        'profile-filament.actions.mark_two_factor_enabled' => MarkMultiFactorEnabledAction::class,
         'profile-filament.actions.upgrade_to_passkey' => UpgradeToPasskeyAction::class,
     ]);
 });

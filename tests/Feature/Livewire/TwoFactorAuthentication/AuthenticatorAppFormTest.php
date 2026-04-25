@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use PragmaRX\Google2FA\Google2FA;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorAppServiceContract;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
@@ -17,7 +17,7 @@ use function Pest\Livewire\livewire;
 beforeEach(function () {
     config([
         'profile-filament.actions.confirm_authenticator_app' => StoreAuthenticatorAppAction::class,
-        'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
+        'profile-filament.actions.mark_two_factor_enabled' => MarkMultiFactorEnabledAction::class,
     ]);
 
     $this->app->bind(AuthenticatorAppServiceContract::class, MockAuthenticatorAppService::class);

@@ -7,8 +7,8 @@ namespace Rawilk\ProfileFilament\Actions\Passkeys;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Contracts\Passkeys\RegisterPasskeyAction as RegisterPasskeyActionContract;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyRegistered;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Webauthn\PublicKeyCredentialSource;
@@ -43,7 +43,7 @@ class RegisterPasskeyAction implements RegisterPasskeyActionContract
 
             cache()->forget($user::hasPasskeysCacheKey($user));
 
-            app(MarkTwoFactorEnabledAction::class)($user);
+            app(MarkMultiFactorEnabledAction::class)($user);
 
             PasskeyRegistered::dispatch($passkey, $user);
         });

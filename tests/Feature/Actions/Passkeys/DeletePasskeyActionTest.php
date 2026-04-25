@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\Passkeys\DeletePasskeyAction;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -14,7 +14,7 @@ beforeEach(function () {
     Event::fake();
 
     config([
-        'profile-filament.actions.mark_two_factor_disabled' => MarkTwoFactorDisabledAction::class,
+        'profile-filament.actions.mark_two_factor_disabled' => MarkMultiFactorDisabledAction::class,
     ]);
 
     $this->passkey = WebauthnKey::factory()
@@ -38,7 +38,7 @@ it('deletes a passkey', function () {
 });
 
 it('calls the action to disable mfa for a user', function () {
-    $this->mock(MarkTwoFactorDisabledAction::class)
+    $this->mock(MarkMultiFactorDisabledAction::class)
         ->shouldReceive('__invoke')
         ->with($this->passkey->user)
         ->once();

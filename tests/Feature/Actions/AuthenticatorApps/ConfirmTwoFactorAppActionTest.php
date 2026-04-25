@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
-use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppAdded;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
@@ -12,7 +12,7 @@ use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
     config([
-        'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
+        'profile-filament.actions.mark_two_factor_enabled' => MarkMultiFactorEnabledAction::class,
         'profile-filament.models.authenticator_app' => AuthenticatorApp::class,
     ]);
 });
@@ -38,7 +38,7 @@ it('saves an authenticator app for a user', function () {
 it('calls the action to enable mfa for a user', function () {
     $user = User::factory()->withoutMfa()->create();
 
-    $this->mock(MarkTwoFactorEnabledAction::class)
+    $this->mock(MarkMultiFactorEnabledAction::class)
         ->shouldReceive('__invoke')
         ->with($user)
         ->once();

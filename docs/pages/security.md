@@ -160,7 +160,7 @@ namespace App\Actions;
 
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
 
 class CustomDeleteAction extends DeleteAuthenticatorAppAction
 {
@@ -168,7 +168,7 @@ class CustomDeleteAction extends DeleteAuthenticatorAppAction
     {
         // ...
 
-        app(MarkTwoFactorDisabledAction::class)($authenticatorApp->user);
+        app(MarkMultiFactorDisabledAction::class)($authenticatorApp->user);
     }
 }
 ```
@@ -211,7 +211,7 @@ Although not recommended, you may override the `RegisterWebauthnKeyAction` to ch
 namespace App\Actions;
 
 use Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
 use Webauthn\PublicKeyCredentialSource;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Support\Arr;
@@ -236,7 +236,7 @@ class CustomRegisterWebauthnAction extends RegisterWebauthnKeyAction
         return tap($webauthnKey, function (WebauthnKey $webauthnKey) use ($user) {
             $webauthnKey->save();
 
-            app(MarkTwoFactorEnabledAction::class)($user);
+            app(MarkMultiFactorEnabledAction::class)($user);
 
             WebauthnKeyRegistered::dispatch($webauthnKey, $user);
         });
@@ -267,7 +267,7 @@ namespace App\Actions;
 
 use Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
 
 class CustomDeleteWebauthnKeyAction extends DeleteWebauthnKeyAction
 {
@@ -275,7 +275,7 @@ class CustomDeleteWebauthnKeyAction extends DeleteWebauthnKeyAction
     {
         // ...
 
-        app(MarkTwoFactorDisabledAction::class)($webauthnKey->user);
+        app(MarkMultiFactorDisabledAction::class)($webauthnKey->user);
     }
 }
 ```
@@ -455,7 +455,7 @@ namespace App\Actions;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Support\Arr;
 use Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyRegistered;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Webauthn\PublicKeyCredentialSource;
@@ -481,7 +481,7 @@ class CustomPasskeyRegistration extends RegisterPasskeyAction
 
             cache()->forget($user::hasPasskeysCacheKey($user));
 
-            app(MarkTwoFactorEnabledAction::class)($user);
+            app(MarkMultiFactorEnabledAction::class)($user);
 
             PasskeyRegistered::dispatch($passkey, $user);
         });
@@ -513,7 +513,7 @@ Here is an example of how you can override the `DeletePasskeyAction` if you need
 namespace App\Actions;
 
 use Rawilk\ProfileFilament\Actions\Passkeys\DeletePasskeyAction;
-use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
 class CustomPasskeyDeletion extends DeletePasskeyAction
@@ -522,7 +522,7 @@ class CustomPasskeyDeletion extends DeletePasskeyAction
     {
         // ...
 
-        app(MarkTwoFactorDisabledAction::class)($passkey->user);
+        app(MarkMultiFactorDisabledAction::class)($passkey->user);
     }
 }
 ```
