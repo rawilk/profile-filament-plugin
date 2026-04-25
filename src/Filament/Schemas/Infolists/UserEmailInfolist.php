@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Rawilk\ProfileFilament\Concerns\HasSimpleClosureEval;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\SudoChallengeAction;
 use Rawilk\ProfileFilament\Filament\Schemas\Infolists\Components\EmailTextEntry;
 use Rawilk\ProfileFilament\Filament\Schemas\Infolists\Components\PendingEmailChangeText;
 use Rawilk\ProfileFilament\Filament\Schemas\Infolists\Components\SecurityUrlHelpText;
@@ -88,8 +87,7 @@ class UserEmailInfolist
                     HTML, ['pendingEmail' => $pendingEmail]));
                 })
                 ->headerActions([
-                    SudoChallengeAction::make('update-email-sudo')
-                        ->nextAction($editEmailAction),
+                    $editEmailAction,
                 ])
                 ->schema([
                     PendingEmailChangeText::make(null)

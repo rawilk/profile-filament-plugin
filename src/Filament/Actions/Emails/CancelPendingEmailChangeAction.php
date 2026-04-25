@@ -8,12 +8,13 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
-use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallenge;
+use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallengeWithoutModal;
+use Rawilk\ProfileFilament\Support\Config;
 
 class CancelPendingEmailChangeAction extends Action
 {
     use Concerns\RateLimitsResendPendingEmailChange;
-    use RequiresSudoChallenge;
+    use RequiresSudoChallengeWithoutModal;
 
     protected function setUp(): void
     {
@@ -26,7 +27,11 @@ class CancelPendingEmailChangeAction extends Action
         $this->link();
 
         $this->action(function (Component $livewire) {
-            app(config('profile-filament.models.pending_user_email'))::query()
+            if ($this->shouldChallengeForSudo()) {
+                $this->cancel();
+            }
+
+            app(Config::getModel('pending_user_email'))::query()
                 ->forUser(Filament::auth()->user())
                 ->delete();
 

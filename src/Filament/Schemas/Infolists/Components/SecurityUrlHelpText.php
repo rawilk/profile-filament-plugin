@@ -22,7 +22,6 @@ class SecurityUrlHelpText extends Text
             <div class="flex items-center gap-x-2 text-xs [&_a]:text-primary-600 dark:[&_a]:text-primary-400 [&_a:hover]:underline">
                 <div>
                     <x-filament::icon
-                        :alias="$iconAlias"
                         :icon="$icon"
                         class="h-4 w-4"
                     />

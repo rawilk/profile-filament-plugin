@@ -54,7 +54,11 @@ class EditEmailAction extends Action
             NewEmailInput::make('email'),
         ]);
 
-        $this->action(function (UpdateUserEmailAction $updater, Component $livewire, $record) {
+        $this->action(function (UpdateUserEmailAction $updater, Component $livewire) {
+            if ($this->shouldChallengeForSudo()) {
+                $this->cancel();
+            }
+
             $this->process(function (array $data, User $record, UpdateUserEmailAction $updater) {
                 $updater($record, $data['email']);
             }, [

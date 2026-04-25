@@ -37,7 +37,7 @@ class ResendPendingEmailAction extends Action
                 return;
             }
 
-            // We'll let the user attempt this 3 times per hour.
+            // We'll let the user attempt this 3 times every 10 minutes.
             if (RateLimiter::tooManyAttempts(
                 key: $rateLimitKey = $this->rateLimitKey(),
                 maxAttempts: 3,
@@ -47,7 +47,7 @@ class ResendPendingEmailAction extends Action
                 $this->cancel();
             }
 
-            RateLimiter::hit(key: $rateLimitKey, decaySeconds: 60 * 60);
+            RateLimiter::hit(key: $rateLimitKey, decaySeconds: 60 * 10);
 
             $result = $this->process(function (?PendingUserEmail $record) {
                 if (! $record) {

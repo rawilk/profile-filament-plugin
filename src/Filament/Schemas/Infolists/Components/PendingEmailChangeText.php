@@ -29,8 +29,7 @@ class PendingEmailChangeText extends Text
                 <div class="flex gap-x-2 items-start">
                     <div class="shrink-0">
                         <x-filament::icon
-                            :alias="$iconAlias"
-                            icon="heroicon-o-information-circle"
+                            :icon="$icon"
                             class="h-5 w-5 text-primary-500 dark:text-primary-400"
                         />
                     </div>
