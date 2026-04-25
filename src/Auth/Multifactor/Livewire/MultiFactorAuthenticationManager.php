@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Livewire;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Livewire;
 
 use Filament\Facades\Filament;
 use Filament\Schemas\Components\Component;
@@ -21,6 +21,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthenticati
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\PreferredMultiFactorProviderSelect;
+use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 
 /**
  * @property-read Authenticatable&Model $user

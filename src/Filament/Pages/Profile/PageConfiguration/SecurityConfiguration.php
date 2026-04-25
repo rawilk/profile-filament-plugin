@@ -6,7 +6,7 @@ namespace Rawilk\ProfileFilament\Filament\Pages\Profile\PageConfiguration;
 
 use BackedEnum;
 use Filament\Support\Icons\Heroicon;
-use Rawilk\ProfileFilament\Livewire\MultiFactorAuthenticationManager;
+use Rawilk\ProfileFilament\Auth\Multifactor\Livewire\MultiFactorAuthenticationManager;
 
 class SecurityConfiguration extends ProfilePageConfiguration
 {

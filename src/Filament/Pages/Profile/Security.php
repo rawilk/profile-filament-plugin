@@ -8,7 +8,7 @@ use BackedEnum;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Attributes\Computed;
-use Rawilk\ProfileFilament\Livewire\MultiFactorAuthenticationManager;
+use Rawilk\ProfileFilament\Auth\Multifactor\Livewire\MultiFactorAuthenticationManager;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
