@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasCreated;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyRegistered;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKeys;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Services\Webauthn;
@@ -71,7 +71,7 @@ it('can register a new webauthn key to the user', function () {
         ->assertSessionMissing(MfaSession::AttestationPublicKey->value)
         ->assertDispatched(MfaEvent::WebauthnKeyAdded->value, enabledMfa: true);
 
-    Event::assertDispatched(WebauthnKeyRegistered::class);
+    Event::assertDispatched(SecurityKeyWasCreated::class);
 
     $this->assertDatabaseHas(WebauthnKey::class, [
         'user_id' => $this->user->getKey(),
@@ -99,7 +99,7 @@ test('a valid challenge is required to save a new key', function () {
         ->assertNotDispatched(MfaEvent::WebauthnKeyAdded->value)
         ->assertSessionMissing(MfaSession::AttestationPublicKey->value);
 
-    Event::assertNotDispatched(WebauthnKeyRegistered::class);
+    Event::assertNotDispatched(SecurityKeyWasCreated::class);
 
     $this->assertDatabaseMissing(WebauthnKey::class, [
         'user_id' => $this->user->getKey(),

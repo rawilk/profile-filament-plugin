@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -24,7 +24,7 @@ beforeEach(function () {
 it('deletes a webauthn key', function () {
     app(DeleteSecurityKeyAction::class)($this->record);
 
-    Event::assertDispatched(function (WebauthnKeyDeleted $event) {
+    Event::assertDispatched(function (SecurityKeyWasDeleted $event) {
         expect($event->user)->toBe($this->record->user)
             ->and($event->webauthnKey)->toBe($this->record);
 

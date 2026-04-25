@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Psr\Log\NullLogger;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUsed;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUsed;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\AssertionFailed;
 use Rawilk\ProfileFilament\Exceptions\Webauthn\AttestationFailed;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
@@ -181,7 +181,7 @@ it('can verify an assertion', function () {
         storedPublicKey: $options,
     );
 
-    Event::assertDispatched(function (WebauthnKeyUsed $event) {
+    Event::assertDispatched(function (SecurityKeyWasUsed $event) {
         expect($event->webauthnKey)->toBe($this->webauthnKey)
             ->and($event->user)->toBe($this->user);
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyRegistered;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasCreated;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Testing\Support\FakeWebauthn;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -29,7 +29,7 @@ it('registers a new webauthn key for a user', function () {
         keyName: 'my key',
     );
 
-    Event::assertDispatched(function (WebauthnKeyRegistered $event) use ($record) {
+    Event::assertDispatched(function (SecurityKeyWasCreated $event) use ($record) {
         expect($event->user)->toBe($this->user)
             ->and($event->webauthnKey)->toBe($record);
 

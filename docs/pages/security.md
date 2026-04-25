@@ -216,7 +216,7 @@ use Webauthn\PublicKeyCredentialSource;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Support\Arr;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyRegistered;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasCreated;
 
 class CustomRegisterWebauthnAction extends RegisterWebauthnKeyAction
 {
@@ -238,7 +238,7 @@ class CustomRegisterWebauthnAction extends RegisterWebauthnKeyAction
 
             app(MarkMultiFactorEnabledAction::class)($user);
 
-            WebauthnKeyRegistered::dispatch($webauthnKey, $user);
+            SecurityKeyWasCreated::dispatch($webauthnKey, $user);
         });
     }
 }

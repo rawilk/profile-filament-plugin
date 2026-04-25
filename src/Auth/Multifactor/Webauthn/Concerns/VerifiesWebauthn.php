@@ -11,7 +11,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\FindSecurityKeyToAu
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\GenerateSecurityKeyAuthenticationOptionsAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUsed;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUsed;
 use Rawilk\ProfileFilament\Support\Config;
 
 trait VerifiesWebauthn
@@ -63,7 +63,7 @@ trait VerifiesWebauthn
             'webauthnResponse' => $response,
         ]);
 
-        WebauthnKeyUsed::dispatch($user ?? $securityKey->user, $securityKey, $request);
+        SecurityKeyWasUsed::dispatch($user ?? $securityKey->user, $securityKey, $request);
 
         return true;
     }

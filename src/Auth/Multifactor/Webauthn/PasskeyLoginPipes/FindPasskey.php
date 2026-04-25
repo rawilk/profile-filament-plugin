@@ -9,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\FindSecurityKeyToAuthenticateAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUsed;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUsed;
 use Rawilk\ProfileFilament\Support\Config;
 
 class FindPasskey
@@ -32,7 +32,7 @@ class FindPasskey
             ->setPasskey($passkey)
             ->setUser($passkey->user);
 
-        WebauthnKeyUsed::dispatch($passkey->user, $passkey, $request->getRequest());
+        SecurityKeyWasUsed::dispatch($passkey->user, $passkey, $request->getRequest());
 
         return $next($request);
     }

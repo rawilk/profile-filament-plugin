@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasDeleted;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUpdated;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpdated;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\WebauthnKey as Component;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -49,7 +49,7 @@ it('can edit the name of the key', function () {
         ])
         ->assertHasNoActionErrors();
 
-    Event::assertDispatched(WebauthnKeyUpdated::class);
+    Event::assertDispatched(SecurityKeyWasUpdated::class);
 
     expect($this->record->refresh())->name->toBe('new name');
 });
@@ -65,7 +65,7 @@ it('requires a name when editing', function () {
             'name' => ['required'],
         ]);
 
-    Event::assertNotDispatched(WebauthnKeyUpdated::class);
+    Event::assertNotDispatched(SecurityKeyWasUpdated::class);
 });
 
 it('requires a unique name', function () {
@@ -101,7 +101,7 @@ it('can delete a webauthn key', function () {
         ->assertDispatched(MfaEvent::WebauthnKeyDeleted->value, id: $this->record->getKey())
         ->assertSet('id', null);
 
-    Event::assertDispatched(function (WebauthnKeyDeleted $event) {
+    Event::assertDispatched(function (SecurityKeyWasDeleted $event) {
         expect($event->webauthnKey)->toBe($this->record);
 
         return true;

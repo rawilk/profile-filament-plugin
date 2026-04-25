@@ -6,11 +6,11 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions;
 
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasCreated;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Exceptions\InvalidSecurityKey;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Exceptions\InvalidSecurityKeyOptions;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Support\CredentialRecordConverter;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Support\Serializer;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyRegistered;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Support\Config;
 use Throwable;
@@ -50,7 +50,7 @@ class StoreSecurityKeyAction
 
         app(MarkMultiFactorEnabledAction::class)($user);
 
-        WebauthnKeyRegistered::dispatch($securityKey, $user);
+        SecurityKeyWasCreated::dispatch($securityKey, $user);
 
         return $securityKey;
     }

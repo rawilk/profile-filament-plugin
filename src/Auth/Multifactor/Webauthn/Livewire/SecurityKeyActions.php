@@ -21,9 +21,9 @@ use Filament\Support\Icons\Heroicon;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUpdated;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Filament\Actions\DeleteSecurityKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpdated;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\Webauthn\SecurityKeyNameInput;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
@@ -91,7 +91,7 @@ class SecurityKeyActions extends Component implements HasActions, HasSchemas
             ->authorize('update', $this->record)
             ->successNotificationTitle(__('profile-filament::auth/multi-factor/webauthn/actions/edit-name.notifications.updated.title'))
             ->after(function (WebauthnKey $record) {
-                WebauthnKeyUpdated::dispatch($record, Filament::auth()->user());
+                SecurityKeyWasUpdated::dispatch($record, Filament::auth()->user());
 
                 $this->js(<<<'JS'
                 $wire.$parent.$refresh

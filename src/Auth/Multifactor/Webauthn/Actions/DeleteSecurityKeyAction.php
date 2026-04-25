@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions;
 
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
 class DeleteSecurityKeyAction
@@ -19,6 +19,6 @@ class DeleteSecurityKeyAction
 
         app(MarkMultiFactorDisabledAction::class)($user);
 
-        WebauthnKeyDeleted::dispatch($webauthnKey, $user);
+        SecurityKeyWasDeleted::dispatch($webauthnKey, $user);
     }
 }
