@@ -9,6 +9,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\StoreAuthenticatorAppA
 use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppAdded;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
+use Rawilk\ProfileFilament\Support\Config;
 
 class StoreAuthenticatorAppAction implements StoreAuthenticatorAppActionContract
 {
@@ -17,7 +18,7 @@ class StoreAuthenticatorAppAction implements StoreAuthenticatorAppActionContract
 
     public function __construct()
     {
-        $this->model = config('profile-filament.models.authenticator_app');
+        $this->model = Config::getModel('authenticator_app');
     }
 
     public function __invoke(User $user, string $name, string $secret)
