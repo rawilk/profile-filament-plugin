@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Webauthn\PublicKeyCredentialSource;
 
+/** @deprecated */
 interface RegisterPasskeyAction
 {
     public function __invoke(

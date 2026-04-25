@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use LogicException;
+use Rawilk\ProfileFilament\Auth\Multifactor\Concerns\SetsPreferredMultiFactorProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\EmailAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Concerns\ShowsRecoveryCodesAfterAction;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallenge;
@@ -24,6 +25,7 @@ use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallenge;
 class SetupEmailAuthenticationAction extends Action
 {
     use RequiresSudoChallenge;
+    use SetsPreferredMultiFactorProvider;
     use ShowsRecoveryCodesAfterAction;
 
     protected null|Closure|EmailAuthenticationProvider $provider = null;
@@ -125,6 +127,8 @@ class SetupEmailAuthenticationAction extends Action
 
             DB::transaction(function () use ($livewire, $user): void {
                 $this->getProvider()->enableEmailAuthentication($user);
+
+                $this->setPreferredMultiFactorProvider($user, $this->getProvider()->getId());
 
                 $this->setUpRecoveryCodesIfNeeded($livewire, $user);
             });

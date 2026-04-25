@@ -14,6 +14,7 @@ use Rawilk\ProfileFilament\Filament\Actions\Mfa\EditAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Livewire\ProfileComponent;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
+/** @deprecated  */
 class AuthenticatorAppListItem extends ProfileComponent
 {
     use UsesSudoChallengeAction;

@@ -19,6 +19,7 @@ use Rawilk\ProfileFilament\Filament\Actions\Mfa\DeleteWebauthnKeyAction;
 use Rawilk\ProfileFilament\Filament\Actions\Mfa\EditWebauthnKeyAction;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
+/** @deprecated  */
 class Passkey extends ProfileComponent
 {
     use UsesSudoChallengeAction;

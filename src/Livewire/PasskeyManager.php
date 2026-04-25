@@ -18,6 +18,8 @@ use Rawilk\ProfileFilament\Models\WebauthnKey;
  * @property-read User $user
  * @property-read Collection<int, WebauthnKey> $passkeys
  * @property-read null|WebauthnKey $upgrading
+ *
+ * @deprecated
  */
 #[On(MfaEvent::PasskeyDeleted->value)]
 class PasskeyManager extends ProfileComponent

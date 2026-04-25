@@ -8,7 +8,7 @@
 
                 <div class="text-xs mt-1 text-neutral-600 dark:text-neutral-300">
                     <span>{{ $app->registered_at }}</span>
-                    <span>|</span>
+                    <span aria-hidden="true">|</span>
                     <span>{{ $app->last_used }}</span>
                 </div>
             </div>

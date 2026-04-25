@@ -8,14 +8,12 @@ use Filament\Actions\Action;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Facades\Filament;
 use Filament\Support\Enums\Size;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\CurrentPasswordInput;
+use Rawilk\ProfileFilament\Support\Config;
 
 class LogoutSingleSessionAction extends Action
 {
@@ -40,7 +38,7 @@ class LogoutSingleSessionAction extends Action
 
         $this->modalDescription(str('<span aria-hidden="true"></span>')->inlineMarkdown()->toHtmlString());
 
-        $this->modalIcon(FilamentIcon::resolve(ProfileFilamentIcon::LogoutSessionModalIcon->value) ?? Heroicon::OutlinedSignal);
+        $this->modalIcon(ProfileFilamentIcon::LogoutSessionModalIcon->resolve());
 
         $this->schema([
             CurrentPasswordInput::make('password')
@@ -61,7 +59,7 @@ class LogoutSingleSessionAction extends Action
                 /** @var \Illuminate\Database\Eloquent\Model|\Illuminate\Contracts\Auth\Authenticatable $user */
                 $user = Filament::auth()->user();
 
-                $password = Config::boolean('profile-filament.hash_user_passwords')
+                $password = Config::hashUserPasswords()
                     ? Hash::make($data['password'])
                     : $data['password'];
 

@@ -7,8 +7,6 @@ namespace Rawilk\ProfileFilament\Filament\Actions\Sessions;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Support\Enums\Width;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
@@ -39,7 +37,7 @@ class LogoutAllSessionsAction extends Action
 
         $this->modalDescription(str('<span aria-hidden="true"></span>')->inlineMarkdown()->toHtmlString());
 
-        $this->modalIcon(FilamentIcon::resolve(ProfileFilamentIcon::LogoutSessionModalIcon->value) ?? Heroicon::OutlinedSignal);
+        $this->modalIcon(ProfileFilamentIcon::LogoutSessionModalIcon->resolve());
 
         $this->successNotificationTitle(__('profile-filament::pages/sessions.manager.actions.revoke_all.success'));
 

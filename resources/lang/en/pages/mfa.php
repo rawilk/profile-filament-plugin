@@ -48,12 +48,6 @@ return [
             'failure' => 'We were unable to verify your identity with this key. Please try a different key or a different form of authentication to verify your identity.',
             'passkey_required' => 'This key cannot be used for passkey authentication.',
         ],
-
-        'unsupported' => [
-            'title' => "Your browser isn't supported!",
-            'message' => 'It appears your browser or device is not compatible with WebAuthn security keys. You can either use one of your other two-factor methods, or try switching to a supported browser.',
-            'learn_more_link' => 'Learn more',
-        ],
     ],
 
     'actions' => [

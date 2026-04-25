@@ -17,6 +17,10 @@ use Rawilk\ProfileFilament\Features;
  * @property-read Features $panelFeatures
  * @property-read User $user
  */
+
+/**
+ * @deprecated
+ */
 class MfaOverview extends ProfileComponent
 {
     use Concerns\CopiesRecoveryCodes;

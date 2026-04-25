@@ -24,6 +24,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\HtmlString;
+use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions\DisableEmailAuthenticationAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions\SetupEmailAuthenticationAction;
@@ -49,6 +50,11 @@ class EmailAuthenticationProvider implements HasBeforeChallengeHook, MultiFactor
         return static::ID;
     }
 
+    public function getSelectLabel(): string
+    {
+        return __('profile-filament::auth/multi-factor/email/provider.management-schema.select-label');
+    }
+
     public function enableEmailAuthentication(HasEmailAuthentication $user): void
     {
         app(EnableEmailAuthenticationAction::class)($user);
@@ -63,16 +69,11 @@ class EmailAuthenticationProvider implements HasBeforeChallengeHook, MultiFactor
     {
         $user = Filament::auth()->user();
 
-        //        $user->toggleEmailAuthentication(false);
-        //        $user->toggleMultiFactorAuthenticationStatus(false);
-        //        $user->saveAuthenticationRecoveryCodes(null);
-
         return [
             Flex::make([
                 View::make('profile-filament::components.multi-factor.provider-title')
                     ->viewData(fn () => [
-                        'icon' => Heroicon::OutlinedEnvelope,
-                        'iconAlias' => ProfileFilamentIcon::MfaEmail->value,
+                        'icon' => ProfileFilamentIcon::MfaEmail->resolve(),
                         'label' => __('profile-filament::auth/multi-factor/email/provider.management-schema.label'),
                         'description' => __('profile-filament::auth/multi-factor/email/provider.management-schema.description'),
                         'configuredLabel' => __('profile-filament::auth/multi-factor/email/provider.management-schema.messages.enabled'),
@@ -101,11 +102,17 @@ class EmailAuthenticationProvider implements HasBeforeChallengeHook, MultiFactor
         return [
             SetupEmailAuthenticationAction::make('setupEmailAuthentication')
                 ->provider($this)
-                ->hidden(fn (): bool => $this->isEnabled($user) && RecoveryCodeSession::SettingUp->missing()),
+                ->hidden(fn (): bool => $this->isEnabled($user) && RecoveryCodeSession::SettingUp->missing())
+                ->after(function (Component $livewire): void {
+                    $livewire->js('$wire.$refresh');
+                }),
 
             DisableEmailAuthenticationAction::make()
                 ->provider($this)
-                ->visible(fn (): bool => $this->isEnabled($user)),
+                ->visible(fn (): bool => $this->isEnabled($user))
+                ->after(function (Component $livewire): void {
+                    $livewire->js('$wire.$refresh');
+                }),
         ];
     }
 

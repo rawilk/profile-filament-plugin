@@ -38,7 +38,6 @@ return [
             'use_label_including_passkeys' => 'Use your passkey or security key',
             'heading' => 'Security key',
             'heading_including_passkeys' => 'Passkey or security key',
-            'waiting' => 'Waiting for input from browser interaction...',
             'failed' => 'Authentication failed.',
             'retry' => 'Retry security key',
             'retry_including_passkeys' => 'Retry passkey or security key',

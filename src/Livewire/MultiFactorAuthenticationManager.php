@@ -13,17 +13,23 @@ use Filament\Schemas\Schema;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\HasAppAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
+use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\PreferredMultiFactorProviderSelect;
 
 /**
  * @property-read Authenticatable&Model $user
+ * @property-read Collection<MultiFactorAuthenticationProvider> $enabledMultiFactorProviders
  */
 class MultiFactorAuthenticationManager extends ProfileComponent
 {
+    public ?array $data = null;
+
     #[Computed]
     public function user(): Authenticatable&Model
     {
@@ -37,6 +43,13 @@ class MultiFactorAuthenticationManager extends ProfileComponent
         return $user;
     }
 
+    #[Computed]
+    public function enabledMultiFactorProviders(): Collection
+    {
+        return collect($this->profilePlugin->getMultiFactorAuthenticationProviders())
+            ->filter(fn (MultiFactorAuthenticationProvider $provider) => $provider->isEnabled($this->user));
+    }
+
     public function mount(): void
     {
         throw_unless(
@@ -45,6 +58,8 @@ class MultiFactorAuthenticationManager extends ProfileComponent
         );
 
         $this->loadUserRelations();
+
+        $this->content->fill();
     }
 
     public function render(): string
@@ -63,7 +78,9 @@ class MultiFactorAuthenticationManager extends ProfileComponent
         return $schema
             ->components([
                 Section::make(__('profile-filament::pages/security.mfa.title'))
+                    ->description(__('profile-filament::pages/security.mfa.description'))
                     ->divided()
+                    ->statePath('data')
                     ->afterHeader(
                         fn (): Text => $this->hasMultiFactorAuthenticationEnabled()
                             ? Text::make(__('profile-filament::pages/security.mfa.messages.enabled'))
@@ -71,13 +88,21 @@ class MultiFactorAuthenticationManager extends ProfileComponent
                                 ->color('success')
                             : Text::make(__('profile-filament::pages/security.mfa.messages.disabled'))
                                 ->badge()
-                                ->color('danger')
+                                ->color('danger'),
                     )
                     ->schema([
+                        Group::make([
+                            PreferredMultiFactorProviderSelect::make($this->enabledMultiFactorProviders, $this->user),
+                        ])
+                            ->visible(fn (): bool => $this->enabledMultiFactorProviders->count() > 1)
+                            ->columns([
+                                'md' => 2,
+                            ]),
+
                         ...collect($this->profilePlugin->getMultiFactorAuthenticationProviders())
                             ->map(
                                 fn (MultiFactorAuthenticationProvider $provider): Component => Group::make($provider->getManagementSchemaComponents())
-                                    ->statePath($provider->getId())
+                                    ->statePath($provider->getId()),
                             )
                             ->all(),
 
@@ -117,6 +142,19 @@ class MultiFactorAuthenticationManager extends ProfileComponent
                     'created_at',
                     'last_used_at',
                     'secret',
+                ]));
+            };
+        }
+
+        if ($this->user instanceof HasWebauthn) {
+            $relations['securityKeys'] = function (HasMany $query) {
+                $query->select($query->qualifyColumns([
+                    'id',
+                    'user_id',
+                    'name',
+                    'is_passkey',
+                    'created_at',
+                    'last_used_at',
                 ]));
             };
         }

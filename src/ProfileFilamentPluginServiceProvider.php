@@ -7,20 +7,21 @@ namespace Rawilk\ProfileFilament;
 use BladeUI\Icons\Factory;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Auth\Middleware\Authenticate;
-use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use Psr\Log\NullLogger;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Livewire\AuthenticatorAppActions;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBag;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers\AuthenticateUsingPasskeyController;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers\GeneratePasskeyAuthenticationOptionsController;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Livewire\SecurityKeyActions;
 use Rawilk\ProfileFilament\Auth\Sudo\Sudo;
-use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
-use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
-use Rawilk\ProfileFilament\Http\Controllers\PasskeysController;
-use Rawilk\ProfileFilament\Http\Controllers\WebauthnPublicKeysController;
 use Rawilk\ProfileFilament\Livewire as PackageLivewire;
 use Rawilk\ProfileFilament\Responses\BlockEmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\EmailChangeVerificationResponse;
@@ -111,12 +112,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
         // Webauthn
         $this->app->bind(Contracts\Webauthn\DeleteWebauthnKeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_webauthn_key')));
-        $this->app->bind(Contracts\Webauthn\RegisterWebauthnKeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.register_webauthn_key')));
-
-        // Passkeys
-        $this->app->bind(Contracts\Passkeys\DeletePasskeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_passkey')));
-        $this->app->bind(Contracts\Passkeys\RegisterPasskeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.register_passkey')));
-        $this->app->bind(Contracts\Passkeys\UpgradeToPasskeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.upgrade_to_passkey')));
 
         // Pending user emails
         $this->app->bind(Contracts\PendingUserEmail\UpdateUserEmailAction::class, fn ($app) => $app->make(config('profile-filament.actions.update_user_email')));
@@ -128,6 +123,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
         // Dto
         $this->app->bind(MultiFactorEventBagContract::class, MultiFactorEventBag::class);
+        $this->app->bind(PasskeyLoginEventBagContract::class, PasskeyLoginEventBag::class);
     }
 
     private function registerAssets(): void
@@ -135,8 +131,9 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         FilamentAsset::register(
             assets: [
                 Css::make('profile-filament-plugin', __DIR__ . '/../resources/dist/plugin.css')->loadedOnRequest(),
-                AlpineComponent::make('registerWebauthn', __DIR__ . '/../resources/dist/webauthn/register.js')->loadedOnRequest(),
-                AlpineComponent::make('authenticateWebauthn', __DIR__ . '/../resources/dist/webauthn/authenticate.js')->loadedOnRequest(),
+                Js::make('profile-filament-webauthn', __DIR__ . '/../resources/dist/webauthn/webauthn.js'),
+                //                AlpineComponent::make('registerWebauthn', __DIR__ . '/../resources/dist/webauthn/register.js')->loadedOnRequest(),
+                //                AlpineComponent::make('authenticateWebauthn', __DIR__ . '/../resources/dist/webauthn/authenticate.js')->loadedOnRequest(),
             ],
             package: ProfileFilamentPlugin::PLUGIN_ID,
         );
@@ -148,51 +145,30 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
             name: 'webauthn',
             macro: function (
                 string $prefix = 'sessions/webauthn',
-                array $assertionMiddleware = [ValidateSignature::class],
-                array $attestationMiddleware = [Authenticate::class],
             ) {
-                return;
-                Route::as('profile-filament::')
-                    ->group(function () use ($prefix, $assertionMiddleware, $attestationMiddleware) {
-                        Route::post("/{$prefix}/assertion-pk/{user}", [WebauthnPublicKeysController::class, 'assertionPublicKey'])
-                            ->name('webauthn.assertion_pk')
-                            ->middleware($assertionMiddleware);
+                Route::prefix($prefix)
+                    ->as('profile-filament::webauthn.')
+                    ->group(function () {
+                        Route::get('passkey-authentication-options', GeneratePasskeyAuthenticationOptionsController::class)
+                            ->name('passkey_authentication_options');
 
-                        Route::post("/{$prefix}/passkey-assertion-pk", [PasskeysController::class, 'assertionPublicKey'])
-                            ->name('webauthn.passkey_assertion_pk')
-                            ->middleware($assertionMiddleware);
-
-                        Route::post("/{$prefix}/attestation-pk", [WebauthnPublicKeysController::class, 'attestationPublicKey'])
-                            ->name('webauthn.attestation_pk')
-                            ->middleware($attestationMiddleware);
-
-                        Route::post("/{$prefix}/passkey-attestation-pk", [PasskeysController::class, 'attestationPublicKey'])
-                            ->name('webauthn.passkey_attestation_pk')
-                            ->middleware($attestationMiddleware);
+                        Route::post('passkey-authentication', AuthenticateUsingPasskeyController::class)
+                            ->name('passkey_authentication')
+                            ->middleware(['guest']);
                     });
             });
     }
 
     private function registerLivewireComponents(): void
     {
-        //        Livewire::component('authenticator-app-form', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppForm::class);
-        //        Livewire::component('authenticator-app-list-item', PackageLivewire\TwoFactorAuthentication\AuthenticatorAppListItem::class);
-        //        Livewire::component('webauthn-keys', PackageLivewire\TwoFactorAuthentication\WebauthnKeys::class);
-        //        Livewire::component('webauthn-key', PackageLivewire\TwoFactorAuthentication\WebauthnKey::class);
-        //        Livewire::component('passkey', PackageLivewire\Passkey::class);
-        //        Livewire::component('mfa-challenge', MfaChallenge::class);
-        Livewire::component('sudo-challenge', SudoChallenge::class);
-        // Livewire::component('sudo-challenge-form', PackageLivewire\Sudo\SudoChallengeForm::class);
         Livewire::component('sudo-challenge-action-form', PackageLivewire\Sudo\SudoChallengeActionForm::class);
         Livewire::component('authenticator-app-actions', AuthenticatorAppActions::class);
+        Livewire::component('security-key-actions', SecurityKeyActions::class);
 
         Livewire::component(PackageLivewire\Profile\ProfileInfo::class, PackageLivewire\Profile\ProfileInfo::class);
         Livewire::component(PackageLivewire\Emails\UserEmail::class, PackageLivewire\Emails\UserEmail::class);
         Livewire::component(PackageLivewire\DeleteAccount::class, PackageLivewire\DeleteAccount::class);
         Livewire::component(PackageLivewire\UpdatePassword::class, PackageLivewire\UpdatePassword::class);
-        //        Livewire::component(PackageLivewire\PasskeyManager::class, PackageLivewire\PasskeyManager::class);
-        //        Livewire::component(PackageLivewire\PasskeyRegistrationForm::class, PackageLivewire\PasskeyRegistrationForm::class);
-        //        Livewire::component(PackageLivewire\MfaOverview::class, PackageLivewire\MfaOverview::class);
         Livewire::component(PackageLivewire\Sessions\SessionManager::class, PackageLivewire\Sessions\SessionManager::class);
     }
 }

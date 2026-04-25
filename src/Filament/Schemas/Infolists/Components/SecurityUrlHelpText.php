@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Filament\Schemas\Infolists\Components;
 
 use Filament\Schemas\Components\Text;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
@@ -40,8 +39,7 @@ class SecurityUrlHelpText extends Text
                 </span>
             </div>
             HTML, [
-                'iconAlias' => ProfileFilamentIcon::Help->value,
-                'icon' => Heroicon::OutlinedQuestionMarkCircle,
+                'icon' => ProfileFilamentIcon::Help->resolve(),
                 'url' => $this->url,
             ]))
         );

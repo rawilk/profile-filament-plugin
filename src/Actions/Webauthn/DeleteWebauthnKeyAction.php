@@ -13,10 +13,13 @@ class DeleteWebauthnKeyAction implements DeleteWebauthnKeyActionContract
 {
     public function __invoke(WebauthnKey $webauthnKey)
     {
-        $webauthnKey->delete();
+        /** @var \Illuminate\Database\Eloquent\Model&\Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn $user */
+        $user = $webauthnKey->user;
 
-        app(MarkTwoFactorDisabledAction::class)($webauthnKey->user);
+        $user->securityKeys()->whereKey($webauthnKey->getKey())->delete();
 
-        WebauthnKeyDeleted::dispatch($webauthnKey, $webauthnKey->user);
+        app(MarkTwoFactorDisabledAction::class)($user);
+
+        WebauthnKeyDeleted::dispatch($webauthnKey, $user);
     }
 }

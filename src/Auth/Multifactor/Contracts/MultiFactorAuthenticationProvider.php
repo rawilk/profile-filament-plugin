@@ -14,6 +14,8 @@ interface MultiFactorAuthenticationProvider
 
     public function getId(): string;
 
+    public function getSelectLabel(): string;
+
     /**
      * @return array<Component|Action>
      */

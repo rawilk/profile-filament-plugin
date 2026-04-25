@@ -5,24 +5,32 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Rawilk\ProfileFilament\Support\Config;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create(config('profile-filament.table_names.webauthn_key'), function (Blueprint $table) {
+        $authenticatableClass = Config::getAuthenticatableModel();
+
+        $authenticatableTableName = (new $authenticatableClass)->getTable();
+
+        Schema::create(Config::getTableName('webauthn_key'), function (Blueprint $table) use ($authenticatableClass, $authenticatableTableName) {
             $table->id();
-            $table->foreignId('user_id')
-                ->constrained('users')
+
+            $table->foreignIdFor($authenticatableClass, 'user_id')
+                ->constrained(table: $authenticatableTableName, indexName: 'webauthn_authenticatable_fk')
                 ->cascadeOnDelete();
+
             $table->string('name')->nullable();
             $table->text('credential_id');
-            $table->text('public_key');
+            $table->json('data');
+
             $table->string('attachment_type', 50)->nullable();
             $table->boolean('is_passkey')->default(false);
-            $table->dateTime('last_used_at')->nullable();
-            $table->dateTime('created_at')->nullable();
-            $table->dateTime('updated_at')->nullable();
+
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamps();
         });
     }
 };

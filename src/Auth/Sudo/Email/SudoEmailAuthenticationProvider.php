@@ -13,7 +13,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Text;
 use Filament\Support\Enums\IconPosition;
-use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Htmlable;
@@ -100,7 +99,7 @@ class SudoEmailAuthenticationProvider implements HasBeforeChallengeHook, SudoCha
 
     public function icon(): null|string|BackedEnum|Htmlable
     {
-        return FilamentIcon::resolve(ProfileFilamentIcon::MfaEmail->value) ?? Heroicon::OutlinedEnvelope;
+        return ProfileFilamentIcon::MfaEmail->resolve();
     }
 
     public function getChallengeSubmitLabel(): ?string

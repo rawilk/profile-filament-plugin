@@ -7,8 +7,6 @@ namespace Rawilk\ProfileFilament\Auth\Sudo\App;
 use BackedEnum;
 use Closure;
 use Filament\Forms\Components\OneTimeCodeInput;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Htmlable;
 use PragmaRX\Google2FA\Google2FA;
@@ -63,7 +61,7 @@ class SudoAppAuthenticationProvider implements SudoChallengeProvider
 
     public function icon(): null|string|BackedEnum|Htmlable
     {
-        return FilamentIcon::resolve(ProfileFilamentIcon::MfaTotp->value) ?? Heroicon::OutlinedDevicePhoneMobile;
+        return ProfileFilamentIcon::MfaTotp->resolve();
     }
 
     public function getChallengeSubmitLabel(): ?string

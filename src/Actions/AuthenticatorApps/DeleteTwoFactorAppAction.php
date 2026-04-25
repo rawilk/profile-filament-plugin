@@ -13,10 +13,13 @@ class DeleteTwoFactorAppAction implements DeleteAuthenticatorAppAction
 {
     public function __invoke(AuthenticatorApp $authenticatorApp): void
     {
-        $authenticatorApp->delete();
+        /** @var \Illuminate\Database\Eloquent\Model&\Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\HasAppAuthentication $user */
+        $user = $authenticatorApp->user;
 
-        app(MarkTwoFactorDisabledAction::class)($authenticatorApp->user);
+        $user->authenticatorApps()->whereKey($authenticatorApp->getKey())->delete();
 
-        TwoFactorAppRemoved::dispatch($authenticatorApp->user, $authenticatorApp);
+        app(MarkTwoFactorDisabledAction::class)($user);
+
+        TwoFactorAppRemoved::dispatch($user, $authenticatorApp);
     }
 }

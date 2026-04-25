@@ -38,6 +38,8 @@ use Throwable;
  * @property-read bool $userHasMfaEnabled
  * @property-read User&\Rawilk\ProfileFilament\Concerns\TwoFactorAuthenticatable $user
  * @property Form $form
+ *
+ * @deprecated
  */
 class PasskeyRegistrationForm extends Component implements HasActions, HasForms
 {

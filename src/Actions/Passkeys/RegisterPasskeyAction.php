@@ -13,6 +13,7 @@ use Rawilk\ProfileFilament\Events\Passkeys\PasskeyRegistered;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Webauthn\PublicKeyCredentialSource;
 
+/** @deprecated */
 class RegisterPasskeyAction implements RegisterPasskeyActionContract
 {
     /** @var class-string<Model> */

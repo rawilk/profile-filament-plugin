@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'label' => 'Set up',
+    'another-label' => 'Set up another',
 
     'modal' => [
         'heading' => 'Set up authenticator app',

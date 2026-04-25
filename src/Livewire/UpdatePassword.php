@@ -24,6 +24,7 @@ use Livewire\Attributes\Computed;
 use LogicException;
 use Rawilk\FilamentPasswordInput\Password as PasswordInput;
 use Rawilk\ProfileFilament\Contracts\UpdatePasswordAction;
+use Rawilk\ProfileFilament\Support\Config;
 use Throwable;
 
 /**
@@ -206,7 +207,7 @@ class UpdatePassword extends ProfileComponent
             ->rule(Password::defaults())
             ->showAllValidationMessages()
             ->dehydrateStateUsing(
-                fn (string $state): string => config('profile-filament.hash_user_passwords')
+                fn (string $state): string => Config::hashUserPasswords()
                     ? Hash::make($state)
                     : $state
             )

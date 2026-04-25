@@ -12,6 +12,7 @@ use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpgradeToPasskey;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Webauthn\PublicKeyCredentialSource;
 
+/** @deprecated */
 class UpgradeToPasskeyAction implements UpgradeToPasskeyActionContract
 {
     /** @var class-string<Model> */

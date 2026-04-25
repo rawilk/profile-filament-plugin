@@ -7,6 +7,8 @@ return [
         'label' => 'Email verification codes',
         'description' => 'Receive a temporary code at your email address to verify your identity during authentication requests.',
 
+        'select-label' => 'Email verification codes',
+
         'messages' => [
             'disabled' => 'Disabled',
             'enabled' => 'Enabled',

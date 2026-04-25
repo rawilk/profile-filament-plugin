@@ -15,9 +15,13 @@ enum MfaSession: string
     case PasswordConfirmedAt = 'mfa.password_confirmed_at';
 
     // Webauthn
+    /** @deprecated */
     case AttestationPublicKey = 'webauthn:attestation:public_key';
+    /** @deprecated */
     case AssertionPublicKey = 'webauthn:assertion:public_key';
+    /** @deprecated */
     case PasskeyAttestationPk = 'passkey:attestation:public_key';
+    /** @deprecated */
     case PasskeyAssertionPk = 'passkey:assertion:public_key';
 
     public function get(): mixed

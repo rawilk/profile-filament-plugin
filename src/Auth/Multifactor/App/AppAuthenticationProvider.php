@@ -13,7 +13,6 @@ use Filament\Forms\Components\OneTimeCodeInput;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\View;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Livewire\Component;
@@ -90,6 +89,11 @@ class AppAuthenticationProvider implements MultiFactorAuthenticationProvider
         return static::ID;
     }
 
+    public function getSelectLabel(): string
+    {
+        return __('profile-filament::auth/multi-factor/app/provider.management-schema.select-label');
+    }
+
     public function getManagementSchemaComponents(): array
     {
         $user = Filament::auth()->user();
@@ -98,8 +102,7 @@ class AppAuthenticationProvider implements MultiFactorAuthenticationProvider
             Flex::make([
                 View::make('profile-filament::components.multi-factor.provider-title')
                     ->viewData(fn () => [
-                        'icon' => Heroicon::OutlinedDevicePhoneMobile,
-                        'iconAlias' => ProfileFilamentIcon::MfaTotp->value,
+                        'icon' => ProfileFilamentIcon::MfaTotp->resolve(),
                         'label' => __('profile-filament::auth/multi-factor/app/provider.management-schema.label'),
                         'description' => __('profile-filament::auth/multi-factor/app/provider.management-schema.description'),
                         'configuredLabel' => __('profile-filament::auth/multi-factor/app/provider.management-schema.messages.configured'),
@@ -126,10 +129,11 @@ class AppAuthenticationProvider implements MultiFactorAuthenticationProvider
 
         return [
             SetUpAuthenticatorAppAction::make($this)
-                ->hidden(fn (): bool => $this->authenticatorAppLimitHasBeenReached($user)),
-            //                ->after(function (Component $livewire) {
-            //                    $livewire->js('$wire.$refresh');
-            //                }),
+                ->label(fn (): string => $this->isEnabled($user) ? __('profile-filament::auth/multi-factor/app/actions/set-up.another-label') : __('profile-filament::auth/multi-factor/app/actions/set-up.label'))
+                ->hidden(fn (): bool => $this->authenticatorAppLimitHasBeenReached($user))
+                ->after(function (Component $livewire): void {
+                    $livewire->js('$wire.$refresh');
+                }),
         ];
     }
 

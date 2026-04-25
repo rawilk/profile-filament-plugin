@@ -9,6 +9,7 @@ use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorDisabledAction;
 use Rawilk\ProfileFilament\Events\Passkeys\PasskeyDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
+/** @deprecated */
 class DeletePasskeyAction implements DeletePasskeyActionContract
 {
     public function __invoke(WebauthnKey $passkey)

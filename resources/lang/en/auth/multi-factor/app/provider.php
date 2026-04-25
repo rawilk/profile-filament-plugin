@@ -7,6 +7,8 @@ return [
         'label' => 'Authenticator app',
         'description' => 'Use an authentication app or browser extension to get two-factor authentication codes when prompted.',
 
+        'select-label' => 'Authenticator app',
+
         'messages' => [
             'configured' => 'Configured',
         ],

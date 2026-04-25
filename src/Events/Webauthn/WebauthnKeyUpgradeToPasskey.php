@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
+/** @deprecated */
 class WebauthnKeyUpgradeToPasskey extends ProfileFilamentEvent
 {
     public function __construct(

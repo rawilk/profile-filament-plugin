@@ -9,8 +9,6 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Text;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
@@ -35,7 +33,7 @@ class SudoChallengeAction extends Action
 
         $this->modalDescription(str('<span aria-hidden="true"></span>')->inlineMarkdown()->toHtmlString());
 
-        $this->modalIcon(FilamentIcon::resolve(ProfileFilamentIcon::SudoChallenge->value) ?? Heroicon::FingerPrint);
+        $this->modalIcon(ProfileFilamentIcon::SudoChallenge->resolve());
 
         $this->color('primary');
 

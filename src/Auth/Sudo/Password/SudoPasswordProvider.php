@@ -19,6 +19,8 @@ class SudoPasswordProvider implements SudoChallengeProvider
 
     protected bool $showResetPasswordLink = true;
 
+    protected bool $disableIfUserHasMultiFactorAuthentication = false;
+
     public static function make(): static
     {
         return app(static::class);
@@ -26,7 +28,19 @@ class SudoPasswordProvider implements SudoChallengeProvider
 
     public function isEnabled(Authenticatable $user): bool
     {
-        return filled($user->getAuthPassword());
+        if (blank($user->getAuthPassword())) {
+            return false;
+        }
+
+        if (
+            $this->disableIfUserHasMultiFactorAuthentication &&
+            method_exists($user, 'hasMultiFactorAuthenticationEnabled') &&
+            $user->hasMultiFactorAuthenticationEnabled()
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     public function getId(): string
@@ -37,6 +51,13 @@ class SudoPasswordProvider implements SudoChallengeProvider
     public function hideResetPasswordLink(bool $condition = true): static
     {
         $this->showResetPasswordLink = ! $condition;
+
+        return $this;
+    }
+
+    public function disableWhenUserHasMultiFactorAuthentication(bool $condition = true): static
+    {
+        $this->disableIfUserHasMultiFactorAuthentication = $condition;
 
         return $this;
     }

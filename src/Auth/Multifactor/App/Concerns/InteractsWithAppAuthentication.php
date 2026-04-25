@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Rawilk\ProfileFilament\Support\Config;
 
 /**
  * @mixin Model
@@ -14,7 +15,7 @@ trait InteractsWithAppAuthentication
 {
     public function authenticatorApps(): HasMany
     {
-        return $this->hasMany(config('profile-filament.models.authenticator_app'))
+        return $this->hasMany(Config::getModel('authenticator_app'))
             ->latest();
     }
 

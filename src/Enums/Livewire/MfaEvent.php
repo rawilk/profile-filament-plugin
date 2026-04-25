@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Enums\Livewire;
 
+/** @deprecated */
 enum MfaEvent: string
 {
     // Authenticator Apps

@@ -10,8 +10,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Text;
 use Filament\Support\Enums\Size;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
+use Filament\Support\Enums\Width;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
@@ -41,8 +40,9 @@ class SudoChallengeAction extends Action
 
         $this->modalDescription(str('<span aria-hidden="true"></span>')->inlineMarkdown()->toHtmlString());
 
-        $this->modalIcon(FilamentIcon::resolve(ProfileFilamentIcon::SudoChallenge->value) ?? Heroicon::FingerPrint);
+        $this->modalIcon(ProfileFilamentIcon::SudoChallenge->resolve());
         $this->modalIconColor('primary');
+        $this->modalWidth(Width::Large);
 
         $this->extraModalWindowAttributes([
             'class' => 'pf-sudo-form pf-sudo-modal-content',

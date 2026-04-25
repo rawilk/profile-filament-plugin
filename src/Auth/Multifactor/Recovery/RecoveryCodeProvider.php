@@ -10,7 +10,6 @@ use Filament\Facades\Filament;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\View;
-use Filament\Support\Icons\Heroicon;
 use Hash;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Htmlable;
@@ -63,8 +62,7 @@ class RecoveryCodeProvider implements RecoveryProvider
                 View::make('profile-filament::components.multi-factor.provider-title')
                     ->key('recovery-provider-title')
                     ->viewData([
-                        'icon' => Heroicon::OutlinedKey,
-                        'iconAlias' => ProfileFilamentIcon::MfaRecoveryCodes->value,
+                        'icon' => ProfileFilamentIcon::MfaRecoveryCodes->resolve(),
                         'label' => __('profile-filament::auth/multi-factor/recovery/provider.management-schema.label'),
                         'description' => __('profile-filament::auth/multi-factor/recovery/provider.management-schema.description'),
                         'badges' => $this->getCodesRemainingBadge(),
@@ -104,7 +102,7 @@ class RecoveryCodeProvider implements RecoveryProvider
                 ->tooltip(
                     fn (): ?string => $user->hasMultiFactorAuthenticationEnabled()
                         ? null
-                        : 'Enable a 2fa method first...',
+                        : __('profile-filament::auth/multi-factor/recovery/provider.management-schema.messages.needs-mfa-enabled'),
                 ),
         ];
     }

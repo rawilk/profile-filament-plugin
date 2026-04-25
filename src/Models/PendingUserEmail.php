@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Traits\Tappable;
+use Rawilk\ProfileFilament\Support\Config;
 
 /**
  * @property int $id
@@ -35,7 +36,7 @@ class PendingUserEmail extends Model
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('profile-filament.table_names.pending_user_email'));
+        $this->setTable(Config::getTableName('pending_user_email'));
     }
 
     public function user(): MorphTo

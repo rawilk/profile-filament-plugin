@@ -7,6 +7,9 @@ namespace Rawilk\ProfileFilament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 use Rawilk\ProfileFilament\Plugin as ProfilePlugin;
 
 class ProfileFilamentPlugin implements Plugin
@@ -49,5 +52,11 @@ class ProfileFilamentPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
+        if ($this->shouldAddPasskeyActionToLogin()) {
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn () => Blade::render('<x-profile-filament::passkey-login />'),
+            );
+        }
     }
 }

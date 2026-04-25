@@ -38,6 +38,7 @@ use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialSource;
 use Webauthn\PublicKeyCredentialUserEntity;
 
+/** @deprecated */
 class Webauthn
 {
     /**

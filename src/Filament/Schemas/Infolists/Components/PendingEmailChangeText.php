@@ -6,7 +6,6 @@ namespace Rawilk\ProfileFilament\Filament\Schemas\Infolists\Components;
 
 use Filament\Actions\Action;
 use Filament\Schemas\Components\Text;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
@@ -74,8 +73,7 @@ class PendingEmailChangeText extends Text
                 </div>
             </div>
             HTML, [
-                'iconAlias' => ProfileFilamentIcon::PendingEmailInfo->value,
-                'icon' => Heroicon::OutlinedInformationCircle,
+                'icon' => ProfileFilamentIcon::PendingEmailInfo->resolve(),
                 'pendingEmail' => $this->pendingEmail,
                 'resendAction' => $this->resendPendingEmailAction,
                 'cancelAction' => $this->cancelPendingEmailChangeAction,

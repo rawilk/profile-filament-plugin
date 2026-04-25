@@ -42,7 +42,10 @@ class AuthenticatorAppActions extends Component implements HasActions, HasSchema
     #[Computed]
     public function appAuthenticationProvider(): AppAuthenticationProvider
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->getMultiFactorAuthenticationProvider('app');
+        /** @var AppAuthenticationProvider $provider */
+        $provider = filament(ProfileFilamentPlugin::PLUGIN_ID)->getMultiFactorAuthenticationProvider(AppAuthenticationProvider::ID);
+
+        return $provider;
     }
 
     public function render(): string

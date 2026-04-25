@@ -24,6 +24,8 @@ use Rawilk\ProfileFilament\Models\WebauthnKey as WebauthnKeyModel;
  * @property-read bool $hasPasskeys
  * @property-read User $user
  * @property-read null|WebauthnKeyModel $webauthnKey
+ *
+ * @deprecated
  */
 class WebauthnKey extends ProfileComponent
 {

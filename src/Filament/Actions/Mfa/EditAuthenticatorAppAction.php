@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules\Unique;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUpdated;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
+/** @deprecated */
 class EditAuthenticatorAppAction extends EditAction
 {
     protected function setUp(): void

@@ -19,12 +19,12 @@ class Sudo
 
     public function deactivate(): void
     {
-        session()->forget(SudoSession::ConfirmedAt->value);
+        SudoSession::ConfirmedAt->forget();
     }
 
     public function activate(): void
     {
-        session()->put(SudoSession::ConfirmedAt->value, Date::now()->unix());
+        SudoSession::ConfirmedAt->put(Date::now()->unix());
     }
 
     /**
@@ -37,10 +37,9 @@ class Sudo
 
     public function isActive(): bool
     {
-        $lastConfirmed = Date::parse(
-            session()->get(SudoSession::ConfirmedAt->value, 0)
-        );
+        /** @var null|\Carbon\CarbonInterface $lastConfirmed */
+        $lastConfirmed = SudoSession::ConfirmedAt->get();
 
-        return $lastConfirmed->add($this->expiration)->isFuture();
+        return $lastConfirmed?->add($this->expiration)->isFuture() ?? false;
     }
 }

@@ -50,6 +50,21 @@ return [
 
     'mfa' => [
         'title' => 'Two-factor authentication',
+        'description' => 'Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to sign in. Configure any of the two-factor providers below to enable two-factor authentication on your account.',
+
+        'form' => [
+            'preferred_mfa_provider' => [
+                'label' => 'Preferred two-factor provider',
+                'description' => 'Set your preferred two-factor provider to use when authenticating.',
+                'placeholder' => 'No preference',
+
+                'notifications' => [
+                    'saved' => [
+                        'title' => 'Two-factor provider preference saved.',
+                    ],
+                ],
+            ],
+        ],
 
         'messages' => [
             'enabled' => 'Enabled',
@@ -58,7 +73,7 @@ return [
 
         //        'status_enabled' => 'Enabled',
         //        'status_disabled' => 'Inactive',
-        //        'description' => 'Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to sign in. To enable two-factor authentication on your account, add one or more of the two-factor methods below.',
+
         //        'methods_title' => 'Two-factor methods',
         //        'recovery_title' => 'Recovery options',
         //        'method_configured' => 'Configured',

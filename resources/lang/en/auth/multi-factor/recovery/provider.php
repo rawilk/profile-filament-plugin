@@ -9,6 +9,8 @@ return [
 
         'messages' => [
             'codes-remaining' => '1 code remaining|:count codes remaining',
+
+            'needs-mfa-enabled' => 'At least one multi-factor provider must be configured first to generate recovery codes',
         ],
     ],
 

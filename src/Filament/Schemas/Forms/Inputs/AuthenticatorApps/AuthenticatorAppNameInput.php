@@ -7,6 +7,7 @@ namespace Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\AuthenticatorApps
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Validation\Rules\Unique;
+use Rawilk\ProfileFilament\Support\Config;
 
 class AuthenticatorAppNameInput extends TextInput
 {
@@ -27,7 +28,7 @@ class AuthenticatorAppNameInput extends TextInput
         $this->maxLength(255);
 
         $this->unique(
-            table: config('profile-filament.table_names.authenticator_app'),
+            table: Config::getTableName('authenticator_app'),
             ignoreRecord: true,
             modifyRuleUsing: function (Unique $rule): void {
                 $rule->where('user_id', Filament::auth()->id());

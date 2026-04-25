@@ -7,6 +7,7 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\Concerns;
 use Illuminate\Database\Eloquent\Model;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\HasAppAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\HasEmailAuthentication;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 
 /**
  * @property bool $two_factor_enabled
@@ -56,6 +57,10 @@ trait InteractsWithMultiFactorAuthentication
         }
 
         if ($this instanceof HasAppAuthentication && $this->authenticatorApps()->exists()) {
+            return true;
+        }
+
+        if ($this instanceof HasWebauthn && $this->securityKeys()->exists()) {
             return true;
         }
 

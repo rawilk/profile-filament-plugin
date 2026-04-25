@@ -29,11 +29,4 @@ class WebauthnKeyPolicy
     {
         return Response::allow();
     }
-
-    public function upgradeToPasskey(User $user, WebauthnKey $webauthnKey): Response
-    {
-        return $webauthnKey->canUpgradeToPasskey()
-            ? Response::allow()
-            : Response::deny();
-    }
 }

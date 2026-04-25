@@ -7,6 +7,7 @@ namespace Rawilk\ProfileFilament\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Rawilk\ProfileFilament\Support\Config;
 
 /**
  * @property int $id
@@ -32,12 +33,12 @@ class AuthenticatorApp extends Model
     {
         parent::__construct($attributes);
 
-        $this->table = config('profile-filament.table_names.authenticator_apps');
+        $this->table = Config::getTableName('authenticator_app');
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'));
+        return $this->belongsTo(Config::getAuthenticatableModel());
     }
 
     protected function casts(): array

@@ -17,8 +17,8 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
-use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
@@ -28,6 +28,7 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\Js;
 use RateLimiter;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Actions\ShowRecoveryCodesAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\HasMultiFactorAuthenticationRecovery;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\SudoChallengeAction;
@@ -84,7 +85,7 @@ class SetUpAuthenticatorAppAction
             })
             ->modalHeading(__('profile-filament::auth/multi-factor/app/actions/set-up.modal.heading'))
             ->modalDescription(new HtmlString(Blade::render(__('profile-filament::auth/multi-factor/app/actions/set-up.modal.description'))))
-            ->modalIcon(FilamentIcon::resolve(ProfileFilamentIcon::MfaTotp->value) ?? Heroicon::OutlinedDevicePhoneMobile)
+            ->modalIcon(ProfileFilamentIcon::MfaTotp->resolve())
             ->modalIconColor('primary')
             ->modalSubmitActionLabel(__('profile-filament::auth/multi-factor/app/actions/set-up.modal.actions.submit.label'))
             ->registerModalActions([
@@ -190,7 +191,7 @@ class SetUpAuthenticatorAppAction
                     $action->cancel();
                 }
 
-                /** @var \Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\HasAppAuthentication|\Illuminate\Contracts\Auth\Authenticatable $user */
+                /** @var \Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\HasAppAuthentication|Authenticatable $user */
                 $user = Filament::auth()->user();
 
                 $encrypted = Crypt::decrypt($arguments['encrypted']);
@@ -207,6 +208,8 @@ class SetUpAuthenticatorAppAction
                         $encrypted['secret'],
                         $data['name'],
                     );
+
+                    static::setPreferredMultiFactorProvider($user, $provider->getId());
 
                     /** @var ProfileFilamentPlugin $plugin */
                     $plugin = filament(ProfileFilamentPlugin::PLUGIN_ID);
@@ -257,5 +260,18 @@ class SetUpAuthenticatorAppAction
                 });
                 JS;
             });
+    }
+
+    protected static function setPreferredMultiFactorProvider(Authenticatable $user, string $providerId): void
+    {
+        if (! ($user instanceof HasMultiFactorAuthentication)) {
+            return;
+        }
+
+        if (filled($user->getPreferredMfaProvider())) {
+            return;
+        }
+
+        $user->setPreferredMfaProvider($providerId);
     }
 }

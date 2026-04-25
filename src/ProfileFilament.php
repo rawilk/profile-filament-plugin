@@ -152,7 +152,7 @@ class ProfileFilament
         if ($preferredProvider) {
             return $enabledProviders->firstWhere(
                 fn (MultiFactorAuthenticationProvider $provider) => $provider->getId() === $preferredProvider,
-            ) ?? $enabledProviders->first()?->getId();
+            )?->getId() ?? $enabledProviders->first()?->getId();
         }
 
         return $enabledProviders->first()?->getId();
@@ -173,7 +173,7 @@ class ProfileFilament
         if ($preferredProvider) {
             return $enabledProviders->firstWhere(
                 fn (SudoChallengeProvider $provider) => $provider->getId() === $preferredProvider,
-            ) ?? $enabledProviders->first()?->getId();
+            )?->getId() ?? $enabledProviders->first()?->getId();
         }
 
         return $enabledProviders->first()?->getId();

@@ -35,6 +35,8 @@ use Throwable;
  * @property-read Form $form
  * @property-read Collection $sortedWebauthnKeys
  * @property-read User $user
+ *
+ * @deprecated
  */
 class WebauthnKeys extends ProfileComponent
 {

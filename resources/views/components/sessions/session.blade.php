@@ -16,8 +16,7 @@
                 <div class="flex gap-x-4">
                     <div class="shrink-0">
                         <x-filament::icon
-                            :alias="$session->agent()->isDesktop() ? ProfileFilamentIcon::SessionDesktop->value : ProfileFilamentIcon::SessionMobile->value"
-                            :icon="$session->agent()->isDesktop() ? Heroicon::OutlinedComputerDesktop : Heroicon::OutlinedDevicePhoneMobile"
+                            :icon="$session->agent()->isDesktop() ? ProfileFilamentIcon::SessionDesktop->resolve() : ProfileFilamentIcon::SessionMobile->resolve()"
                             class="h-8 w-8 text-gray-500 dark:text-gray-400"
                         />
                     </div>
