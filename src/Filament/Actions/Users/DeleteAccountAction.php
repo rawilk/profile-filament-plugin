@@ -53,6 +53,10 @@ class DeleteAccountAction extends Action
         $this->successRedirectUrl(fn () => Filament::getLoginUrl());
 
         $this->action(function (DeleteAccountActionContract $deleter) {
+            if ($this->shouldChallengeForSudo()) {
+                $this->cancel();
+            }
+
             $result = $this->process(function (DeleteAccountActionContract $deleter) {
                 $deleter(Filament::auth()->user());
 

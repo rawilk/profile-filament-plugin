@@ -12,7 +12,6 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Rawilk\ProfileFilament\Concerns\HasSimpleClosureEval;
-use Rawilk\ProfileFilament\Filament\Actions\Sudo\SudoChallengeAction;
 
 class DeleteAccountInfolist
 {
@@ -55,8 +54,7 @@ class DeleteAccountInfolist
                 ->schema([
                     Text::make(__('profile-filament::pages/settings.delete_account.description')),
 
-                    SudoChallengeAction::make('delete-sudo-challenge')
-                        ->nextAction($deleteAction),
+                    $deleteAction,
                 ]),
         ];
     }
