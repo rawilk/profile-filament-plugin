@@ -11,8 +11,8 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsWithSudo;
+use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
-use Rawilk\ProfileFilament\Facades\Sudo;
 
 /**
  * This trait is for actions that require a modal of some sort before executing the action.

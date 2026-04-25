@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use PragmaRX\Google2FA\Google2FA;
+use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
 use Rawilk\ProfileFilament\Enums\Session\SudoSession;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
-use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeActionForm2;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;

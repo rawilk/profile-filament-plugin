@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Auth\Sudo\Sudo;
+use Rawilk\ProfileFilament\Auth\Sudo\Services\Sudo;
 use Rawilk\ProfileFilament\Enums\Session\SudoSession;
 
 beforeEach(function () {

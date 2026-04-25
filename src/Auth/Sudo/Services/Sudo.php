@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Auth\Sudo;
+namespace Rawilk\ProfileFilament\Auth\Sudo\Services;
 
 use DateInterval;
 use Illuminate\Support\Facades\Date;

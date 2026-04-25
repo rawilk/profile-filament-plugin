@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Facades;
+namespace Rawilk\ProfileFilament\Auth\Sudo\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Rawilk\ProfileFilament\Auth\Sudo\Services\Sudo as SudoService;
 
 /**
  * @method static void deactivate()
@@ -12,12 +13,12 @@ use Illuminate\Support\Facades\Facade;
  * @method static void extend()
  * @method static bool isActive()
  *
- * @see \Rawilk\ProfileFilament\Auth\Sudo\Sudo
+ * @see SudoService
  */
 class Sudo extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Rawilk\ProfileFilament\Auth\Sudo\Sudo::class;
+        return SudoService::class;
     }
 }

@@ -19,7 +19,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagCon
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers\AuthenticateUsingPasskeyController;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers\GeneratePasskeyAuthenticationOptionsController;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Livewire\SecurityKeyActions;
-use Rawilk\ProfileFilament\Auth\Sudo\Sudo;
+use Rawilk\ProfileFilament\Auth\Sudo\Services\Sudo;
 use Rawilk\ProfileFilament\Livewire as PackageLivewire;
 use Rawilk\ProfileFilament\Responses\BlockEmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\EmailChangeVerificationResponse;
