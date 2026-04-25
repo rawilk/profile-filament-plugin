@@ -6,13 +6,13 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Event;
 use PragmaRX\Google2FA\Google2FA;
+use Rawilk\ProfileFilament\Auth\Multifactor\Services\Mfa;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUsed;
 use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\Services\Mfa;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 

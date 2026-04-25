@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Facades;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Facades;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Support\Facades\Facade;
+use Rawilk\ProfileFilament\Auth\Multifactor\Services\Mfa as MfaService;
 
 /**
  * @method static User challengedUser()
@@ -15,12 +16,12 @@ use Illuminate\Support\Facades\Facade;
  * @method static void flushPendingSession()
  * @method static bool passwordConfirmationHasExpired()
  *
- * @see \Rawilk\ProfileFilament\Services\Mfa
+ * @see MfaService
  */
 class Mfa extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Rawilk\ProfileFilament\Services\Mfa::class;
+        return MfaService::class;
     }
 }

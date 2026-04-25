@@ -7,8 +7,8 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\Filament\ChallengePipes;
 use Closure;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
+use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
-use Rawilk\ProfileFilament\Facades\Mfa;
 
 class GuardAgainstExpiredPasswordConfirmation
 {

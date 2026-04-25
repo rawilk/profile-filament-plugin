@@ -7,8 +7,8 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\PasskeyLoginPipes;
 use Closure;
 use Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\Concerns\HasAuthChecks;
 use Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\Concerns\ThrowsFailedEvents;
+use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
-use Rawilk\ProfileFilament\Facades\Mfa;
 
 class AuthenticateUser
 {

@@ -6,10 +6,10 @@ namespace Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes;
 
 use Closure;
 use Rawilk\ProfileFilament\Auth\Login\Dto\LoginEventBagContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
 use Rawilk\ProfileFilament\Events\Sessions\PreparingAuthenticatedSession;
-use Rawilk\ProfileFilament\Facades\Mfa;
 
 class PrepareAuthenticatedSession
 {

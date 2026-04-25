@@ -29,9 +29,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\RecoveryProvider;
-use Rawilk\ProfileFilament\Facades\Mfa;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 

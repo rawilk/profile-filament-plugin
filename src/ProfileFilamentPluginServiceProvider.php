@@ -13,6 +13,7 @@ use Livewire\Livewire;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Livewire\AuthenticatorAppActions;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Services\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers\AuthenticateUsingPasskeyController;
@@ -23,7 +24,6 @@ use Rawilk\ProfileFilament\Livewire as PackageLivewire;
 use Rawilk\ProfileFilament\Responses\BlockEmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\EmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\MultiFactorChallengeResponse;
-use Rawilk\ProfileFilament\Services\Mfa;
 use Rawilk\ProfileFilament\Support\Config;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -61,7 +61,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->scoped(
             Mfa::class,
             fn () => new Mfa,
-            //            fn ($app) => new Mfa(userModel: $app['config']['auth.providers.users.model']),
         );
 
         $this->app->scoped(

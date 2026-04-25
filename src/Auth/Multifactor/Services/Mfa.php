@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Services;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Services;
 
 use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Authenticatable as User;

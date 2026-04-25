@@ -8,8 +8,8 @@ use Closure;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Rawilk\ProfileFilament\Auth\Login\Dto\LoginEventBagContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
+use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Contracts\Responses\MultiFactorChallengeResponse;
-use Rawilk\ProfileFilament\Facades\Mfa;
 
 class RedirectIfHasMultiFactorAuthentication
 {

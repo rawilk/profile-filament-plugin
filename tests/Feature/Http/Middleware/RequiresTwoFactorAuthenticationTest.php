@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Filament\Http\Middleware\Authenticate;
 use Filament\Pages\Auth\Login;
+use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
-use Rawilk\ProfileFilament\Facades\Mfa;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Http\Middleware\RequiresTwoFactorAuthentication;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
