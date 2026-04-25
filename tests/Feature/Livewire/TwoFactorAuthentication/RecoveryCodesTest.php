@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction;
-use Rawilk\ProfileFilament\Events\RecoveryCodesRegenerated;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodesWereRegenerated;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\RecoveryCodes;
 use Rawilk\ProfileFilament\Support\RecoveryCode;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -57,7 +57,7 @@ it('can generate new recovery codes', function () {
         ->assertDontSeeText('code-one')
         ->assertSeeText('my-code');
 
-    Event::assertDispatched(RecoveryCodesRegenerated::class);
+    Event::assertDispatched(RecoveryCodesWereRegenerated::class);
 });
 
 it('can require sudo mode to regenerate recovery codes', function () {

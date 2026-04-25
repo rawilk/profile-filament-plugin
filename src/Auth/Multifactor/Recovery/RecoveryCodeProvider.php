@@ -22,8 +22,8 @@ use Rawilk\FilamentPasswordInput\Password;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Actions\RegenerateRecoveryCodesAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\HasMultiFactorAuthenticationRecovery;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\RecoveryProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodeWasUsed;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
-use Rawilk\ProfileFilament\Events\RecoveryCodeWasUsed;
 use SensitiveParameter;
 
 class RecoveryCodeProvider implements RecoveryProvider

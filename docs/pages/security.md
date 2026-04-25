@@ -386,7 +386,7 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Collection;
 use Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction;
-use Rawilk\ProfileFilament\Events\RecoveryCodesRegenerated;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodesWereRegenerated;
 use Rawilk\ProfileFilament\Support\RecoveryCode;
 
 class CustomRecoveryCodeGeneration extends GenerateNewRecoveryCodesAction
@@ -399,7 +399,7 @@ class CustomRecoveryCodeGeneration extends GenerateNewRecoveryCodesAction
             ),
         ])->save();
 
-        RecoveryCodesRegenerated::dispatch($user);
+        RecoveryCodesWereRegenerated::dispatch($user);
     }
 }
 ```

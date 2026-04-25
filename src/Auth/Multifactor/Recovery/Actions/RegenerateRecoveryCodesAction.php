@@ -12,9 +12,9 @@ use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Crypt;
 use LogicException;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodesWereRegenerated;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\RecoveryCodeProvider;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallenge;
-use Rawilk\ProfileFilament\Events\RecoveryCodesRegenerated;
 
 class RegenerateRecoveryCodesAction extends Action
 {
@@ -61,7 +61,7 @@ class RegenerateRecoveryCodesAction extends Action
 
             $recoveryProvider->saveRecoveryCodes($user, $recoveryCodes);
 
-            RecoveryCodesRegenerated::dispatch($user);
+            RecoveryCodesWereRegenerated::dispatch($user);
 
             $livewire->mountAction('showNewRecoveryCodes', arguments: [
                 'encrypted' => Crypt::encrypt([

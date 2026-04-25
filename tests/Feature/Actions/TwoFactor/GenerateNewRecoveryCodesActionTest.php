@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodesWereRegenerated;
 use Rawilk\ProfileFilament\Contracts\TwoFactor\GenerateNewRecoveryCodesAction as GenerateNewRecoveryCodesActionContract;
-use Rawilk\ProfileFilament\Events\RecoveryCodesRegenerated;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
@@ -23,7 +23,7 @@ it('generates new recovery codes for a user', function () {
 
     app(GenerateNewRecoveryCodesActionContract::class)($user);
 
-    Event::assertDispatched(RecoveryCodesRegenerated::class);
+    Event::assertDispatched(RecoveryCodesWereRegenerated::class);
 
     $user->fresh();
 
