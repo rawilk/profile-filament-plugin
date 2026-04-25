@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Event;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 use Rawilk\ProfileFilament\Events\RecoveryCodesViewed;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 use function Pest\Laravel\get;
@@ -56,7 +56,7 @@ describe('recovery codes', function () {
             ->assertRedirectToRoute('filament.admin.auth.sudo-challenge');
 
         Event::assertNotDispatched(RecoveryCodesViewed::class);
-        Event::assertDispatched(SudoModeChallenged::class);
+        Event::assertDispatched(SudoModeChallengeWasPresented::class);
     });
 
     test('guests are not allowed to see this view', function () {
@@ -64,6 +64,6 @@ describe('recovery codes', function () {
             ->assertRedirect('/admin/login');
 
         Event::assertNotDispatched(RecoveryCodesViewed::class);
-        Event::assertNotDispatched(SudoModeChallenged::class);
+        Event::assertNotDispatched(SudoModeChallengeWasPresented::class);
     });
 });

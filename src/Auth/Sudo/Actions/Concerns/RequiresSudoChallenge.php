@@ -11,7 +11,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsWithSudo;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 
 /**
  * This trait is for actions that require a modal of some sort before executing the action.
@@ -31,7 +31,7 @@ trait RequiresSudoChallenge
                 return;
             }
 
-            SudoModeChallenged::dispatch(Filament::auth()->user(), $request);
+            SudoModeChallengeWasPresented::dispatch(Filament::auth()->user(), $request);
 
             $livewire->mountAction('sudoChallenge');
         });
@@ -55,7 +55,7 @@ trait RequiresSudoChallenge
                 return;
             }
 
-            SudoModeChallenged::dispatch(Filament::auth()->user(), $request);
+            SudoModeChallengeWasPresented::dispatch(Filament::auth()->user(), $request);
 
             $livewire->mountAction('sudoChallenge');
         });

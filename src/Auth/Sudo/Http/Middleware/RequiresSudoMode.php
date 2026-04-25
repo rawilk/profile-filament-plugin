@@ -7,8 +7,8 @@ namespace Rawilk\ProfileFilament\Auth\Sudo\Http\Middleware;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class RequiresSudoMode
@@ -20,7 +20,7 @@ class RequiresSudoMode
         }
 
         if ($this->shouldChallengeForSudo()) {
-            SudoModeChallenged::dispatch($request->user(), $request);
+            SudoModeChallengeWasPresented::dispatch($request->user(), $request);
 
             return redirect()->guest($this->getRedirectUrl());
         }

@@ -16,8 +16,8 @@ use Filament\Schemas\Schema;
 use Illuminate\Http\Request;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\IssuesSudoChallenge;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeWasActivated;
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 class SudoChallengeActionForm extends Component implements HasActions, HasSchemas
@@ -72,7 +72,7 @@ class SudoChallengeActionForm extends Component implements HasActions, HasSchema
         $this->form->validate();
 
         Sudo::activate();
-        SudoModeActivated::dispatch($this->user, $request);
+        SudoModeWasActivated::dispatch($this->user, $request);
 
         $this->dispatch('sudo-confirmed');
     }

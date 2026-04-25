@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Livewire\Component;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeForm;
 use Rawilk\ProfileFilament\ProfileFilament;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -50,7 +50,7 @@ it('shows a sudo challenge', function () {
         ->assertSet('sudoCallerData', ['foo' => 'bar'])
         ->assertActionMounted('sudoChallenge');
 
-    Event::assertDispatched(SudoModeChallenged::class);
+    Event::assertDispatched(SudoModeChallengeWasPresented::class);
 });
 
 it('can show a users preferred sudo mode challenge', function () {

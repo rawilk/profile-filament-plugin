@@ -10,7 +10,7 @@ use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsWithSudo;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 
 /**
  * This trait is for actions that do not require a modal but instead execute the action right away.
@@ -39,7 +39,7 @@ trait RequiresSudoChallengeWithoutModal
                     'context' => $context,
                 ];
 
-                SudoModeChallenged::dispatch(Filament::auth()->user(), $request);
+                SudoModeChallengeWasPresented::dispatch(Filament::auth()->user(), $request);
 
                 $livewire->replaceMountedAction('sudoChallenge', arguments: $arguments);
             }

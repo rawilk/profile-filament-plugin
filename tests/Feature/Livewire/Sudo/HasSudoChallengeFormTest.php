@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use PragmaRX\Google2FA\Google2FA;
 use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeWasActivated;
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeActionForm2;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
@@ -95,7 +95,7 @@ test('user identity can be confirmed with a password', function () {
 
     expect(Sudo::isActive())->toBeTrue();
 
-    Event::assertDispatched(function (SudoModeActivated $event) {
+    Event::assertDispatched(function (SudoModeWasActivated $event) {
         expect($event->user)->toBe($this->user);
 
         return true;
@@ -113,7 +113,7 @@ test('a correct password is required to confirm identity', function () {
 
     expect(Sudo::isActive())->toBeFalse();
 
-    Event::assertNotDispatched(SudoModeActivated::class);
+    Event::assertNotDispatched(SudoModeWasActivated::class);
 });
 
 it('can confirm identity with totp', function () {
@@ -135,7 +135,7 @@ it('can confirm identity with totp', function () {
 
     expect(Sudo::isActive())->toBeTrue();
 
-    Event::assertDispatched(function (SudoModeActivated $event) {
+    Event::assertDispatched(function (SudoModeWasActivated $event) {
         expect($event->user)->toBe($this->user);
 
         return true;
@@ -155,7 +155,7 @@ test('a valid totp is required to confirm identity', function () {
 
     expect(Sudo::isActive())->toBeFalse();
 
-    Event::assertNotDispatched(SudoModeActivated::class);
+    Event::assertNotDispatched(SudoModeWasActivated::class);
 });
 
 it('can use webauthn to confirm identity', function () {
@@ -169,7 +169,7 @@ it('can use webauthn to confirm identity', function () {
 
     expect(Sudo::isActive())->toBeTrue();
 
-    Event::assertDispatched(function (SudoModeActivated $event) {
+    Event::assertDispatched(function (SudoModeWasActivated $event) {
         expect($event->user)->toBe($this->user);
 
         return true;
@@ -190,5 +190,5 @@ test('a valid webauthn assertion is required to confirm identity', function () {
 
     expect(Sudo::isActive())->toBeFalse();
 
-    Event::assertNotDispatched(SudoModeActivated::class);
+    Event::assertNotDispatched(SudoModeWasActivated::class);
 });

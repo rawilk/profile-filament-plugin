@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeWasActivated;
 use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -42,7 +42,7 @@ it('confirms a users identity', function () {
 
     expect(now())->toBeSudoSessionValue();
 
-    Event::assertDispatched(SudoModeActivated::class);
+    Event::assertDispatched(SudoModeWasActivated::class);
 });
 
 it('requires a correct password to confirm identity', function () {
@@ -55,5 +55,5 @@ it('requires a correct password to confirm identity', function () {
         ->assertSet('error', __('profile-filament::messages.sudo_challenge.password.invalid'))
         ->assertNoRedirect();
 
-    Event::assertNotDispatched(SudoModeActivated::class);
+    Event::assertNotDispatched(SudoModeWasActivated::class);
 });

@@ -33,8 +33,8 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Actions\ShowRecoveryCodesAc
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\HasMultiFactorAuthenticationRecovery;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsStaticlyWithSudo;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\AuthenticatorApps\AuthenticatorAppNameInput;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
@@ -57,7 +57,7 @@ class SetUpAuthenticatorAppAction
                     return;
                 }
 
-                SudoModeChallenged::dispatch(Filament::auth()->user(), $request);
+                SudoModeChallengeWasPresented::dispatch(Filament::auth()->user(), $request);
 
                 $livewire->mountAction('sudoChallenge');
             })
@@ -79,7 +79,7 @@ class SetUpAuthenticatorAppAction
                     return;
                 }
 
-                SudoModeChallenged::dispatch(Filament::auth()->user(), $request);
+                SudoModeChallengeWasPresented::dispatch(Filament::auth()->user(), $request);
 
                 $livewire->mountAction('sudoChallenge');
             })

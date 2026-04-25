@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 use Rawilk\ProfileFilament\Auth\Sudo\Http\Middleware\RequiresSudoMode;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
 use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -28,7 +28,7 @@ it('redirects to a sudo mode challenge', function () {
     get('/requires-sudo')
         ->assertRedirectToRoute('filament.admin.auth.sudo-challenge');
 
-    Event::assertDispatched(SudoModeChallenged::class);
+    Event::assertDispatched(SudoModeChallengeWasPresented::class);
 
     expect(session()->get('url.intended'))->toBe('https://acme.test/requires-sudo');
 });
@@ -41,7 +41,7 @@ it('extends sudo mode if it is already active', function () {
     get('/requires-sudo')
         ->assertSee('ok');
 
-    Event::assertNotDispatched(SudoModeChallenged::class);
+    Event::assertNotDispatched(SudoModeChallengeWasPresented::class);
 
     expect(now())->toBeSudoSessionValue();
 });
@@ -54,7 +54,7 @@ it('redirects if sudo is expired', function () {
     get('/requires-sudo')
         ->assertRedirectToRoute('filament.admin.auth.sudo-challenge');
 
-    Event::assertDispatched(SudoModeChallenged::class);
+    Event::assertDispatched(SudoModeChallengeWasPresented::class);
 
     expect(session()->has(SudoSession::ConfirmedAt->value))->toBeFalse();
 });
@@ -66,7 +66,7 @@ it('does nothing if sudo mode is disabled', function () {
         ->assertSuccessful()
         ->assertSeeText('ok');
 
-    Event::assertNotDispatched(SudoModeChallenged::class);
+    Event::assertNotDispatched(SudoModeChallengeWasPresented::class);
 
     expect(session()->has(SudoSession::ConfirmedAt->value))->toBeFalse();
 });

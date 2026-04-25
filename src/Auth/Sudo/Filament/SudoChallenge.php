@@ -15,9 +15,9 @@ use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\IssuesSudoChallenge;
+use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeWasActivated;
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Enums\RenderHook as PluginRenderHook;
-use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 class SudoChallenge extends SimplePage
@@ -64,7 +64,7 @@ class SudoChallenge extends SimplePage
         $this->form->validate();
 
         Sudo::activate();
-        SudoModeActivated::dispatch($this->user, $request);
+        SudoModeWasActivated::dispatch($this->user, $request);
 
         redirect()->intended(Filament::getUrl());
     }
