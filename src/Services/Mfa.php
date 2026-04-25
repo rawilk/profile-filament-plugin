@@ -11,12 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorAppServiceContract;
 use Rawilk\ProfileFilament\Enums\Session\MfaSession;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUsed;
-use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
-use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class Mfa
@@ -24,7 +20,7 @@ class Mfa
     use Macroable;
 
     /**
-     * The user attempting a two-factor challenge.
+     * The user attempting a multi-factor challenge.
      */
     protected ?User $challengedUser = null;
 
@@ -40,14 +36,6 @@ class Mfa
         $this->userProvider = Filament::auth()->getProvider() ?? auth()->guard('web')->getProvider();
     }
 
-    /** @deprecated */
-    public function usingChallengedUser(?User $user): self
-    {
-        $this->challengedUser = $user;
-
-        return $this;
-    }
-
     public function confirmUserSession(User $user): void
     {
         $this->flushPendingSession();
@@ -61,16 +49,6 @@ class Mfa
 
         return session()->has($key)
             && session()->get($key) === true;
-    }
-
-    /** @deprecated */
-    public function hasChallengedUser(): bool
-    {
-        return MfaSession::UserBeingAuthenticated->has()
-            && $this->userModel::query()
-                ->withoutGlobalScopes()
-                ->whereKey(MfaSession::UserBeingAuthenticated->get())
-                ->exists();
     }
 
     public function challengedUser(): Model|User|null
@@ -122,89 +100,6 @@ class Mfa
         ]);
     }
 
-    /** @deprecated  */
-    public function isValidRecoveryCode(string $code): bool
-    {
-        if (blank($code)) {
-            return false;
-        }
-
-        $validCode = collect($this->challengedUser()->recoveryCodes())
-            ->first(fn (string $storedCode) => hash_equals($code, $storedCode) ? $code : null);
-
-        if (! $validCode) {
-            return false;
-        }
-
-        $newCode = $this->challengedUser()->replaceRecoveryCode($validCode);
-
-        RecoveryCodeReplaced::dispatch($this->challengedUser(), $validCode, $newCode);
-
-        return true;
-    }
-
-    /** @deprecated */
-    public function isValidTotpCode(string $code): bool
-    {
-        $authenticatorApps = app(AuthenticatorApp::class)::query()
-            ->where('user_id', $this->challengedUser()->getAuthIdentifier())
-            ->get(['id', 'secret']);
-
-        foreach ($authenticatorApps as $authenticatorApp) {
-            if (app(AuthenticatorAppServiceContract::class)->verify($authenticatorApp->secret, $code)) {
-                $authenticatorApp->update(['last_used_at' => now()]);
-
-                TwoFactorAppUsed::dispatch($this->challengedUser(), $authenticatorApp);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /** @deprecated */
-    public function canUseAuthenticatorAppsForChallenge(?User $user = null): bool
-    {
-        if (
-            Filament::getCurrentPanel()
-                && ! $this->profilePlugin()->panelFeatures()->hasAuthenticatorApps()
-        ) {
-            return false;
-        }
-
-        $user ??= $this->challengedUser();
-
-        if (! $this->userHasMfaEnabled($user)) {
-            return false;
-        }
-
-        return app(config('profile-filament.models.authenticator_app'))::query()
-            ->where('user_id', $user->getAuthIdentifier())
-            ->exists();
-    }
-
-    /** @deprecated */
-    public function canUseWebauthnForChallenge(?User $user = null): bool
-    {
-        if (
-            Filament::getCurrentPanel()
-                && ! $this->hasWebauthnOrPasskeys()
-        ) {
-            return false;
-        }
-
-        $user ??= $this->challengedUser();
-
-        if (! $this->userHasMfaEnabled($user)) {
-            return false;
-        }
-
-        return app(config('profile-filament.models.webauthn_key'))::query()
-            ->where('user_id', $user->getAuthIdentifier())
-            ->exists();
-    }
-
     /**
      * Determine if the user wanted to be remembered after login.
      */
@@ -217,18 +112,6 @@ class Mfa
         return $this->remember;
     }
 
-    /** @deprecated */
-    public function userHasMfaEnabled(?User $user = null): bool
-    {
-        $user ??= auth()->user();
-
-        if (method_exists($user, 'hasTwoFactorEnabled')) {
-            return $user->hasTwoFactorEnabled();
-        }
-
-        return $user?->two_factor_enabled === true;
-    }
-
     protected function getUserConfirmedKey(User $user): string
     {
         return Str::of(MfaSession::ConfirmedAt->value)
@@ -239,12 +122,5 @@ class Mfa
     protected function profilePlugin(): ProfileFilamentPlugin
     {
         return Filament::getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
-    }
-
-    /** @deprecated */
-    protected function hasWebauthnOrPasskeys(): bool
-    {
-        return $this->profilePlugin()->panelFeatures()->hasWebauthn()
-            || $this->profilePlugin()->panelFeatures()->hasPasskeys();
     }
 }
