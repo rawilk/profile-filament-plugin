@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasDeleted;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUpdated;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppRemoved;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUpdated;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppListItem;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -47,7 +47,7 @@ it('can edit the name', function () {
 
     expect($this->record->refresh())->name->toBe('new name');
 
-    Event::assertDispatched(function (TwoFactorAppUpdated $event) {
+    Event::assertDispatched(function (AuthenticatorAppWasUpdated $event) {
         expect($event->authenticatorApp)->toBe($this->record)
             ->and($event->user)->toBe($this->record->user);
 
@@ -66,7 +66,7 @@ it('requires a name to edit', function () {
             'name' => ['required'],
         ]);
 
-    Event::assertNotDispatched(TwoFactorAppUpdated::class);
+    Event::assertNotDispatched(AuthenticatorAppWasUpdated::class);
 });
 
 it('requires a unique app name', function () {
@@ -104,7 +104,7 @@ it('can delete an app', function () {
 
     $this->assertModelMissing($this->record);
 
-    Event::assertDispatched(function (TwoFactorAppRemoved $event) {
+    Event::assertDispatched(function (AuthenticatorAppWasDeleted $event) {
         expect($event->authenticatorApp)->toBe($this->record)
             ->and($event->user)->toBe($this->record->user);
 

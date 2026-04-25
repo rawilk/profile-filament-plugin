@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use LogicException;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\HasAppAuthentication;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUsed;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUsed;
 use SensitiveParameter;
 
 /**
@@ -69,7 +69,7 @@ trait VerifiesOneTimeCodes
             if ($this->verifyCode($code, $authenticatorApp->secret, shouldPreventCodeReuse: true)) {
                 $authenticatorApp->touch('last_used_at');
 
-                TwoFactorAppUsed::dispatch($user, $authenticatorApp);
+                AuthenticatorAppWasUsed::dispatch($user, $authenticatorApp);
 
                 return true;
             }

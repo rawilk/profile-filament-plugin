@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Actions;
 
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\DeleteAuthenticatorAppAction as DeleteAuthenticatorAppActionContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasDeleted;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppRemoved;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
 class DeleteAuthenticatorAppAction implements DeleteAuthenticatorAppActionContract
@@ -20,6 +20,6 @@ class DeleteAuthenticatorAppAction implements DeleteAuthenticatorAppActionContra
 
         app(MarkMultiFactorDisabledAction::class)($user);
 
-        TwoFactorAppRemoved::dispatch($user, $authenticatorApp);
+        AuthenticatorAppWasDeleted::dispatch($user, $authenticatorApp);
     }
 }

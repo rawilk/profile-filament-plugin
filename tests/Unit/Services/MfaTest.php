@@ -6,9 +6,9 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Event;
 use PragmaRX\Google2FA\Google2FA;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUsed;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
 use Rawilk\ProfileFilament\Auth\Multifactor\Services\Mfa;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUsed;
 use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
@@ -134,7 +134,7 @@ it('can determine if a totp code is valid', function () {
         ->and($apps->first()->refresh())->last_used_at->toBeNull()
         ->and($apps->last()->refresh())->last_used_at->toBe(now());
 
-    Event::assertDispatched(function (TwoFactorAppUsed $event) use ($apps) {
+    Event::assertDispatched(function (AuthenticatorAppWasUsed $event) use ($apps) {
         expect($event->user)->toBe($this->user)
             ->and($event->authenticatorApp)->toBe($apps->last());
 
@@ -149,7 +149,7 @@ it('handles invalid totp codes', function () {
 
     expect($this->mfa->isValidTotpCode('invalid'))->toBeFalse();
 
-    Event::assertNotDispatched(TwoFactorAppUsed::class);
+    Event::assertNotDispatched(AuthenticatorAppWasUsed::class);
 });
 
 it('knows if a remember cookie should be set', function () {

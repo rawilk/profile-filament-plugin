@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Events\AuthenticatorApps;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Events;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
-class TwoFactorAppRemoved extends ProfileFilamentEvent
+class AuthenticatorAppWasUsed extends ProfileFilamentEvent
 {
     public function __construct(public User $user, public AuthenticatorApp $authenticatorApp)
     {

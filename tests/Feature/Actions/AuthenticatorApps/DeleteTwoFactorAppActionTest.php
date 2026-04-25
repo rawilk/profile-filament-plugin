@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppRemoved;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasDeleted;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -24,7 +24,7 @@ beforeEach(function () {
 it('deletes an authenticator app for a user', function () {
     app(DeleteAuthenticatorAppAction::class)($this->record);
 
-    Event::assertDispatched(function (TwoFactorAppRemoved $event) {
+    Event::assertDispatched(function (AuthenticatorAppWasDeleted $event) {
         expect($event->user->is($this->record->user))
             ->and($event->authenticatorApp->is($this->record));
 

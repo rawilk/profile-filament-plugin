@@ -22,8 +22,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUpdated;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Filament\Actions\DeleteAuthenticatorAppAction;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUpdated;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\AuthenticatorApps\AuthenticatorAppNameInput;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
@@ -91,7 +91,7 @@ class AuthenticatorAppActions extends Component implements HasActions, HasSchema
             ->authorize('update', $this->authenticatorApp)
             ->successNotificationTitle(__('profile-filament::auth/multi-factor/app/actions/edit-name.notifications.updated.title'))
             ->after(function (AuthenticatorApp $record) {
-                TwoFactorAppUpdated::dispatch($record, Filament::auth()->user());
+                AuthenticatorAppWasUpdated::dispatch($record, Filament::auth()->user());
 
                 $this->js(<<<'JS'
                 $wire.$parent.$refresh

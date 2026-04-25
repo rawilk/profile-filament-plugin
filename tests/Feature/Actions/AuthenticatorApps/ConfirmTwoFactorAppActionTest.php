@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction;
-use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppAdded;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasCreated;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
@@ -28,7 +28,7 @@ it('saves an authenticator app for a user', function () {
         secret: $secret = Str::random(32),
     );
 
-    Event::assertDispatched(TwoFactorAppAdded::class);
+    Event::assertDispatched(AuthenticatorAppWasCreated::class);
 
     expect($user->authenticatorApps()->first())
         ->name->toBe('my app')
