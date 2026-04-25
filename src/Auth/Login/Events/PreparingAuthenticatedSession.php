@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Events\Sessions;
+namespace Rawilk\ProfileFilament\Auth\Login\Events;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
