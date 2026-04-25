@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Facade;
  * @method static void pushChallengedUser(User $user, bool $remember = false)
  * @method static void flushPendingSession()
  * @method static bool passwordConfirmationHasExpired()
- * @method static \Rawilk\ProfileFilament\Services\Mfa usingChallengedUser(?User $user)
  *
  * @see \Rawilk\ProfileFilament\Services\Mfa
  */
