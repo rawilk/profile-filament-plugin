@@ -73,6 +73,14 @@ final class Config
         return config("profile-filament.models.{$model}");
     }
 
+    /**
+     * @return class-string
+     */
+    public static function getPolicy(string $model): string
+    {
+        return config("profile-filament.policies.{$model}");
+    }
+
     public static function getTableName(string $table): string
     {
         return config("profile-filament.table_names.{$table}");
