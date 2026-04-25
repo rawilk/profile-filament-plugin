@@ -145,7 +145,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
     private function registerLivewireComponents(): void
     {
-        Livewire::component('sudo-challenge-action-form', PackageLivewire\Sudo\SudoChallengeActionForm::class);
+        Livewire::component('sudo-challenge-action-form', Auth\Sudo\Livewire\SudoChallengeActionForm::class);
         Livewire::component('authenticator-app-actions', AuthenticatorAppActions::class);
         Livewire::component('security-key-actions', SecurityKeyActions::class);
 

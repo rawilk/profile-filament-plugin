@@ -52,7 +52,7 @@ class SudoWebauthnProvider implements SudoChallengeProvider
 
                     if (filled($authenticationResponse)) {
                         if ($this->isValidSecurityKeyChallenge($authenticationResponse, $request, $user)) {
-                            /** @var \Rawilk\ProfileFilament\Livewire\Sudo\SudoChallengeActionForm $livewire */
+                            /** @var \Rawilk\ProfileFilament\Auth\Sudo\Livewire\SudoChallengeActionForm $livewire */
                             $livewire->{$authenticateAction}($request);
 
                             return;
