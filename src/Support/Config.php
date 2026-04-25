@@ -60,6 +60,14 @@ final class Config
     /**
      * @return class-string
      */
+    public static function getActionClass(string $actionName): string
+    {
+        return config("profile-filament.actions.{$actionName}");
+    }
+
+    /**
+     * @return class-string
+     */
     public static function getModel(string $model): string
     {
         return config("profile-filament.models.{$model}");

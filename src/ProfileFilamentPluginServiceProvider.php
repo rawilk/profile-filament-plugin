@@ -28,6 +28,7 @@ use Rawilk\ProfileFilament\Responses\EmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\MultiFactorChallengeResponse;
 use Rawilk\ProfileFilament\Services\Mfa;
 use Rawilk\ProfileFilament\Services\Webauthn;
+use Rawilk\ProfileFilament\Support\Config;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -95,26 +96,26 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 
     private function makeClassBindings(): void
     {
-        $this->app->bind(Contracts\UpdatePasswordAction::class, fn ($app) => $app->make(config('profile-filament.actions.update_password')));
-        $this->app->bind(Contracts\DeleteAccountAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_account')));
+        $this->app->bind(Contracts\UpdatePasswordAction::class, fn ($app) => $app->make(Config::getActionClass('update_password')));
+        $this->app->bind(Contracts\DeleteAccountAction::class, fn ($app) => $app->make(Config::getActionClass('delete_account')));
 
         // General multi-factor
-        $this->app->bind(Contracts\TwoFactor\MarkTwoFactorDisabledAction::class, fn ($app) => $app->make(config('profile-filament.actions.mark_two_factor_disabled')));
-        $this->app->bind(Contracts\TwoFactor\MarkTwoFactorEnabledAction::class, fn ($app) => $app->make(config('profile-filament.actions.mark_two_factor_enabled')));
+        $this->app->bind(Contracts\TwoFactor\MarkTwoFactorDisabledAction::class, fn ($app) => $app->make(Config::getActionClass('mark_two_factor_disabled')));
+        $this->app->bind(Contracts\TwoFactor\MarkTwoFactorEnabledAction::class, fn ($app) => $app->make(Config::getActionClass('mark_two_factor_enabled')));
 
         // Authenticator apps
-        $this->app->bind(Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.store_authenticator_app')));
-        $this->app->bind(Auth\Multifactor\App\Contracts\DeleteAuthenticatorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_authenticator_app')));
+        $this->app->bind(Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction::class, fn ($app) => $app->make(Config::getActionClass('store_authenticator_app')));
+        $this->app->bind(Auth\Multifactor\App\Contracts\DeleteAuthenticatorAppAction::class, fn ($app) => $app->make(Config::getActionClass('delete_authenticator_app')));
 
         // Email authentication
-        $this->app->bind(Contracts\EmailAuthentication\EnableEmailAuthenticationAction::class, fn ($app) => $app->make(config('profile-filament.actions.enable_email_authentication')));
-        $this->app->bind(Contracts\EmailAuthentication\DisableEmailAuthenticationAction::class, fn ($app) => $app->make(config('profile-filament.actions.disable_email_authentication')));
+        $this->app->bind(Contracts\EmailAuthentication\EnableEmailAuthenticationAction::class, fn ($app) => $app->make(Config::getActionClass('enable_email_authentication')));
+        $this->app->bind(Contracts\EmailAuthentication\DisableEmailAuthenticationAction::class, fn ($app) => $app->make(Config::getActionClass('disable_email_authentication')));
 
         // Webauthn
-        $this->app->bind(Contracts\Webauthn\DeleteWebauthnKeyAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_webauthn_key')));
+        $this->app->bind(Contracts\Webauthn\DeleteWebauthnKeyAction::class, fn ($app) => $app->make(Config::getActionClass('delete_webauthn_key')));
 
         // Pending user emails
-        $this->app->bind(Contracts\PendingUserEmail\UpdateUserEmailAction::class, fn ($app) => $app->make(config('profile-filament.actions.update_user_email')));
+        $this->app->bind(Contracts\PendingUserEmail\UpdateUserEmailAction::class, fn ($app) => $app->make(Config::getActionClass('update_user_email')));
 
         // Responses
         $this->app->bind(Contracts\Responses\EmailChangeVerificationResponse::class, EmailChangeVerificationResponse::class);
