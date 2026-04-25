@@ -10,14 +10,12 @@ use Filament\Pages\SimplePage;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
-use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\IssuesSudoChallenge;
 use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeWasActivated;
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
-use Rawilk\ProfileFilament\Enums\RenderHook as PluginRenderHook;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 class SudoChallenge extends SimplePage
@@ -73,9 +71,7 @@ class SudoChallenge extends SimplePage
     {
         return $schema
             ->components([
-                RenderHook::make(PluginRenderHook::SudoChallengeBefore->value),
                 $this->getFormContentComponent(),
-                RenderHook::make(PluginRenderHook::SudoChallengeAfter->value),
             ]);
     }
 

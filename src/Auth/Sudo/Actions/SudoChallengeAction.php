@@ -8,6 +8,7 @@ use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Components\Livewire;
+use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Components\Text;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsWithSudo;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
+use Rawilk\ProfileFilament\Enums\RenderHook as PluginRenderHook;
 
 class SudoChallengeAction extends Action
 {
@@ -57,6 +59,8 @@ class SudoChallengeAction extends Action
         ], merge: true);
 
         $this->schema([
+            RenderHook::make(PluginRenderHook::SudoChallengeBefore->value),
+
             Text::make(
                 new HtmlString(Blade::render(<<<'HTML'
                 <x-profile-filament::sudo.signed-in-as
@@ -74,6 +78,8 @@ class SudoChallengeAction extends Action
             )
                 ->size(Size::ExtraSmall)
                 ->color('neutral'),
+
+            RenderHook::make(PluginRenderHook::SudoChallengeAfter->value),
         ]);
 
         $this->action(function (HasActions $livewire, array $arguments) {
