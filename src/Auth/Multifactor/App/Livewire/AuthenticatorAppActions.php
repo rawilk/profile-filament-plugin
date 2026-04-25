@@ -21,8 +21,8 @@ use Filament\Support\Icons\Heroicon;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
-use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Filament\Actions\DeleteAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUpdated;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\AuthenticatorApps\AuthenticatorAppNameInput;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
@@ -107,9 +107,7 @@ class AuthenticatorAppActions extends Component implements HasActions, HasSchema
             ->after(function () {
                 $this->authenticatorApp = null;
 
-                $this->js(<<<'JS'
-                $wire.$parent.$refresh
-                JS);
+                $this->js('$wire.$parent.$refresh');
             });
     }
 }

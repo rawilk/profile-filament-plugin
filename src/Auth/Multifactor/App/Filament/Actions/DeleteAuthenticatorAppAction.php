@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Actions;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Filament\Actions;
 
 use Closure;
 use Filament\Actions\DeleteAction;
