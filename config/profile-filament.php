@@ -22,8 +22,9 @@ return [
     | Actions
     |--------------------------------------------------------------------------
     |
-    | Here you may define which action classes should be used for various
-    | actions.
+    | The plugin performs several actions that may be customized here. Any
+    | custom action classes should implement the interface of the plugin
+    | action you are replacing.
     |
     */
     'actions' => [
