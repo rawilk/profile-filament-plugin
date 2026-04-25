@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
@@ -32,6 +33,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationP
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\RecoveryProvider;
+use Rawilk\ProfileFilament\Enums\RenderHook as PluginRenderHook;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
@@ -204,7 +206,9 @@ class MultiFactorChallenge extends SimplePage
     {
         return $schema
             ->components([
+                RenderHook::make(PluginRenderHook::MultiFactorChallengeBefore->value),
                 $this->getFormContentComponent(),
+                RenderHook::make(PluginRenderHook::MultiFactorChallengeAfter->value),
             ]);
     }
 
