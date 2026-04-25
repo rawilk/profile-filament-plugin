@@ -7,8 +7,8 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\Actions;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
-use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\HasMultiFactorAuthenticationRecovery;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction as MarkMultiFactorDisabledActionContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\HasMultiFactorAuthenticationRecovery;
 use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasDisabled;
 
 class MarkMultiFactorDisabledAction implements MarkMultiFactorDisabledActionContract
