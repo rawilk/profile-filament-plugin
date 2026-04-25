@@ -95,7 +95,7 @@ use Filament\Pages\Auth\Login;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use App\Models\User;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
+use Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationChallengeWasPresented;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 
 // shown below

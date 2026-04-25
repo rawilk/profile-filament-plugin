@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Event;
 use PragmaRX\Google2FA\Google2FA;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUsed;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
+use Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationChallengeWasPresented;
 use Rawilk\ProfileFilament\Auth\Multifactor\Services\Mfa;
 use Rawilk\ProfileFilament\Events\RecoveryCodeReplaced;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -187,7 +187,7 @@ it('can push a challenged user to the session', function () {
     expect(session()->get(MfaSession::UserBeingAuthenticated->value))->toBe($this->user->getKey())
         ->and(session()->get(MfaSession::Remember->value))->toBeTrue();
 
-    Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 });
 
 it('can determine if a user has mfa enabled on their account', function () {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\Passkeys\UpgradeToPasskeyAction;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
+use Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationWasEnabled;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpgradeToPasskey;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Testing\Support\FakeWebauthn;
@@ -40,7 +40,7 @@ it('can upgrade a webauthn key to a passkey', function () {
         return true;
     });
 
-    Event::assertNotDispatched(TwoFactorAuthenticationWasEnabled::class);
+    Event::assertNotDispatched(MultiFactorAuthenticationWasEnabled::class);
 
     $this->assertModelMissing($this->record);
 

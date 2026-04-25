@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Filament\Http\Middleware\Authenticate;
 use Filament\Pages\Auth\Login;
+use Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationChallengeWasPresented;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Http\Middleware\RequiresTwoFactorAuthentication;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -41,7 +41,7 @@ it('redirects to the mfa challenge', function () {
     get('/requires-mfa')
         ->assertRedirectToRoute('filament.admin.auth.mfa.challenge');
 
-    Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 
     expect(session()->get('url.intended'))->toBe('https://acme.test/requires-mfa');
 });
@@ -54,7 +54,7 @@ it('does nothing for guests', function () {
         ->assertOk()
         ->assertSeeLivewire(Login::class);
 
-    Event::assertNotDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertNotDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 });
 
 test('user must use the TwoFactorAuthenticatable trait', function () {
@@ -86,7 +86,7 @@ it('skips its check for routes named logout', function () {
         ->assertOk()
         ->assertSeeText('logout');
 
-    Event::assertNotDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertNotDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 
     $this->assertGuest();
 });
@@ -100,7 +100,7 @@ test('custom conditions can be used to exclude the mfa check', function () {
 
     get('/requires-mfa')->assertSeeText('ok');
 
-    Event::assertNotDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertNotDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 
     $user = User::factory()->withMfa()->create(['id' => 9999]);
 
@@ -108,7 +108,7 @@ test('custom conditions can be used to exclude the mfa check', function () {
         ->get('/requires-mfa')
         ->assertRedirectToRoute('filament.admin.auth.mfa.challenge');
 
-    Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 });
 
 it('does not redirect if mfa is already confirmed', function () {
@@ -116,11 +116,11 @@ it('does not redirect if mfa is already confirmed', function () {
 
     get('/requires-mfa')->assertSeeText('ok');
 
-    Event::assertNotDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertNotDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 
     actingAs(User::factory()->withMfa()->create())
         ->get('/requires-mfa')
         ->assertRedirectToRoute('filament.admin.auth.mfa.challenge');
 
-    Event::assertDispatched(TwoFactorAuthenticationChallenged::class);
+    Event::assertDispatched(MultiFactorAuthenticationChallengeWasPresented::class);
 });

@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
+use Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationWasEnabled;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 
 it('enables mfa for a user', function () {
@@ -21,7 +21,7 @@ it('enables mfa for a user', function () {
         ->two_factor_enabled->toBeTrue()
         ->recoveryCodes()->toHaveCount(8);
 
-    Event::assertDispatched(function (TwoFactorAuthenticationWasEnabled $event) use ($user) {
+    Event::assertDispatched(function (MultiFactorAuthenticationWasEnabled $event) use ($user) {
         expect($event->user)->toBe($user);
 
         return true;
@@ -40,7 +40,7 @@ it('does nothing if mfa is already enabled', function () {
 
     app(MarkMultiFactorEnabledAction::class)($user);
 
-    Event::assertNotDispatched(TwoFactorAuthenticationWasEnabled::class);
+    Event::assertNotDispatched(MultiFactorAuthenticationWasEnabled::class);
 
     $user->refresh();
 

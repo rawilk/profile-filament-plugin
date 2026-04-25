@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationChallenged;
+use Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationChallengeWasPresented;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class Mfa
@@ -88,7 +88,7 @@ class Mfa
         MfaSession::PasswordConfirmedAt->set(now()->unix());
         MfaSession::Remember->set($remember);
 
-        TwoFactorAuthenticationChallenged::dispatch($user);
+        MultiFactorAuthenticationChallengeWasPresented::dispatch($user);
     }
 
     public function flushPendingSession(): void

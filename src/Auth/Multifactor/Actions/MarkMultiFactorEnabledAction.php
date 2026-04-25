@@ -8,7 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable as User;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction as MarkMultiFactorEnabledContract;
-use Rawilk\ProfileFilament\Events\TwoFactorAuthenticationWasEnabled;
+use Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationWasEnabled;
 
 class MarkMultiFactorEnabledAction implements MarkMultiFactorEnabledContract
 {
@@ -24,6 +24,6 @@ class MarkMultiFactorEnabledAction implements MarkMultiFactorEnabledContract
 
         $user->toggleMultiFactorAuthenticationStatus(true);
 
-        TwoFactorAuthenticationWasEnabled::dispatch($user);
+        MultiFactorAuthenticationWasEnabled::dispatch($user);
     }
 }
