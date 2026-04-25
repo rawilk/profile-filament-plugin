@@ -43,9 +43,6 @@ return [
         'enable_email_authentication' => Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions\EnableEmailAuthenticationAction::class,
         'disable_email_authentication' => Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions\DisableEmailAuthenticationAction::class,
 
-        // Webauthn
-        'delete_webauthn_key' => Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction::class,
-
         // Pending user emails
         'update_user_email' => Rawilk\ProfileFilament\Actions\PendingUserEmails\UpdateUserEmailAction::class,
     ],
@@ -158,6 +155,7 @@ return [
          */
         'actions' => [
             'configure_ceremony_step_manager_factory' => WebauthnActions\ConfigureCeremonyStepManagerFactoryAction::class,
+            'delete_security_key' => WebauthnActions\DeleteSecurityKeyAction::class,
             'find_security_key_to_authenticate' => WebauthnActions\FindSecurityKeyToAuthenticateAction::class,
             'generate_security_key_authentication_options' => WebauthnActions\GenerateSecurityKeyAuthenticationOptionsAction::class,
             'generate_security_key_registration_options' => WebauthnActions\GenerateSecurityKeyRegistrationOptionsAction::class,

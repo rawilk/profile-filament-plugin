@@ -14,11 +14,11 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\GenerateSecurityKeyRegistrationOptionsAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\StoreSecurityKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Filament\Actions\SetupSecurityKeyAction;
-use Rawilk\ProfileFilament\Contracts\Webauthn\DeleteWebauthnKeyAction as Deleter;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Support\Config;
@@ -132,7 +132,9 @@ class WebauthnProvider implements MultiFactorAuthenticationProvider
 
     public function deleteSecurityKey(WebauthnKey $securityKey): void
     {
-        app(Deleter::class)($securityKey);
+        $deleteAction = Config::getWebauthnAction('delete_security_key', DeleteSecurityKeyAction::class);
+
+        $deleteAction($securityKey);
     }
 
     public function getChallengeFormComponents(Authenticatable $user): array

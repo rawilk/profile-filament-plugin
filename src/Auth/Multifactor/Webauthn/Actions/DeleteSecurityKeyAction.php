@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Actions\Webauthn;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions;
 
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
-use Rawilk\ProfileFilament\Contracts\Webauthn\DeleteWebauthnKeyAction as DeleteWebauthnKeyActionContract;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 
-class DeleteWebauthnKeyAction implements DeleteWebauthnKeyActionContract
+class DeleteSecurityKeyAction
 {
-    public function __invoke(WebauthnKey $webauthnKey)
+    public function __invoke(WebauthnKey $webauthnKey): void
     {
         /** @var \Illuminate\Database\Eloquent\Model&\Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn $user */
         $user = $webauthnKey->user;

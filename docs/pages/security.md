@@ -265,11 +265,11 @@ Here is a simple example of how you could override our `DeleteWebauthnKeyAction`
 ```php
 namespace App\Actions;
 
-use Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
 
-class CustomDeleteWebauthnKeyAction extends DeleteWebauthnKeyAction
+class CustomDeleteWebauthnKeyAction extends DeleteSecurityKeyAction
 {
     public function __invoke(WebauthnKey $webauthnKey): void
     {

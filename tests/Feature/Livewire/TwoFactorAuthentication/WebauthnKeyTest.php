@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpdated;
@@ -24,7 +24,7 @@ beforeEach(function () {
     login($this->record->user);
 
     config([
-        'profile-filament.actions.delete_webauthn_key' => DeleteWebauthnKeyAction::class,
+        'profile-filament.actions.delete_webauthn_key' => DeleteSecurityKeyAction::class,
     ]);
 });
 

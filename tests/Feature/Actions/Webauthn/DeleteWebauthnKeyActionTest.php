@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
-use Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Actions\MarkMultiFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
 use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyDeleted;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -22,7 +22,7 @@ beforeEach(function () {
 });
 
 it('deletes a webauthn key', function () {
-    app(DeleteWebauthnKeyAction::class)($this->record);
+    app(DeleteSecurityKeyAction::class)($this->record);
 
     Event::assertDispatched(function (WebauthnKeyDeleted $event) {
         expect($event->user)->toBe($this->record->user)
@@ -40,5 +40,5 @@ it('calls the action to disable mfa for a user', function () {
         ->with($this->record->user)
         ->once();
 
-    app(DeleteWebauthnKeyAction::class)($this->record);
+    app(DeleteSecurityKeyAction::class)($this->record);
 });
