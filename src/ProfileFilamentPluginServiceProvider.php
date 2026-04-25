@@ -108,8 +108,8 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->bind(Auth\Multifactor\App\Contracts\DeleteAuthenticatorAppAction::class, fn ($app) => $app->make(Config::getActionClass('delete_authenticator_app')));
 
         // Email authentication
-        $this->app->bind(Contracts\EmailAuthentication\EnableEmailAuthenticationAction::class, fn ($app) => $app->make(Config::getActionClass('enable_email_authentication')));
-        $this->app->bind(Contracts\EmailAuthentication\DisableEmailAuthenticationAction::class, fn ($app) => $app->make(Config::getActionClass('disable_email_authentication')));
+        $this->app->bind(Auth\Multifactor\Email\Contracts\EnableEmailAuthenticationAction::class, fn ($app) => $app->make(Config::getActionClass('enable_email_authentication')));
+        $this->app->bind(Auth\Multifactor\Email\Contracts\DisableEmailAuthenticationAction::class, fn ($app) => $app->make(Config::getActionClass('disable_email_authentication')));
 
         // Webauthn
         $this->app->bind(Contracts\Webauthn\DeleteWebauthnKeyAction::class, fn ($app) => $app->make(Config::getActionClass('delete_webauthn_key')));

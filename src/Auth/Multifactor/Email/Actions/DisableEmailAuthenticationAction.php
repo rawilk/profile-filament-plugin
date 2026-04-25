@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Actions\EmailAuthentication;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\HasEmailAuthentication;
-use Rawilk\ProfileFilament\Contracts\EmailAuthentication\DisableEmailAuthenticationAction as DisableEmailAuthenticationContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\DisableEmailAuthenticationAction as DisableEmailAuthenticationContract;
 use Rawilk\ProfileFilament\Events\EmailAuthentication\EmailAuthenticationWasDisabled;
 
 class DisableEmailAuthenticationAction implements DisableEmailAuthenticationContract

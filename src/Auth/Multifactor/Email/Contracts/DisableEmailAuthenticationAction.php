@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Contracts\EmailAuthentication;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 

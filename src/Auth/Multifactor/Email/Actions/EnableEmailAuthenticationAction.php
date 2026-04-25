@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Actions\EmailAuthentication;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\HasEmailAuthentication;
-use Rawilk\ProfileFilament\Contracts\EmailAuthentication\EnableEmailAuthenticationAction as EnableEmailAuthenticationContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\EnableEmailAuthenticationAction as EnableEmailAuthenticationContract;
 use Rawilk\ProfileFilament\Events\EmailAuthentication\EmailAuthenticationWasEnabled;
 
 class EnableEmailAuthenticationAction implements EnableEmailAuthenticationContract

@@ -26,12 +26,12 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\DisableEmailAuthenticationAction as DisableEmailAuthenticationContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\EnableEmailAuthenticationAction as EnableEmailAuthenticationActionContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Contracts\HasEmailAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Filament\Actions\DisableEmailAuthenticationAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\Filament\Actions\SetupEmailAuthenticationAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Enums\RecoveryCodeSession;
-use Rawilk\ProfileFilament\Contracts\EmailAuthentication\DisableEmailAuthenticationAction as DisableEmailAuthenticationContract;
-use Rawilk\ProfileFilament\Contracts\EmailAuthentication\EnableEmailAuthenticationAction;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
 
 class EmailAuthenticationProvider implements HasBeforeChallengeHook, MultiFactorAuthenticationProvider
@@ -57,7 +57,7 @@ class EmailAuthenticationProvider implements HasBeforeChallengeHook, MultiFactor
 
     public function enableEmailAuthentication(HasEmailAuthentication $user): void
     {
-        app(EnableEmailAuthenticationAction::class)($user);
+        app(EnableEmailAuthenticationActionContract::class)($user);
     }
 
     public function disableEmailAuthentication(HasEmailAuthentication $user): void

@@ -40,8 +40,8 @@ return [
         'store_authenticator_app' => Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction::class,
 
         // Email authentication
-        'enable_email_authentication' => Rawilk\ProfileFilament\Actions\EmailAuthentication\EnableEmailAuthenticationAction::class,
-        'disable_email_authentication' => Rawilk\ProfileFilament\Actions\EmailAuthentication\DisableEmailAuthenticationAction::class,
+        'enable_email_authentication' => Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions\EnableEmailAuthenticationAction::class,
+        'disable_email_authentication' => Rawilk\ProfileFilament\Auth\Multifactor\Email\Actions\DisableEmailAuthenticationAction::class,
 
         // Webauthn
         'delete_webauthn_key' => Rawilk\ProfileFilament\Actions\Webauthn\DeleteWebauthnKeyAction::class,
