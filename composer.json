@@ -79,8 +79,7 @@
             "aliases": {
                 "ProfileFilament": "Rawilk\\ProfileFilament\\Facades\\ProfileFilament",
                 "Mfa": "Rawilk\\ProfileFilament\\Facades\\Mfa",
-                "Sudo": "Rawilk\\ProfileFilament\\Facades\\Sudo",
-                "Webauthn": "Rawilk\\ProfileFilament\\Facades\\Webauthn"
+                "Sudo": "Rawilk\\ProfileFilament\\Facades\\Sudo"
             }
         }
     },
