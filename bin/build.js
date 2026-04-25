@@ -24,7 +24,7 @@ const defaultOptions = {
     sourcesContent: isDev,
     treeShaking: true,
     target: ['es2020'],
-    minify: !isDev,
+    minify: ! isDev,
     plugins: [{
         name: 'watchPlugin',
         setup: function (build) {
@@ -44,14 +44,6 @@ const defaultOptions = {
 };
 
 const buildEntries = [
-    // {
-    //     entry: './resources/js/webauthn/register.js',
-    //     output: './resources/dist/webauthn/register.js',
-    // },
-    // {
-    //     entry: './resources/js/webauthn/authenticate.js',
-    //     output: './resources/dist/webauthn/authenticate.js',
-    // },
     {
         entry: './resources/js/webauthn/index.js',
         output: './resources/dist/webauthn/webauthn.js',
