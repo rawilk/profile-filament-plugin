@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Contracts\AuthenticatorApps;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
 
-interface ConfirmTwoFactorAppAction
+interface StoreAuthenticatorAppAction
 {
     public function __invoke(User $user, string $name, string $secret);
 }

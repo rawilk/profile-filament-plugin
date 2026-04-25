@@ -125,10 +125,10 @@ If you want more control over how an authenticator app is stored, you may overri
 ```php
 namespace App\Actions;
 
-use Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 
-class CustomConfirmAction extends ConfirmTwoFactorAppAction
+class CustomConfirmAction extends StoreAuthenticatorAppAction
 {
     public function __invoke(User $user, string $name, string $secret)
     {
@@ -159,7 +159,7 @@ We will also call the `MarkTwoFactorDisabledAction`, which will disable mfa for 
 namespace App\Actions;
 
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
-use Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorDisabledAction;
 
 class CustomDeleteAction extends DeleteAuthenticatorAppAction

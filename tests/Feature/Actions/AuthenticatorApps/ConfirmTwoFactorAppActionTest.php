@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
-use Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction;
 use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppAdded;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -22,7 +22,7 @@ it('saves an authenticator app for a user', function () {
 
     $user = User::factory()->withoutMfa()->create();
 
-    app(ConfirmTwoFactorAppAction::class)(
+    app(StoreAuthenticatorAppAction::class)(
         user: $user,
         name: 'my app',
         secret: $secret = Str::random(32),
@@ -43,7 +43,7 @@ it('calls the action to enable mfa for a user', function () {
         ->with($user)
         ->once();
 
-    app(ConfirmTwoFactorAppAction::class)(
+    app(StoreAuthenticatorAppAction::class)(
         user: $user,
         name: 'my app',
         secret: Str::random(32),

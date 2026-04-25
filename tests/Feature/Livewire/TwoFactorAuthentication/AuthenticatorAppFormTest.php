@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use PragmaRX\Google2FA\Google2FA;
-use Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction;
 use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService as AuthenticatorAppServiceContract;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Livewire\TwoFactorAuthentication\AuthenticatorAppForm;
@@ -16,7 +16,7 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function () {
     config([
-        'profile-filament.actions.confirm_authenticator_app' => ConfirmTwoFactorAppAction::class,
+        'profile-filament.actions.confirm_authenticator_app' => StoreAuthenticatorAppAction::class,
         'profile-filament.actions.mark_two_factor_enabled' => MarkTwoFactorEnabledAction::class,
     ]);
 
@@ -46,7 +46,7 @@ it('can register a new authenticator app for a user', function () {
 
     // We already know this action works from other tests, so there's
     // no need to test the outcome of it again.
-    $this->mock(ConfirmTwoFactorAppAction::class)
+    $this->mock(StoreAuthenticatorAppAction::class)
         ->shouldReceive('__invoke')
         ->with(
             $this->user,
@@ -75,7 +75,7 @@ it('can register a new authenticator app for a user', function () {
 test('a valid otp code is required to register an authenticator app', function () {
     MockAuthenticatorAppService::$secret = $this->userSecret;
 
-    $this->mock(ConfirmTwoFactorAppAction::class)
+    $this->mock(StoreAuthenticatorAppAction::class)
         ->shouldNotReceive('__invoke');
 
     livewire(AuthenticatorAppForm::class, [
@@ -96,7 +96,7 @@ test('sudo mode can be required to register an app', function () {
 
     MockAuthenticatorAppService::$secret = $this->userSecret;
 
-    $this->mock(ConfirmTwoFactorAppAction::class)
+    $this->mock(StoreAuthenticatorAppAction::class)
         ->shouldNotReceive('__invoke');
 
     livewire(AuthenticatorAppForm::class, [
@@ -145,7 +145,7 @@ it('requires a unique name for each app', function () {
 
     MockAuthenticatorAppService::$secret = $this->userSecret;
 
-    $this->mock(ConfirmTwoFactorAppAction::class)
+    $this->mock(StoreAuthenticatorAppAction::class)
         ->shouldNotReceive('__invoke');
 
     livewire(AuthenticatorAppForm::class, [

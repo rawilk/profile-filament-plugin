@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Actions\AuthenticatorApps;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
-use Rawilk\ProfileFilament\Contracts\AuthenticatorApps\ConfirmTwoFactorAppAction as ConfirmTwoFactorAppActionContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction as StoreAuthenticatorAppActionContract;
 use Rawilk\ProfileFilament\Contracts\TwoFactor\MarkTwoFactorEnabledAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppAdded;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 
-class ConfirmTwoFactorAppAction implements ConfirmTwoFactorAppActionContract
+class StoreAuthenticatorAppAction implements StoreAuthenticatorAppActionContract
 {
     /** @var class-string<\Illuminate\Database\Eloquent\Model> */
     protected string $model;

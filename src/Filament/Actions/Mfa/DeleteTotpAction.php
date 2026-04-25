@@ -11,7 +11,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
-use Rawilk\ProfileFilament\Contracts\AuthenticatorApps\DeleteAuthenticatorAppAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\DeleteAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Filament\Actions\Sudo\Concerns\RequiresSudo2;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 

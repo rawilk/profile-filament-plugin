@@ -103,8 +103,8 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->bind(Contracts\TwoFactor\MarkTwoFactorEnabledAction::class, fn ($app) => $app->make(config('profile-filament.actions.mark_two_factor_enabled')));
 
         // Authenticator apps
-        $this->app->bind(Contracts\AuthenticatorApps\ConfirmTwoFactorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.confirm_authenticator_app')));
-        $this->app->bind(Contracts\AuthenticatorApps\DeleteAuthenticatorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_authenticator_app')));
+        $this->app->bind(Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.store_authenticator_app')));
+        $this->app->bind(Auth\Multifactor\App\Contracts\DeleteAuthenticatorAppAction::class, fn ($app) => $app->make(config('profile-filament.actions.delete_authenticator_app')));
 
         // Email authentication
         $this->app->bind(Contracts\EmailAuthentication\EnableEmailAuthenticationAction::class, fn ($app) => $app->make(config('profile-filament.actions.enable_email_authentication')));

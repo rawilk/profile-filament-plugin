@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppRemoved;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppUpdated;
@@ -14,7 +14,7 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function () {
     config([
-        'profile-filament.actions.delete_authenticator_app' => DeleteTwoFactorAppAction::class,
+        'profile-filament.actions.delete_authenticator_app' => DeleteAuthenticatorAppAction::class,
     ]);
 
     disableSudoMode();
@@ -115,7 +115,7 @@ it('can delete an app', function () {
 it('can require sudo mode to delete an app', function () {
     enableSudoMode();
 
-    $this->mock(DeleteTwoFactorAppAction::class)
+    $this->mock(DeleteAuthenticatorAppAction::class)
         ->shouldNotReceive('__invoke');
 
     livewire(AuthenticatorAppListItem::class, [

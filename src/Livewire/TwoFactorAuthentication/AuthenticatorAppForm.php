@@ -21,8 +21,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Reactive;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Concerns\Sudo\UsesSudoChallengeAction;
-use Rawilk\ProfileFilament\Contracts\AuthenticatorApps\ConfirmTwoFactorAppAction;
 use Rawilk\ProfileFilament\Contracts\AuthenticatorAppService;
 use Rawilk\ProfileFilament\Enums\Livewire\MfaEvent;
 use Rawilk\ProfileFilament\Facades\Mfa;
@@ -143,7 +143,7 @@ class AuthenticatorAppForm extends ProfileComponent
     }
 
     #[On('sudo-active')]
-    public function confirm(ConfirmTwoFactorAppAction $action): void
+    public function confirm(StoreAuthenticatorAppAction $action): void
     {
         if (! $this->ensureSudoIsActive()) {
             return;

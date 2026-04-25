@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Rawilk\ProfileFilament\Contracts\AuthenticatorApps;
+namespace Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts;
 
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 

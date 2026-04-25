@@ -35,8 +35,8 @@ return [
         'mark_two_factor_enabled' => Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorEnabledAction::class,
 
         // Authenticator apps
-        'confirm_authenticator_app' => Rawilk\ProfileFilament\Actions\AuthenticatorApps\ConfirmTwoFactorAppAction::class,
-        'delete_authenticator_app' => Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction::class,
+        'delete_authenticator_app' => Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction::class,
+        'store_authenticator_app' => Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction::class,
 
         // Email authentication
         'enable_email_authentication' => Rawilk\ProfileFilament\Actions\EmailAuthentication\EnableEmailAuthenticationAction::class,
@@ -152,7 +152,7 @@ return [
 
         /*
          * These actions are responsible for performing core tasks regarding webauthn.
-         * You can customize them byh creating a class that extends the default, and
+         * You can customize them by creating a class that extends the default, and
          * by specifying your custom class name here.
          */
         'actions' => [

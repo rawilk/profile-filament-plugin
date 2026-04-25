@@ -17,11 +17,11 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Livewire\Component;
 use PragmaRX\Google2FAQRCode\Google2FA;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\DeleteAuthenticatorAppAction as Deleter;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\HasAppAuthentication;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Contracts\StoreAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Filament\Actions\SetUpAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
-use Rawilk\ProfileFilament\Contracts\AuthenticatorApps\ConfirmTwoFactorAppAction;
-use Rawilk\ProfileFilament\Contracts\AuthenticatorApps\DeleteAuthenticatorAppAction as Deleter;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use SensitiveParameter;
@@ -139,7 +139,7 @@ class AppAuthenticationProvider implements MultiFactorAuthenticationProvider
 
     public function saveApp(HasAppAuthentication $user, #[SensitiveParameter] ?string $secret, string $appName): void
     {
-        app(ConfirmTwoFactorAppAction::class)(
+        app(StoreAuthenticatorAppAction::class)(
             user: $user,
             name: $appName,
             secret: $secret,

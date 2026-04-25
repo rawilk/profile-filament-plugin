@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Event;
-use Rawilk\ProfileFilament\Actions\AuthenticatorApps\DeleteTwoFactorAppAction;
 use Rawilk\ProfileFilament\Actions\TwoFactor\MarkTwoFactorDisabledAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
 use Rawilk\ProfileFilament\Events\AuthenticatorApps\TwoFactorAppRemoved;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
@@ -22,7 +22,7 @@ beforeEach(function () {
 });
 
 it('deletes an authenticator app for a user', function () {
-    app(DeleteTwoFactorAppAction::class)($this->record);
+    app(DeleteAuthenticatorAppAction::class)($this->record);
 
     Event::assertDispatched(function (TwoFactorAppRemoved $event) {
         expect($event->user->is($this->record->user))
@@ -40,5 +40,5 @@ it('calls the action to disable mfa for a user', function () {
         ->with($this->record->user)
         ->once();
 
-    app(DeleteTwoFactorAppAction::class)($this->record);
+    app(DeleteAuthenticatorAppAction::class)($this->record);
 });
