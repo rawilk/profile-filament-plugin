@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Auth\Sudo\Concerns;
 
-use Rawilk\ProfileFilament\Facades\Sudo;
+use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 trait InteractsWithSudo

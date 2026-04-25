@@ -16,9 +16,9 @@ use Filament\Schemas\Schema;
 use Illuminate\Http\Request;
 use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\IssuesSudoChallenge;
+use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
-use Rawilk\ProfileFilament\Facades\Sudo;
 
 class SudoChallengeActionForm extends Component implements HasActions, HasSchemas
 {

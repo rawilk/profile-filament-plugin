@@ -14,9 +14,9 @@ use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\IssuesSudoChallenge;
+use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeActivated;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
-use Rawilk\ProfileFilament\Facades\Sudo;
 
 class SudoChallenge extends SimplePage
 {

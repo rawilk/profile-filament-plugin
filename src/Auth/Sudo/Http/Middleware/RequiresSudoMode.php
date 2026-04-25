@@ -7,8 +7,8 @@ namespace Rawilk\ProfileFilament\Auth\Sudo\Http\Middleware;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
 use Rawilk\ProfileFilament\Events\Sudo\SudoModeChallenged;
-use Rawilk\ProfileFilament\Facades\Sudo;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class RequiresSudoMode
