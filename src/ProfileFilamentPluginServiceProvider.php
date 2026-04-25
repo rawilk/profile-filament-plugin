@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament;
 
 use BladeUI\Icons\Factory;
-use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
-use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
-use Psr\Log\NullLogger;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Livewire\AuthenticatorAppActions;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
@@ -27,7 +24,6 @@ use Rawilk\ProfileFilament\Responses\BlockEmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\EmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\MultiFactorChallengeResponse;
 use Rawilk\ProfileFilament\Services\Mfa;
-use Rawilk\ProfileFilament\Services\Webauthn;
 use Rawilk\ProfileFilament\Support\Config;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -67,14 +63,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
             fn () => new Mfa,
             //            fn ($app) => new Mfa(userModel: $app['config']['auth.providers.users.model']),
         );
-
-        //        $this->app->scoped(
-        //            Webauthn::class,
-        //            fn ($app) => new Webauthn(
-        //                model: $app['config']['profile-filament.models.webauthn_key'],
-        //                logger: $app['config']['profile-filament.webauthn.logging_enabled'] === true ? $app['log'] : new NullLogger,
-        //            ),
-        //        );
 
         $this->app->scoped(
             Sudo::class,
@@ -130,8 +118,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
             assets: [
                 Css::make('profile-filament-plugin', __DIR__ . '/../resources/dist/plugin.css')->loadedOnRequest(),
                 Js::make('profile-filament-webauthn', __DIR__ . '/../resources/dist/webauthn/webauthn.js'),
-                //                AlpineComponent::make('registerWebauthn', __DIR__ . '/../resources/dist/webauthn/register.js')->loadedOnRequest(),
-                //                AlpineComponent::make('authenticateWebauthn', __DIR__ . '/../resources/dist/webauthn/authenticate.js')->loadedOnRequest(),
             ],
             package: ProfileFilamentPlugin::PLUGIN_ID,
         );
