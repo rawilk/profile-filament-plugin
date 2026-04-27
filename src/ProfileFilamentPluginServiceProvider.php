@@ -66,7 +66,7 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->app->scoped(
             Sudo::class,
             fn ($app) => new Sudo(
-                expiration: $app['config']['profile-filament.sudo.expires'],
+                expiration: Config::getSudoExpiration(),
             ),
         );
     }

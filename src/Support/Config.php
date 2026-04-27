@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Support;
 
+use DateInterval;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Config as LaravelConfig;
 use LogicException;
@@ -99,6 +100,17 @@ final class Config
     public static function getRelyingPartyIcon(): ?string
     {
         return config('profile-filament.webauthn.relying_party.icon');
+    }
+
+    public static function getSudoExpiration(): DateInterval
+    {
+        $expiration = config('profile-filament.sudo.expires');
+
+        if (! ($expiration instanceof DateInterval)) {
+            throw new LogicException('Sudo expiration configuration value must be an instance of ' . DateInterval::class);
+        }
+
+        return $expiration;
     }
 
     private static function ensureValidActionClass(string $actionName, string $actionBaseClass, string $actionClass): void
