@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\MassPrunable;
@@ -49,16 +50,17 @@ class PendingUserEmail extends Model
         return $this->created_at->addMinutes(config('auth.verification.expire', 60))->isPast();
     }
 
-    public function scopeForUser(Builder $query, Model $user): void
+    public function prunable(): Builder
+    {
+        return static::where('created_at', '<', now()->subMinutes(config('auth.verification.expire', 60)));
+    }
+
+    #[Scope]
+    protected function forUser(Builder $query, Model $user): void
     {
         $query->where([
             $this->qualifyColumn('user_type') => $user->getMorphClass(),
             $this->qualifyColumn('user_id') => $user->getKey(),
         ]);
-    }
-
-    public function prunable(): Builder
-    {
-        return static::where('created_at', '<', now()->subMinutes(config('auth.verification.expire', 60)));
     }
 }
