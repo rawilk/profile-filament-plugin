@@ -106,7 +106,7 @@ describe('setup flow', function () {
 
         expect($user->getPreferredMfaProvider())->toBe($appAuthenticationProvider->getId());
 
-        assertDatabaseHas(Rawilk\ProfileFilament\Support\AuthenticatorApp::class, [
+        assertDatabaseHas(AuthenticatorApp::class, [
             'user_id' => $user->getKey(),
             'name' => 'My app',
         ]);
