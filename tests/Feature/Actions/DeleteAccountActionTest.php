@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Event;
 use Rawilk\ProfileFilament\Actions\DeleteAccountAction;
 use Rawilk\ProfileFilament\Events\UserDeletedAccount;
-use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
+use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
+
+use function Pest\Laravel\assertModelMissing;
 
 it('deletes a user account', function () {
     Event::fake();
@@ -20,5 +21,5 @@ it('deletes a user account', function () {
         return true;
     });
 
-    $this->assertModelMissing($user);
+    assertModelMissing($user);
 });

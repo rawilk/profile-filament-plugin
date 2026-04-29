@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
-arch()->expect('Rawilk\ProfileFilament\Responses')
+use Illuminate\Contracts\Support\Responsable;
+
+arch()
+    ->expect('Rawilk\ProfileFilament\Responses')
     ->classes()
-    ->toHaveSuffix('Response');
+    ->toHaveSuffix('Response')
+    ->toImplement(Responsable::class);

@@ -11,6 +11,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Rawilk\ProfileFilament\Events\PendingUserEmails\NewUserEmailVerified;
+use Rawilk\ProfileFilament\Support\Config;
 
 class EmailChangeVerificationRequest extends FormRequest
 {
@@ -34,7 +35,7 @@ class EmailChangeVerificationRequest extends FormRequest
     public function fulfill(): void
     {
         /** @var \Rawilk\ProfileFilament\Models\PendingUserEmail $pendingEmail */
-        $pendingEmail = app(config('profile-filament.models.pending_user_email'))->whereToken($this->query('token'))->firstOr(['*'], function () {
+        $pendingEmail = app(Config::getModel('pending_user_email'))->whereToken($this->query('token'))->firstOr(['*'], function () {
             throw new AuthorizationException;
         });
 

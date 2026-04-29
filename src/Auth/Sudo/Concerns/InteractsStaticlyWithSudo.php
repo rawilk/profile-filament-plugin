@@ -16,7 +16,7 @@ trait InteractsStaticlyWithSudo
 
     protected static function sudoModeIsActive(): bool
     {
-        return Sudo::isActive();
+        return Sudo::isValid();
     }
 
     protected static function extendSudo(): void

@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Model;
 
-arch()->expect('Rawilk\ProfileFilament\Models')
+arch()
+    ->expect('Rawilk\ProfileFilament\Models')
     ->classes()
-    ->toExtend(Model::class)
-    ->ignoring('Rawilk\ProfileFilament\Models\Scopes');
+    ->toExtend(Model::class);
 
-arch()->expect('Rawilk\ProfileFilament\Models')
+arch()
+    ->expect('Rawilk\ProfileFilament\Models')
     ->classes()
     ->not->toHaveSuffix('Model');
 
-// arch()->expect('Rawilk\ProfileFilament')
-//    ->classes()
-//    ->not->toExtend(Model::class)
-//    ->ignoring([
-//        'Rawilk\ProfileFilament\Models',
-//    ]);
+arch()
+    ->expect('Rawilk\ProfileFilament')
+    ->classes()
+    ->not->toExtend(Model::class)->ignoring([
+        'Rawilk\ProfileFilament\Models',
+    ]);

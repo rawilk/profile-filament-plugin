@@ -9,11 +9,13 @@ use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Facades\Filament;
 use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallenge;
 use Rawilk\ProfileFilament\Contracts\DeleteAccountAction as DeleteAccountActionContract;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\DeleteAccountEmailConfirmationInput;
+use Throwable;
 
 class DeleteAccountAction extends Action
 {
@@ -57,19 +59,31 @@ class DeleteAccountAction extends Action
                 $this->cancel();
             }
 
-            $result = $this->process(function (DeleteAccountActionContract $deleter) {
-                $deleter(Filament::auth()->user());
+            $user = Filament::auth()->user();
 
-                return true;
-            }, ['deleter' => $deleter]);
+            // We need to log out before deleting the user account.
+            Filament::auth()->logout();
+
+            $result = $this->process(function (DeleteAccountActionContract $deleter, Authenticatable $user) {
+                try {
+                    $deleter($user);
+
+                    return true;
+                } catch (Throwable $exception) {
+                    report($exception);
+
+                    return false;
+                }
+            }, ['deleter' => $deleter, 'user' => $user]);
 
             if ($result === false) {
+                // Something went wrong, log the user back in.
+                Filament::auth()->login($user);
+
                 $this->failure();
 
                 return;
             }
-
-            Filament::auth()->logout();
 
             session()->invalidate();
             session()->regenerateToken();

@@ -15,6 +15,7 @@ use Rawilk\ProfileFilament\Contracts\PendingUserEmail\UpdateUserEmailAction as U
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Actions\Emails\Concerns\SendsEmailChangeVerification;
 use Rawilk\ProfileFilament\Notifications\Emails\NoticeOfEmailChangeRequest;
+use Rawilk\ProfileFilament\Support\Config;
 
 class UpdateUserEmailAction implements UpdateUserEmailActionContract
 {
@@ -25,7 +26,7 @@ class UpdateUserEmailAction implements UpdateUserEmailActionContract
 
     public function __construct()
     {
-        $this->pendingUserEmailModel = config('profile-filament.models.pending_user_email');
+        $this->pendingUserEmailModel = Config::getModel('pending_user_email');
     }
 
     public function __invoke(User $user, string $email): void

@@ -43,14 +43,6 @@ class Mfa
         session()->put($this->getUserConfirmedKey($user), now()->unix());
     }
 
-    public function isConfirmedInSession(User $user): bool
-    {
-        $key = $this->getUserConfirmedKey($user);
-
-        return session()->has($key)
-            && session()->get($key) === true;
-    }
-
     public function challengedUser(): Model|User|null
     {
         if ($this->challengedUser) {
@@ -61,7 +53,7 @@ class Mfa
             return null;
         }
 
-        return $this->userProvider->retrieveById(
+        return $this->challengedUser = $this->userProvider->retrieveById(
             MfaSession::UserBeingAuthenticated->get()
         );
     }

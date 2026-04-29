@@ -9,7 +9,7 @@ use Rawilk\ProfileFilament\Events\ProfileFilamentEvent;
 
 class EmailAuthenticationWasDisabled extends ProfileFilamentEvent
 {
-    public function __construct(Authenticatable $user)
+    public function __construct(public Authenticatable $user)
     {
     }
 }

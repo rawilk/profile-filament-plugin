@@ -2,36 +2,51 @@
 
 declare(strict_types=1);
 
+use Filament\Actions\Testing\TestAction;
+use Filament\Facades\Filament;
 use Rawilk\ProfileFilament\Actions\DeleteAccountAction;
 use Rawilk\ProfileFilament\Events\UserDeletedAccount;
 use Rawilk\ProfileFilament\Livewire\DeleteAccount;
-use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
+use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\assertAuthenticatedAs;
+use function Pest\Laravel\assertGuest;
+use function Pest\Laravel\assertModelExists;
+use function Pest\Laravel\assertModelMissing;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
     Event::fake();
 
-    login($this->user = User::factory()->create(['email' => 'email@example.test']));
+    actingAs($this->user = User::factory()->create(['email' => 'email@example.test']));
 
-    config([
-        'profile-filament.actions.delete_account' => DeleteAccountAction::class,
-    ]);
+    config()->set('profile-filament.actions.delete_account', DeleteAccountAction::class);
 
+    Filament::setCurrentPanel('admin');
     disableSudoMode();
+
+    $this->component = DeleteAccount::class;
 });
 
-it('deletes a users account and logs the user out', function () {
-    livewire(DeleteAccount::class)
-        ->callInfolistAction('.deleteAccountAction', 'deleteAccount', data: [
-            'email' => 'email@example.test',
-        ])
-        ->assertHasNoInfolistActionErrors()
-        ->assertRedirect('/admin/login');
+it('renders', function () {
+    livewire($this->component)->assertSuccessful();
+});
 
-    $this->assertGuest();
+it('deletes the user account and logs them out', function () {
+    livewire($this->component)
+        ->callAction(
+            TestAction::make('deleteAccount')->schemaComponent(schema: 'infolist'),
+            data: [
+                'email' => 'email@example.test',
+            ]
+        )
+        ->assertHasNoActionErrors()
+        ->assertRedirect(Filament::getLoginUrl());
 
-    $this->assertModelMissing($this->user);
+    assertGuest();
+
+    assertModelMissing($this->user);
 
     Event::assertDispatched(function (UserDeletedAccount $event) {
         expect($event->user)->toBe($this->user);
@@ -40,39 +55,53 @@ it('deletes a users account and logs the user out', function () {
     });
 });
 
-it('requires an email to process the action', function () {
-    livewire(DeleteAccount::class)
-        ->callInfolistAction('.deleteAccountAction', 'deleteAccount', data: [
-            'email' => null,
-        ])
-        ->assertHasInfolistActionErrors([
-            'email' => ['required'],
-        ])
-        ->assertNoRedirect();
+describe('validation', function () {
+    test('email is required', function () {
+        livewire($this->component)
+            ->callAction(
+                TestAction::make('deleteAccount')->schemaComponent(schema: 'infolist'),
+                data: [
+                    'email' => null,
+                ]
+            )
+            ->assertHasActionErrors([
+                'email' => 'required',
+            ])
+            ->assertNoRedirect();
 
-    $this->assertAuthenticated();
-});
+        assertAuthenticatedAs($this->user);
 
-it('requires the correct email to process the action', function () {
-    livewire(DeleteAccount::class)
-        ->callInfolistAction('.deleteAccountAction', 'deleteAccount', data: [
-            'email' => 'incorrect@example.test',
-        ])
-        ->assertHasInfolistActionErrors([
-            'email' => [__('profile-filament::pages/settings.delete_account.actions.delete.incorrect_email')],
-        ])
-        ->assertNoRedirect();
+        assertModelExists($this->user);
+    });
 
-    $this->assertAuthenticated();
+    test('email must be the auth user email', function () {
+        livewire($this->component)
+            ->callAction(
+                TestAction::make('deleteAccount')->schemaComponent(schema: 'infolist'),
+                data: [
+                    'email' => 'incorrect@example.test',
+                ]
+            )
+            ->assertHasActionErrors([
+                'email' => __('profile-filament::pages/settings.delete_account.actions.delete.incorrect_email'),
+            ])
+            ->assertNoRedirect();
 
-    $this->assertModelExists($this->user);
+        assertAuthenticatedAs($this->user);
+
+        assertModelExists($this->user);
+    });
 });
 
 it('can require sudo mode', function () {
     enableSudoMode();
 
-    livewire(DeleteAccount::class)
-        ->call('mountInfolistAction', 'deleteAccount', '.deleteAccountAction', 'infolist')
-        ->assertInfolistActionNotMounted('.deleteAccountAction', 'deleteAccount')
-        ->assertSeeText(sudoChallengeTitle());
+    livewire($this->component)
+        ->mountAction(TestAction::make('deleteAccount')->schemaComponent(schema: 'infolist'))
+        ->assertActionMounted('sudoChallenge')
+        ->assertActionNotMounted(TestAction::make('deleteAccount')->schemaComponent(schema: 'infolist'));
+
+    assertModelExists($this->user);
+
+    assertAuthenticatedAs($this->user);
 });

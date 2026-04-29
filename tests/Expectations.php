@@ -5,8 +5,6 @@ declare(strict_types=1);
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Date;
-use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
 
 // Add better handling for 'toBe' assertion for Eloquent models.
@@ -31,17 +29,7 @@ expect()->extend('toBeQueryCount', function () {
 });
 
 expect()->extend('toBeSudoSessionValue', function () {
-    $lastConfirmed = Date::parse(
-        session()->get(SudoSession::ConfirmedAt->value, 0),
-    );
-
-    return expect($this->value)->toBe($lastConfirmed);
-});
-
-expect()->extend('isMfaConfirmed', function () {
-    return expect(Mfa::isConfirmedInSession($this->value))->toBeTrue(
-        'User mfa session not confirmed',
-    );
+    return expect(SudoSession::ConfirmedAt->get())->toBe($this->value);
 });
 
 expect()->extend('toBePasswordFor', function (mixed $user) {

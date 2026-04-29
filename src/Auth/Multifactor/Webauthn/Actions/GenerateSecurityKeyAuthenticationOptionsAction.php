@@ -8,10 +8,10 @@ use Filament\Facades\Filament;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Support\Serializer;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Rawilk\ProfileFilament\Support\Config;
-use Valorin\Random\Random;
 use Webauthn\AuthenticatorSelectionCriteria;
 use Webauthn\PublicKeyCredentialDescriptor;
 use Webauthn\PublicKeyCredentialRequestOptions;
@@ -58,7 +58,7 @@ class GenerateSecurityKeyAuthenticationOptionsAction
 
     protected function generateChallenge(): string
     {
-        return Random::token(length: 32);
+        return ProfileFilament::challenge();
     }
 
     /**

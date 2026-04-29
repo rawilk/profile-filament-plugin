@@ -40,7 +40,7 @@ trait ShowsRecoveryCodesAfterAction
 
         // Work-around to help prevent action modals that hide themselves once the user has enabled
         // a mfa method.
-        RecoveryCodeSession::SettingUp->flash(true);
+        RecoveryCodeSession::SettingUp->put(true);
 
         $livewire->mountAction('showRecoveryCodes', arguments: [
             'encrypted' => Crypt::encrypt([

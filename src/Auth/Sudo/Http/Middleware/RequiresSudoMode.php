@@ -25,7 +25,7 @@ class RequiresSudoMode
             return redirect()->guest($this->getRedirectUrl());
         }
 
-        if (Sudo::isActive()) {
+        if (Sudo::isValid()) {
             Sudo::extend();
         }
 
@@ -39,7 +39,7 @@ class RequiresSudoMode
 
     protected function shouldChallengeForSudo(): bool
     {
-        return ! Sudo::isActive();
+        return ! Sudo::isValid();
     }
 
     protected function panelAllowsSudoMode(): bool

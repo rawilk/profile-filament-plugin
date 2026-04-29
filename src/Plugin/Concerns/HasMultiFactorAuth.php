@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Plugin\Concerns;
 
 use Closure;
+use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -13,6 +14,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationP
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\ChallengePipes\AuthenticateUser;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\ChallengePipes\GuardAgainstExpiredPasswordConfirmation;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\MultiFactorChallenge;
+use Rawilk\ProfileFilament\Auth\Multifactor\Filament\SetUpRequiredMultiFactorAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\RecoveryProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\RecoveryCodeProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Exceptions\InvalidConfig;
@@ -27,6 +29,9 @@ trait HasMultiFactorAuth
     protected array|MultiFactorAuthenticationProvider|Closure $multiFactorAuthenticationProviders = [];
 
     protected bool|Closure $isMultiFactorAuthenticationRequired = false;
+
+    /** @var string|Closure|array<class-string, string>|null */
+    protected string|Closure|array|null $setUpRequiredMultiFactorAuthenticationRouteAction = null;
 
     protected ?RecoveryProvider $recoveryProvider = null;
 
@@ -68,10 +73,12 @@ trait HasMultiFactorAuth
         bool|Closure $isRequired = false,
         null|bool|RecoveryProvider $recoveryProvider = null,
         string|Closure|array|null $challengeAction = MultiFactorChallenge::class,
+        string|Closure|array|null $setUpRequiredAction = SetUpRequiredMultiFactorAuthentication::class,
     ): static {
         $this->multiFactorAuthenticationProviders = $providers;
         $this->requiresMultiFactorAuthentication($isRequired);
         $this->multiFactorAuthenticationAction = $challengeAction;
+        $this->setUpRequiredMultiFactorAuthenticationRouteAction = $setUpRequiredAction;
         $this->multiFactorRecovery(
             $recoveryProvider === false
                 ? null
@@ -105,6 +112,14 @@ trait HasMultiFactorAuth
         $this->isMultiFactorAuthenticationRequired = $condition;
 
         return $this;
+    }
+
+    /**
+     * @return string|Closure|array<class-string, string>|null
+     */
+    public function getSetUpRequiredMultiFactorAuthenticationRouteAction(): string|Closure|array|null
+    {
+        return $this->setUpRequiredMultiFactorAuthenticationRouteAction;
     }
 
     public function getMultiFactorRecoveryProvider(): ?RecoveryProvider
@@ -263,5 +278,14 @@ trait HasMultiFactorAuth
     public function getWebauthnResidentKeyRequirement(): ?string
     {
         return $this->webauthnAuthenticatorResidentKey;
+    }
+
+    public function getSetUpRequiredMultiFactorAuthenticationUrl(array $parameters = []): ?string
+    {
+        if (! $this->hasMultiFactorAuthentication()) {
+            return null;
+        }
+
+        return route(Filament::getCurrentOrDefaultPanel()->getSetUpRequiredMultiFactorAuthenticationRouteName(), $parameters);
     }
 }

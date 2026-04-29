@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Actions\Auth\PrepareUserSession;
-
-arch()->expect('Rawilk\ProfileFilament\Actions')
-    ->toBeClasses()
-    ->toHaveSuffix('Action')
-    ->ignoring([
-        PrepareUserSession::class,
+arch()
+    ->expect([
+        'Rawilk\ProfileFilament\Actions',
+        'Rawilk\ProfileFilament\Auth\Multifactor\Actions',
+        'Rawilk\ProfileFilament\Auth\Multifactor\*\Actions',
+        'Rawilk\ProfileFilament\Auth\Sudo\Actions',
+    ])
+    ->toBeClasses()->ignoring([
+        'Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns',
+    ])
+    ->toHaveSuffix('Action')->ignoring([
+        'Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns',
     ]);

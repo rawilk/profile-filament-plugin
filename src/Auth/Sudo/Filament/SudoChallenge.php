@@ -84,6 +84,6 @@ class SudoChallenge extends SimplePage
 
     protected function sudoModeIsActive(): bool
     {
-        return Sudo::isActive();
+        return Sudo::isValid();
     }
 }

@@ -35,11 +35,19 @@ class Sudo
         $this->activate();
     }
 
-    public function isActive(): bool
+    public function isValid(): bool
     {
         /** @var null|\Carbon\CarbonInterface $lastConfirmed */
         $lastConfirmed = SudoSession::ConfirmedAt->get();
 
         return $lastConfirmed?->add($this->expiration)->isFuture() ?? false;
+    }
+
+    /**
+     * @deprecated Use isValid() instead.
+     */
+    public function isActive(): bool
+    {
+        return $this->isValid();
     }
 }

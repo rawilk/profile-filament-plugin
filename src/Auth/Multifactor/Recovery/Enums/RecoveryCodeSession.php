@@ -13,6 +13,16 @@ enum RecoveryCodeSession: string
         session()->flash($this->value, $value);
     }
 
+    public function forget(): void
+    {
+        session()->forget($this->value);
+    }
+
+    public function put(mixed $value): void
+    {
+        session()->put($this->value, $value);
+    }
+
     public function missing(): bool
     {
         return session()->missing($this->value);

@@ -11,7 +11,7 @@ use Rawilk\ProfileFilament\Auth\Sudo\Services\Sudo as SudoService;
  * @method static void deactivate()
  * @method static void activate()
  * @method static void extend()
- * @method static bool isActive()
+ * @method static bool isValid()
  *
  * @see SudoService
  */

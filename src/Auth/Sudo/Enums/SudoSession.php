@@ -15,6 +15,11 @@ enum SudoSession: string
         session()->forget($this->value);
     }
 
+    public function has(): bool
+    {
+        return session()->has($this->value);
+    }
+
     public function get(): mixed
     {
         $value = session()->get($this->value);

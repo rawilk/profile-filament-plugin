@@ -2,60 +2,35 @@
 
 declare(strict_types=1);
 
-use Rawilk\ProfileFilament\Features;
-use Rawilk\ProfileFilament\Filament\Pages\MfaChallenge;
-use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo;
-use Rawilk\ProfileFilament\Filament\Pages\SudoChallenge;
+use Rawilk\ProfileFilament\Auth\Sudo\Webauthn\SudoWebauthnProvider;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 beforeEach(function () {
     $this->plugin = ProfileFilamentPlugin::make();
-
-    $this->plugin->register(filament()->getDefaultPanel());
 });
 
-it('knows if sudo mode is enabled', function () {
-    // enabled by default
-    expect($this->plugin->hasSudoMode())->toBeTrue();
+describe('sudo mode', function () {
+    it('defaults enabled sudo providers to the password providers if none are provided', function () {
+        $this->plugin->sudoMode(providers: null);
 
-    $this->plugin->features(Features::defaults()->useSudoMode(false));
+        $providers = $this->plugin->getSudoChallengeProviders();
 
-    expect($this->plugin->hasSudoMode())->toBeFalse();
-});
+        expect($providers)->not->toBeEmpty()
+            ->toHaveKey('password');
+    });
 
-it('knows if a page is enabled', function () {
-    // all pages are enabled by default
-    expect($this->plugin->isEnabled(ProfileInfo::class))->toBeTrue();
+    it('can enable sudo mode', function () {
+        $this->plugin->sudoMode(providers: [
+            SudoWebauthnProvider::make(),
+        ]);
 
-    $this->plugin->profile(enabled: false);
+        expect($this->plugin->hasSudoMode())->toBeTrue()
+            ->and($this->plugin->getSudoChallengeProviders())->toHaveKey('webauthn')->toHaveCount(1);
+    });
 
-    expect($this->plugin->isEnabled(ProfileInfo::class))->toBeFalse();
-});
+    it('can disable sudo mode', function () {
+        $this->plugin->sudoMode(providers: false);
 
-test('a custom action can be used for full-page sudo challenge', function () {
-    expect($this->plugin->getSudoChallengeAction())->toBe(SudoChallenge::class);
-
-    $this->plugin->challengeSudoWith('foo');
-
-    expect($this->plugin->getSudoChallengeAction())->toBe('foo');
-});
-
-test('a custom action can be used for full-page mfa challenge', function () {
-    expect($this->plugin->getMfaChallengeAction())->toBe(MfaChallenge::class);
-
-    $this->plugin->challengeMfaWith('foo');
-
-    expect($this->plugin->getMfaChallengeAction())->toBe('foo');
-});
-
-it('can get the slug for a page', function () {
-    expect($this->plugin->getSlug(ProfileInfo::class))->toBe('user');
-
-    $this->plugin->profile(slug: 'custom-profile');
-
-    expect($this->plugin->getSlug(ProfileInfo::class))->toBe('custom-profile');
-});
-
-it('can get the url for a page', function () {
-    expect($this->plugin->pageUrl(ProfileInfo::class))->toBe('https://acme.test/admin/profile/user');
+        expect($this->plugin->hasSudoMode())->toBeFalse();
+    });
 });

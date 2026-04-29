@@ -56,6 +56,14 @@ class AppAuthenticationProvider implements MultiFactorAuthenticationProvider
         return $this->google2FA->generateSecretKey(length: $this->appSecretKeyLength);
     }
 
+    /**
+     * This is mostly here for testing.
+     */
+    public function getCurrentCode(#[SensitiveParameter] ?string $secret = null): string
+    {
+        return $this->google2FA->getCurrentOtp($secret);
+    }
+
     public function generateQrCodeDataUri(string $secret): string
     {
         /** @var HasAppAuthentication $user */

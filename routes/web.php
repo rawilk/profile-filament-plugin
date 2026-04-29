@@ -67,6 +67,16 @@ Route::name('filament.')
                         if ($plugin->hasMultiFactorAuthentication()) {
                             Route::get($plugin->getMultiFactorAuthenticationRouteSlug(), $plugin->getMultiFactorAuthenticationRouteAction())
                                 ->name('auth.multi-factor-challenge');
+
+                            // We are overriding Filament's prompt to apply our own logic.
+                            if ($plugin->isMultiFactorAuthenticationRequired()) {
+                                Route::name('auth.multi-factor-authentication.')
+                                    ->prefix($panel->getMultiFactorAuthenticationRoutePrefix())
+                                    ->group(function () use ($panel, $plugin): void {
+                                        Route::get($panel->getSetUpRequiredMultiFactorAuthenticationRouteSlug(), $plugin->getSetUpRequiredMultiFactorAuthenticationRouteAction())
+                                            ->name('set-up-required');
+                                    });
+                            }
                         }
 
                         // Sudo Challenge

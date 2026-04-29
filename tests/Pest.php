@@ -2,38 +2,26 @@
 
 declare(strict_types=1);
 
-use Illuminate\Contracts\Auth\Authenticatable;
+use Filament\Facades\Filament;
+use Filament\Panel;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
-use Rawilk\ProfileFilament\Auth\Sudo\Enums\SudoSession;
-use Rawilk\ProfileFilament\Facades\Sudo;
-use Rawilk\ProfileFilament\Facades\Webauthn;
-use Rawilk\ProfileFilament\Features;
+use Rawilk\ProfileFilament\Auth\Sudo\Password\SudoPasswordProvider;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\Settings;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
 use Rawilk\ProfileFilament\Tests\TestCase;
+use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
 
-pest()->extend(TestCase::class)
-    ->in(
-        'Feature',
-        'Unit',
-    );
+pest()->uses(TestCase::class)->in(__DIR__);
 
-pest()->uses(
-    LazilyRefreshDatabase::class,
-)->in(
-    'Feature',
-);
+pest()->uses(LazilyRefreshDatabase::class)->in('Feature');
 
 // Helpers
 
-function challengeUser(?User $user = null): void
+function challengeUser(User $user): void
 {
-    $user ??= test()->user;
-
-    session()->put(MfaSession::UserBeingAuthenticated->value, $user->getKey());
+    MfaSession::UserBeingAuthenticated->set((string) $user->getAuthIdentifier());
+    MfaSession::PasswordConfirmedAt->set(now());
 }
 
 function queryCount(): int
@@ -46,85 +34,36 @@ function trackQueries(): void
     DB::enableQueryLog();
 }
 
-function enableSudoMode(bool $resetSudo = true): void
+function getPlugin(?Panel $panel = null): ProfileFilamentPlugin
 {
-    getPanelFeatures()->useSudoMode();
+    $panel ??= Filament::getCurrentOrDefaultPanel();
 
-    if ($resetSudo) {
-        Sudo::deactivate();
-    }
+    return $panel->getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
 }
 
 function disableSudoMode(): void
 {
-    getPanelFeatures()->useSudoMode(false);
+    $plugin = getPlugin();
+
+    $plugin->sudoMode(false);
+
+    (fn () => $this->sudoChallengeProviderCache = [])->call($plugin);
 }
 
-function getPanelFeatures(): Features
+function enableSudoMode(?array $providers = null): void
 {
-    return filament()->getCurrentPanel()?->getPlugin(ProfileFilamentPlugin::PLUGIN_ID)->panelFeatures();
+    $plugin = getPlugin();
+
+    $providers ??= [
+        SudoPasswordProvider::make(),
+    ];
+
+    (fn () => $this->sudoChallengeProviderCache = [])->call($plugin);
+
+    $plugin->sudoMode($providers);
 }
 
-function login(?Authenticatable $user = null): Authenticatable
+function getProfileSettingsUrl(): string
 {
-    $user ??= User::factory()->create();
-
-    test()->actingAs($user);
-
-    return $user;
-}
-
-function disableMfa(User $user): void
-{
-    $user->update([
-        'two_factor_enabled' => false,
-        'two_factor_recovery_codes' => null,
-    ]);
-}
-
-function enableMfa(User $user): void
-{
-    $user->update([
-        'two_factor_enabled' => true,
-        'two_factor_recovery_codes' => Crypt::encryptString(
-            json_encode([
-                'code-one',
-                'code-two',
-                'code-three',
-                'code-four',
-            ])
-        ),
-    ]);
-}
-
-function storeAttestationOptionsInSession(User $user, ?string $sessionKey = null): void
-{
-    $options = Webauthn::attestationObjectFor($user);
-
-    $sessionKey ??= MfaSession::AttestationPublicKey->value;
-
-    session()->put($sessionKey, $options);
-}
-
-function storeAssertionOptionsInSession(User $user, ?string $sessionKey = null): void
-{
-    $options = Webauthn::assertionObjectFor($user);
-
-    $sessionKey ??= SudoSession::WebauthnAssertionPk->value;
-
-    session()->put($sessionKey, $options);
-}
-
-function storePasskeyAttestationOptionsInSession(User $user, ?string $sessionKey = null): void
-{
-    $options = Webauthn::passkeyAttestationObjectFor($user);
-
-    $sessionKey ??= MfaSession::PasskeyAttestationPk->value;
-
-    session()->put($sessionKey, $options);
-}
-
-function sudoChallengeTitle(): string
-{
-    return __('profile-filament::messages.sudo_challenge.title');
+    return filament(ProfileFilamentPlugin::PLUGIN_ID)->getPageUrl(Settings::class);
 }

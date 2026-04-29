@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Hash;
 use Rawilk\ProfileFilament\Actions\UpdatePasswordAction;
 use Rawilk\ProfileFilament\Events\UserPasswordWasUpdated;
-use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
+use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
 
-it('updates a users password', function () {
+it('updates the password for a user', function () {
     Event::fake();
-    $user = User::factory()->create(['password' => 'first_pass']);
 
-    app(UpdatePasswordAction::class)($user, 'new_pass');
+    $user = User::factory()->create();
+
+    app(UpdatePasswordAction::class)($user, newPassword: 'new_pass');
 
     Event::assertDispatched(UserPasswordWasUpdated::class);
 
-    expect(Hash::check('new_pass', $user->refresh()->getAuthPassword()))->toBeTrue();
+    expect('new_pass')->toBePasswordFor($user);
 });

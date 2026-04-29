@@ -1,0 +1,1 @@
+{"challenge":"ZmFrZS1yYW5kb20tc3RyaW5n","rp":{"id":"acme.test","name":"https:\/\/acme.test"},"user":{"id":"MQ","name":"user@example.com","displayName":"user@example.com"},"pubKeyCredParams":[],"authenticatorSelection":{"requireResidentKey":true,"userVerification":"preferred","residentKey":"required"},"attestation":"none","excludeCredentials":[]}

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Facade;
 use Rawilk\ProfileFilament\ProfileFilament as ProfileFilamentService;
 
 /**
+ * @method static string challenge(int $length = 32)
  * @method static string getBlockEmailChangeVerificationUrl(MustVerifyEmail|Model|User $user, string $newEmail, array $parameters = [])
  * @method static string getEmailVerificationUrl(MustVerifyEmail|Model|User $user, array $parameters = [])
  * @method static string getVerifyEmailChangeUrl(MustVerifyEmail|Model|User $user, string $newEmail, array $parameters = [])

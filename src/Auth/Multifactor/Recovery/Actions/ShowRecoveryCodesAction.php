@@ -12,6 +12,7 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Js;
+use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Enums\RecoveryCodeSession;
 
 class ShowRecoveryCodesAction
 {
@@ -65,6 +66,9 @@ class ShowRecoveryCodesAction
                     ->validationMessages([
                         'accepted' => __('profile-filament::auth/multi-factor/recovery/actions/show-new-recovery-codes.modal.form.confirm.messages.accepted'),
                     ]),
-            ]);
+            ])
+            ->after(function () {
+                RecoveryCodeSession::SettingUp->forget();
+            });
     }
 }

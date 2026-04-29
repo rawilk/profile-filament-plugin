@@ -2,98 +2,171 @@
 
 declare(strict_types=1);
 
-use Illuminate\Http\Request;
-use Rawilk\ProfileFilament\Actions\Auth\PrepareUserSession;
-use Rawilk\ProfileFilament\Enums\Livewire\MfaChallengeMode;
-use Rawilk\ProfileFilament\Enums\Livewire\SudoChallengeMode;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Email\EmailAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
+use Rawilk\ProfileFilament\Auth\Sudo\Email\SudoEmailAuthenticationProvider;
+use Rawilk\ProfileFilament\Auth\Sudo\Password\SudoPasswordProvider;
 use Rawilk\ProfileFilament\ProfileFilament;
-use Rawilk\ProfileFilament\Tests\Fixtures\Models\User;
+use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
 
 beforeEach(function () {
     $this->service = new ProfileFilament;
 });
 
-afterEach(function () {
-    ProfileFilament::$findUserTimezoneUsingCallback = null;
-    ProfileFilament::$shouldCheckForMfaCallback = null;
-    ProfileFilament::$getPreferredMfaMethodCallback = null;
-    ProfileFilament::$mfaAuthenticationPipelineCallback = null;
+describe('user timezone', function () {
+    afterEach(function () {
+        ProfileFilament::$findUserTimezoneUsingCallback = null;
+    });
+
+    it('can get the timezone for a user', function () {
+        $user = User::factory()->make(['timezone' => 'America/Chicago']);
+
+        expect($this->service->userTimezone($user))->toBe('America/Chicago');
+    });
+
+    it('returns a default timezone if the user does not have one set', function () {
+        $user = User::factory()->make(['timezone' => null]);
+
+        expect($this->service->userTimezone($user))->toBe('UTC');
+    });
+
+    test('a custom callback can be used for getting a user timezone', function () {
+        ProfileFilament::findUserTimezoneUsing(fn ($user): string => $user->email);
+
+        $user = User::factory()->make(['email' => 'email@example.test']);
+
+        expect($this->service->userTimezone($user))->toBe('email@example.test');
+    });
 });
 
-it('can get the timezone for a user', function () {
-    $user = User::factory()->make();
-    $user->timezone = 'America/Chicago';
+describe('verify email change url', function () {
+    afterEach(function () {
+        ProfileFilament::createVerifyEmailChangeUrlUsing(null);
+    });
 
-    expect($this->service->userTimezone($user))->toBe('America/Chicago');
+    it('generates a url for email verification', function () {
+        $url = $this->service->getVerifyEmailChangeUrl($user = User::factory()->create(), 'email@example.com');
 
-    $user->timezone = null;
+        expect($url)->toContain('/email-change-verification/verify/' . $user->getKey())
+            ->toContain('signature=');
+    });
 
-    expect($this->service->userTimezone($user))->toBe('UTC');
+    test('a custom callback can be used to generate the url', function () {
+        ProfileFilament::createVerifyEmailChangeUrlUsing(fn ($user) => 'foo/' . $user->email);
+
+        $url = $this->service->getVerifyEmailChangeUrl($user = User::factory()->create(), 'email@example.com');
+
+        expect($url)->toBe('foo/' . $user->email);
+    });
 });
 
-test('a callback can be used for getting a user timezone', function () {
-    ProfileFilament::findUserTimezoneUsing(fn ($user): string => $user->email);
+describe('block email change verification url', function () {
+    afterEach(function () {
+        ProfileFilament::createBlockEmailChangeUrlUsing(null);
+    });
 
-    $user = User::factory()->make(['email' => 'email@example.test']);
+    it('generates a url for email verification', function () {
+        $url = $this->service->getBlockEmailChangeVerificationUrl($user = User::factory()->create(), 'email@example.com');
 
-    expect($this->service->userTimezone($user))->toBe('email@example.test');
+        expect($url)->toContain('/verify/' . $user->getKey())
+            ->toContain('signature=')
+            ->toContain('/block');
+    });
+
+    test('a custom callback can be used to generate the url', function () {
+        ProfileFilament::createBlockEmailChangeUrlUsing(fn ($user) => 'foo/' . $user->email);
+
+        $url = $this->service->getBlockEmailChangeVerificationUrl($user = User::factory()->create(), 'email@example.com');
+
+        expect($url)->toBe('foo/' . $user->email);
+    });
 });
 
-it('can determine if mfa should be enforced', function () {
-    $request = new Request;
-    $user = User::factory()->make();
+describe('email verification url', function () {
+    afterEach(function () {
+        ProfileFilament::createEmailVerificationUrlUsing(null);
+    });
 
-    expect($this->service->shouldCheckForMfa($request, $user))->toBeTrue();
+    it('generates a url for email verification', function () {
+        $url = $this->service->getEmailVerificationUrl($user = User::factory()->create());
 
-    ProfileFilament::shouldCheckForMfaUsing(fn (): bool => false);
+        expect($url)->toContain('/verify/' . $user->getKey())
+            ->toContain('signature=');
+    });
 
-    expect($this->service->shouldCheckForMfa($request, $user))->toBeFalse();
+    test('a custom callback can be used to generate the url', function () {
+        ProfileFilament::createEmailVerificationUrlUsing(fn ($user) => 'foo/' . $user->email);
+
+        $url = $this->service->getEmailVerificationUrl($user = User::factory()->create());
+
+        expect($url)->toBe('foo/' . $user->email);
+    });
 });
 
-it('can get the preferred mfa method for a user', function () {
-    $user = User::factory()->make();
+describe('preferred providers', function () {
+    it('gets a preferred mfa provider for a user', function () {
+        $user = User::factory()->make(['preferred_mfa_provider' => 'email_code']);
 
-    expect($this->service->preferredMfaProviderFor($user, []))->toBe(MfaChallengeMode::RecoveryCode->value)
-        ->and($this->service->preferredMfaProviderFor($user, [MfaChallengeMode::App, MfaChallengeMode::Webauthn->value]))->toBe(MfaChallengeMode::App->value)
-        ->and($this->service->preferredMfaProviderFor($user, [MfaChallengeMode::Webauthn]))->toBe(MfaChallengeMode::Webauthn->value);
+        $providers = collect([
+            AppAuthenticationProvider::make(),
+            EmailAuthenticationProvider::make(),
+        ]);
 
-    ProfileFilament::getPreferredMfaMethodUsing(fn (): string => 'foo');
+        expect($this->service->preferredMfaProviderFor($user, $providers))->toBe('email_code');
+    });
 
-    expect($this->service->preferredMfaProviderFor($user, []))->toBe('foo');
+    it('falls back to the first available provider if preferred provider is not enabled', function () {
+        $user = User::factory()->make(['preferred_mfa_provider' => 'email_code']);
+
+        $providers = collect([
+            WebauthnProvider::make(),
+            AppAuthenticationProvider::make(),
+        ]);
+
+        expect($this->service->preferredMfaProviderFor($user, $providers))->toBe('webauthn');
+    });
+
+    it('returns the first provider id if no preference is set', function () {
+        $user = User::factory()->make(['preferred_mfa_provider' => null]);
+
+        $providers = collect([
+            WebauthnProvider::make(),
+            AppAuthenticationProvider::make(),
+            EmailAuthenticationProvider::make(),
+        ]);
+
+        expect($this->service->preferredMfaProviderFor($user, $providers))->toBe('webauthn');
+    });
+
+    it("uses a user's preferred mfa provider to get the initial sudo provider", function () {
+        $user = User::factory()->make(['preferred_mfa_provider' => 'email_code']);
+
+        $providers = collect([
+            SudoEmailAuthenticationProvider::make(),
+            SudoPasswordProvider::make(),
+        ]);
+
+        expect($this->service->preferredSudoChallengeProviderFor($user, $providers))->toBe('email_code');
+    });
 });
 
-it('can get the preferred sudo challenge method for a user', function () {
-    $user = User::factory()->withoutMfa()->make();
+describe('webauthn challenge', function () {
+    afterEach(function () {
+        ProfileFilament::generateChallengesUsing(null);
+    });
 
-    $methods = [
-        MfaChallengeMode::App->value,
-    ];
+    it('generates a challenge for webauthn requests', function () {
+        $challenge = $this->service->challenge(length: 16);
 
-    expect($this->service->preferredSudoChallengeProviderFor($user, $methods))->toBe(SudoChallengeMode::Password->value);
+        expect($challenge)->toHaveLength(16);
+    });
 
-    $user->two_factor_enabled = true;
+    test('a custom callback can be used to generate webauthn challenges', function () {
+        ProfileFilament::generateChallengesUsing(fn (): string => 'custom-challenge');
 
-    ProfileFilament::getPreferredMfaMethodUsing(fn ($user, $availableMethods): string => $availableMethods[0]);
+        $challenge = $this->service->challenge();
 
-    expect($this->service->preferredSudoChallengeProviderFor($user, $methods))->toBe(MfaChallengeMode::App->value);
-});
-
-test('recovery code is not allowed for sudo challenge', function () {
-    $user = User::factory()->withMfa()->make();
-    ProfileFilament::getPreferredMfaMethodUsing(fn () => MfaChallengeMode::RecoveryCode->value);
-
-    expect($this->service->preferredSudoChallengeProviderFor($user, []))->toBe(SudoChallengeMode::Password->value);
-});
-
-it('gets the pipes to send mfa challenges through for authentication', function () {
-    expect($this->service->getMfaAuthenticationPipes())->toMatchArray([
-        PrepareUserSession::class,
-    ]);
-
-    ProfileFilament::mfaAuthenticationPipelineUsing(fn (): array => ['one', 'two']);
-
-    expect($this->service->getMfaAuthenticationPipes())->toMatchArray([
-        'one',
-        'two',
-    ]);
+        expect($challenge)->toBe('custom-challenge');
+    });
 });

@@ -9,7 +9,10 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\CanUseDatabaseTransactions;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\EmbeddedSchema;
+use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -58,11 +61,24 @@ class UpdatePassword extends ProfileComponent
     {
         return <<<'HTML'
         <div>
-            <form wire:submit="updatePassword">
-                {{ $this->form }}
-            </form>
+            {{ $this->content }}
         </div>
         HTML;
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                $this->getFormContentComponent(),
+            ]);
+    }
+
+    public function getFormContentComponent(): Component
+    {
+        return Form::make([EmbeddedSchema::make('form')])
+            ->id('updatePasswordForm')
+            ->livewireSubmitHandler('updatePassword');
     }
 
     public function form(Schema $schema): Schema
@@ -153,8 +169,11 @@ class UpdatePassword extends ProfileComponent
                     $this->getCurrentPasswordComponent(),
                 ])
                 ->footer([
-                    $this->getSaveFormAction(),
-                    $this->getForgotPasswordLinkAction(),
+                    Actions::make([
+                        $this->getSaveFormAction(),
+                        $this->getForgotPasswordLinkAction(),
+                    ])
+                        ->key('update-password-form-actions'),
                 ]),
         ];
     }

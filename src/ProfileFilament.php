@@ -17,6 +17,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthenticati
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Sudo\Contracts\SudoChallengeProvider;
+use Valorin\Random\Random;
 
 class ProfileFilament
 {
@@ -39,6 +40,12 @@ class ProfileFilament
      * The callback that should be used to create the email verification url.
      */
     public static ?Closure $createEmailVerificationUrlCallback = null;
+
+    /**
+     * The callback that should be responsible for generating challenges for webauthn requests
+     * or other requests that require some sort of challenge.
+     */
+    public static ?Closure $generateChallengesUsingCallback = null;
 
     /**
      * Register a callback that is responsible for retrieving the authenticated user's timezone.
@@ -70,6 +77,15 @@ class ProfileFilament
     public static function createEmailVerificationUrlUsing(?Closure $callback): void
     {
         static::$createEmailVerificationUrlCallback = $callback;
+    }
+
+    /**
+     * Set a callback that should be responsible for generating challenges for webauthn requests
+     * or other requests that require some sort of challenge.
+     */
+    public static function generateChallengesUsing(?Closure $callback): void
+    {
+        static::$generateChallengesUsingCallback = $callback;
     }
 
     /**
@@ -142,7 +158,7 @@ class ProfileFilament
      *
      * @param  HasMultiFactorAuthentication&Authenticatable  $user
      */
-    public function preferredMfaProviderFor(User $user, Collection $enabledProviders): string
+    public function preferredMfaProviderFor(User $user, Collection $enabledProviders): ?string
     {
         // Use the user's preferred mfa provider or just use the first enabled provider if no preference is found.
         $preferredProvider = $user instanceof HasMultiFactorAuthentication
@@ -177,5 +193,17 @@ class ProfileFilament
         }
 
         return $enabledProviders->first()?->getId();
+    }
+
+    /**
+     * Generate a challenge token for requests that require a challenge.
+     */
+    public function challenge(int $length = 32): string
+    {
+        if (static::$generateChallengesUsingCallback) {
+            return (static::$generateChallengesUsingCallback)();
+        }
+
+        return Random::token(length: $length);
     }
 }

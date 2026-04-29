@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use PragmaRX\Google2FA\Google2FA;
+use Illuminate\Support\Str;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
+use Rawilk\ProfileFilament\Support\Config;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Rawilk\ProfileFilament\Models\AuthenticatorApp>
@@ -17,9 +18,12 @@ class AuthenticatorAppFactory extends Factory
 
     public function definition(): array
     {
+        $authModel = Config::getAuthenticatableModel();
+
         return [
-            'name' => fake()->ean13(),
-            'secret' => app(Google2FA::class)->generateSecretKey(),
+            'name' => fake()->word(),
+            'user_id' => $authModel::factory(),
+            'secret' => Str::random(),
         ];
     }
 }

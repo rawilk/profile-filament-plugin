@@ -10,6 +10,7 @@ use Filament\Support\Concerns\EvaluatesClosures;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
+use Rawilk\ProfileFilament\Auth\Multifactor\Http\Middleware\EnsureMultiFactorAuthenticationIsEnabled;
 use Rawilk\ProfileFilament\Plugin as ProfilePlugin;
 
 class ProfileFilamentPlugin implements Plugin
@@ -48,6 +49,12 @@ class ProfileFilamentPlugin implements Plugin
 
         $this->registerProfilePages($panel);
         $this->configureProfileMenuItem($panel);
+
+        if ($this->isMultiFactorAuthenticationRequired()) {
+            $panel->authMiddleware([
+                EnsureMultiFactorAuthenticationIsEnabled::class,
+            ]);
+        }
     }
 
     public function boot(Panel $panel): void
