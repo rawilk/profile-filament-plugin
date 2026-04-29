@@ -45,7 +45,7 @@ class AppServiceProvider
                         ])
                 ])
         });
-        
+
         ProfileInfolist::configureComponents(function (User $user) {
             return [
                 Section::make(__('Profile Information'))
@@ -58,7 +58,7 @@ class AppServiceProvider
                     ])
             ];
         });
-    }    
+    }
 }
 ```
 
