@@ -90,24 +90,6 @@ A great way to ensure the latest assets are always loaded is to add the `filamen
 }
 ```
 
-## Routes
-
-Most routes required for the package are registered automatically for you. However, the routes required for [Webauthn](/docs/profile-filament-plugin/{version}/advanced-usage/mfa#user-content-webauthn) public key generation are not registered automatically. If you plan on using webauthn functionality, you will need to register these routes using our route macro in one of your route files:
-
-```php
-// routes/web.php
-
-Route::webauthn();
-```
-
-**Note:** If your route's file does not have the `web` middleware applied to it, you will need to make sure it is applied to these routes. You can wrap our routes like this:
-
-```php
-Route::middleware(['web'])->group(function () {
-    Route::webauthn();
-});
-```
-
 ## Email Change Verification
 
 This package offers the ability to force users to verify any changes to their email address before the system updates their actual email. This can be considered a security feature, as it requires a user to verify they own an email address before the system persists the change to their user account.
