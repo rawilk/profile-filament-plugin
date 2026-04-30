@@ -1,5 +1,5 @@
 ---
-title: Sudo
+title: Sudo Mode
 sort: 3
 ---
 
