@@ -1,6 +1,6 @@
 ---
 title: Multi-Factor Authentication
-sort: 1
+sort: 2
 ---
 
 ## Introduction
@@ -139,7 +139,7 @@ public function panel(Panel $panel): Panel
 }
 ```
 
-### Changing the App Code Expiration Time
+### Changing the app code expiration time
 
 App codes are issued using a time-based one-time password (TOTP) algorithm, which means that they are only valid for a short period of time before and after they are generated. The time is defined in a "window" of time. By default, the plugin uses an expiration window of `8`, which creates a 4-minute validity period on either side of the generation time (8 minutes in total).
 
@@ -727,7 +727,7 @@ $defaults = [
 ];
 ```
 
-> {tip} With the default authentication classes, we perform the [same authentication check](/docs/profile-filament-plugin/{version}/auth/login#user-content-auth-attempt-callback) on the user as we do in the login form to ensure the user is actually allowed to sign in to the application. 
+> {tip} With the default authentication classes, we perform the [same authentication check](/docs/profile-filament-plugin/{version}/auth/login#user-content-auth-attempt-callback) on the user as we do in the login form to ensure the user is actually allowed to sign in to the application.
 
 ## Security notes about multi-factor authentication
 

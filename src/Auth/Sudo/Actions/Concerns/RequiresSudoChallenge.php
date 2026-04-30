@@ -7,7 +7,6 @@ namespace Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns;
 use Closure;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
-use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsWithSudo;
@@ -59,13 +58,6 @@ trait RequiresSudoChallenge
 
             $livewire->mountAction('sudoChallenge');
         });
-    }
-
-    protected function getSudoExpiredNotification(): ?Notification
-    {
-        return Notification::make()
-            ->danger()
-            ->title(__('profile-filament::messages.sudo_challenge.expired'));
     }
 
     protected function getBeforeCallback(): ?Closure
