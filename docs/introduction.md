@@ -20,8 +20,8 @@ Although this package is highly opinionated in how it handles many things, it is
 
 - [Randall Wilk](https://github.com/rawilk)
 - [All Contributors](https://github.com/rawilk/profile-filament-plugin/graphs/contributors)
-- [livewire/livewire](https://livewire.laravel.com) - For some JS code snippets
-- [laragear/webauthn](https://github.com/Laragear/WebAuthn) - For inspiration on some webauthn concepts
+- [Filament](https://filamentphp.com) - For inspiration on multi-factor authentication concepts
+- [spatie/laravel-passkeys](https://github.com/spatie/laravel-passkeys) - For inspiration on some webauthn/passkey concepts
 - [claudiodekker/laravel-auth](https://github.com/claudiodekker/laravel-auth) - For some inspirations on multi-factor and sudo mode concepts
 - [protonemedia/laravel-verify-new-email](https://github.com/protonemedia/laravel-verify-new-email) - For inspirations on pending email change functionalities
 

@@ -5,9 +5,9 @@ sort: 2
 
 ## General Requirements
 
-- PHP **8.2** or greater
-- Laravel **11.23** or greater
-- Filament **5.0** or greater
+- PHP **8.3** or greater
+- Laravel **12.0** or greater
+- Filament **4.0** or greater
 
 ## Session Management
 
