@@ -188,7 +188,7 @@ ProfileFilamentPlugin::make()
 
 ### Setting Up Recovery Codes
 
-If your users lose access to their multi-factor authentication app, they will be unable to sign in to your application. To prevent this, recovery codes can be used. See [Recovery](#user-content-recovery) for more information on setting up MFA recovery up.
+If your users lose access to their multi-factor authentication app, they will be unable to sign in to your application. To prevent this, recovery codes can be used. See [Recovery](#user-content-recovery) for more information on setting MFA recovery up.
 
 ## Email Authentication
 
@@ -337,6 +337,99 @@ public function panel(Panel $panel): Panel
         );
 }
 ```
+
+### Webauthn Routes
+
+If you intend to use [Passkey login](#user-content-passkey-login), you should register the passkey routes in a route file using the `Webauthn()` route macro:
+
+```php
+// routes/web.php
+
+use Illuminate\Routing\Route;
+
+Route::webauthn();
+```
+
+This will register the necessary routes for our passkey login to function properly.
+
+> {note} These routes require sessions to work properly and should be part of the `web` middleware group. 
+
+### Passkey Login
+
+Passkey login allows your users to authenticate without using their username or password; all they need is a passkey they registered to their account in your application. To add a passkey login action to your login form automatically, you can use the `passkeyLogin()` method on the plugin instance:
+
+```php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
+
+ProfileFilamentPlugin::make()
+    ->multiFactorAuthentication([
+        WebauthnProvider::make(),
+    ])
+    ->passkeyLogin()
+```
+
+> {tip} Be sure to activate the `WebauthnProvider` on the plugin too.
+
+We will append the action to the login form, and here is what it will look like by default:
+
+![passkey login](https://github.com/rawilk/profile-filament-plugin/blob/{branch}/assets/images/mfa/passkey-login.png?raw=true)
+
+The layout of the action is intentionally basic, however you could style it however you want by [publishing the views](/docs/profile-filament-plugin/{version}/installation#user-content-views) from the package.
+
+When the link is clicked on it will show a prompt like this (if you have a password manager installed):
+
+![passkey login prompt](https://github.com/rawilk/profile-filament-plugin/blob/{branch}/assets/images/mfa/passkey-login-prompt.png?raw=true)
+
+If you wish to place the action somewhere else on the login form, you can always add the blade component yourself:
+
+```php
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
+use Filament\Schemas\Components\Text;
+
+$schema->components([
+    Text::make(
+        new HtmlString(Blade::render('<x-profile-filament::passkey-login />'))
+    ):
+])
+```
+
+#### Customizing the passkey login
+
+Similar to the [multi-factor authentication process](#user-content-customizing-the-multifactorchallenge), we send the passkey authentication through a series of steps using Laravel's [Pipeline](https://laravel.com/docs/13.x/helpers#pipeline).
+
+If you wish to use your own logic, you can use the `sendPasskeyLoginThrough()` method on the plugin instance and provide an array of your own authentication classes.
+
+```php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
+
+ProfileFilamentPlugin::make()
+    ->multiFactorAuthentication([
+        WebauthnProvider::make(),
+    ])
+    ->passkeyLogin()
+    ->sendPasskeyLoginThrough([
+        PasskeyLoginClassOne::class,
+    ])
+```
+
+Here are the defaults we use for passkey login:
+
+```php
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\PasskeyLoginPipes\FindPasskey;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\PasskeyLoginPipes\AuthenticateUser;
+use Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\PrepareAuthenticatedSession;
+
+$defaults = [
+    FindPasskey::class,
+    AuthenticateUser::class,
+    PrepareAuthenticatedSession::class,
+];
+```
+
+> {tip} With the default authentication classes, we perform the [same authentication check](/docs/profile-filament-plugin/{version}/auth/login#user-content-auth-attempt-callback) on the user as we do in the login form to ensure the user is actually allowed to sign in to the application.
 
 ### Customize the relying party
 
