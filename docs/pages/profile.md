@@ -9,80 +9,58 @@ The Profile page is typically the starting page for the user profile in this plu
 
 Here is a screenshot of what the base Profile page will look like:
 
-![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile.png?raw=true)
+![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pages/profile.png?raw=true)
 
 And here is the default edit form:
 
-![base profile edit form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile-edit-form.png?raw=true)
+![base profile edit form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pages/profile-edit.png?raw=true)
 
 ## Customization
 
-For basic applications, the plugin's implementation may be enough. However, most applications will probably have a need to override the `ProfileInfo` component.
-
-Let's say you need to show a user's timezone and allow them to edit it as well on their profile info. This can be done by configuring the infolist and edit action in a service provider. If you need full control over the component or prefer not to customize it this way, you may [swap the component instead](/docs/profile-filament-plugin/{version}/customizations/page-customization#user-content-swap-components).
-
-To accomplish this, the two main methods we need to override are the `infolistSchema` and `formSchema` methods. There are other methods that can be overridden, such as `saveForm`, but what we are going to show below should be sufficient in most cases.
+Unless your application is very basic, you will probably want to customize the information shown on the profile information component. The easiest way to handle this would be to provide your own schema to the `ProfileInfolist` schema class in a service provider:
 
 ```php
-use App\Models\User;
-use Filament\Forms\Components\Select;
+use Rawilk\ProfileFilament\Filament\Schemas\Infolists\ProfileInfolist;
 use Filament\Schemas\Components\Section;
 use Rawilk\ProfileFilament\Filament\Actions\EditProfileInfoAction;
-use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\ProfileNameInput;
-use Rawilk\ProfileFilament\Filament\Schemas\Infolists\ProfileInfolist;
 
-class AppServiceProvider
-{
-    public function boot()
-    {
-        EditProfileInfoAction::configureUsing(function (EditProfileInfoAction $action) {
-            $action
-                ->schema([
-                    ProfileNameInput::make(),
-                    Select::make('timezone')
-                        ->options([
-                            // ...
-                        ])
-                ])
-        });
-
-        ProfileInfolist::configureComponents(function (User $user) {
-            return [
-                Section::make(__('Profile Information'))
-                    ->headerActions([
-                        EditProfileInfoAction::make()
-                    ])
-                    ->schema([
-                        ProfileInfolist::nameComponent(),
-                        TextEntry::make('timezone'),
-                    ])
-            ];
-        });
-    }
-}
+ProfileInfolist::configureComponents(fn (): array => [
+    Section::make('Custom profile info')
+        ->headerActions([
+            EditProfileInfoAction::make(),
+        ])
+        ->schema([
+            // ...
+        ])
+]);
 ```
 
-### Swap the Component Instead
+The callback you provide will receive a `$user` object as a parameter if you need it.
 
-If you want to swap the component instead, here is how to do it in your panel's service provider:
+> {tip} If you are providing your own schema for this, you'll probably also want to use a different edit profile action to allow the user to edit those fields as well.
+
+## Use a custom profile info page
+
+If you'd rather use your own page class, you are free to do that too. You can provide a class-string of your custom profile info page class to the `profileInfoPage()` method on the plugin:
 
 ```php
-use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\ProfileInfo as ProfileInfoPage;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo;
 
-$panel->plugin(
-    ProfileFilamentPlugin::make()
-        ->swapComponent(
-            page: ProfileInfoPage::class,
-            component: ProfileInfo::class,
-            newComponent: YourCustomProfileInfo::class,
-        )
-)
+ProfileFilamentPlugin::make()
+    ->profileInfoPage(YourCustomProfileInfo::class)
 ```
 
-> {tip} It's not necessary to extend the plugin's livewire component in this case; you are free to use a completely custom class if you want.
+See [Pages](/docs/profile-filament-plugin/{version}/configuration/pages) for more information on customizing the pages.
 
-## Events
+## Disable profile info
 
-By default, our `EditProfileInfoAction` will dispatch the `\Rawilk\ProfileFilament\Events\Profile\ProfileInformationUpdated` event, which you can listen for in your application if needed. The event will receive the authenticated user.
+If you'd rather disable the page entirely, you can provide a `null` value to the `profileInfoPage()` method on the plugin:
+
+```php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+
+ProfileFilamentPlugin::make()
+    ->profileInfoPage(null)
+```
+
+> {note} The profile info page is the default profile page. If you disable it, be sure to provide a different [default profile page](/docs/profile-filament-plugin{version}/configuration/pages#user-content-default-profile-page) to the `useDefaultProfilePage()` method on the plugin.
