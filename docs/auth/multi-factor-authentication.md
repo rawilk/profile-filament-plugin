@@ -673,6 +673,99 @@ ProfileFilamentPlugin::make()
 
 When this is enabled, users will be prompted to set up multi-factor authentication after they sign in, if they have not already done so.
 
+## Custom mfa providers
+
+If you need other multi-factor methods for your users, can create your own custom MFA providers. Your class needs to implement the `MultiFactorAuthenticationProvider` interface:
+
+```php
+namespace App\Auth\Providers;
+
+use Illuminate\Contracts\Auth\Authenticatable;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
+use Filament\Schemas\Components\Component;
+use Filament\Actions\Action;
+use Filament\Auth\MultiFactor\Contracts\HasBeforeChallengeHook;
+
+class SmsProvider implements MultiFactorAuthenticationProvider, HasBeforeChallengeHook
+{
+    public static function make(): static
+    {
+        return app(static::class);
+    }
+    
+    public function isEnabled(Authenticatable $user): bool
+    {
+        // ...
+    }
+    
+    public function getId(): string
+    {
+        return 'sms';
+    }
+    
+    /**
+     * This is a label that's shown in the default preferred mfa
+     * provider select ui component.
+     */
+    public function getSelectLabel(): string
+    {
+        return __('SMS Text Codes');
+    }
+    
+    public function beforeChallenge(Authenticatable $user): void
+    {
+        // send sms code
+    }
+    
+    /**
+     * @return array<Component|Action>
+     */
+    public function getManagementSchemaComponents(): array
+    {
+        return [
+            // ...
+        ];
+    }
+    
+    /**
+     * @return array<Component|Action>
+     */
+    public function getChallengeFormComponents(Authenticatable $user): array
+    {
+        return [
+            // ...
+        ];
+    }
+    
+    public function getChallengeSubmitLabel(): ?string
+    {
+        // return `null` to hide the submit button in the form.
+        return __('Verify');
+    }
+    
+    public function getChangeToProviderActionLabel(Authenticatable $user): ?string
+    {
+        return __('Use an SMS code');
+    }
+}
+```
+
+In this provider we are also using Filament's `HasBeforeChallengeHook` interface. This allows us to execute some code before the provider's challenge is shown to the user. In this case, the provider is sending a text to the user with a verification code. If your provider doesn't need to do something like this, you can omit the trait.
+
+With your custom MFA provider created, you can enable it on the panel through the plugin instance:
+
+```php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use App\Auth\Providers\SmsProvider;
+
+ProfileFilamentPlugin::make()
+    ->multiFactorAuthentication([
+        SmsProvider::make(),
+    ])
+```
+
+> {note} If you want your custom provider to be available for [sudo](/docs/profile-filament-plugin/{version}/auth/sudo#user-content-custom-sudo-providers) challenges, you will need to create a custom sudo challenge provider too. Your custom sudo challenge provider should use the same `getId()` value as your custom mfa provider does.
+
 ## Customizing the MultiFactorChallenge
 
 The `MultiFactorChallenge` page behaves very similarly to the Login page. Like the [login process](/docs/profile-filament-plugin/{version}/auth/login), we utilize Laravel's [Pipeline](https://laravel.com/docs/13.x/helpers#pipeline) to send a custom `MultiFactorEventBag` object through a series of actions that help finish the multi-factor authentication process. We have a set of default classes that the plugin provides to handle this; however, you may wish to define your own multi-factor authentication process.

@@ -43,7 +43,7 @@ You could also extend or replace the `ProfileInfo` Livewire [component](/docs/pr
 
 ### Default livewire components
 
-The Profile Info page consists of Livewire components that provide the page's functionality. You can [extend, replace or remove](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) any of the components on this page.
+The Profile Info page consists of Livewire components that provide the page's functionality. You can [extend, replace, or remove](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) any of the components on this page.
 
 The default Livewire components rendered onto the Profile Info page include:
 

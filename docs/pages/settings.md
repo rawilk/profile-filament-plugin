@@ -13,7 +13,7 @@ Here is what the account settings page will look like by default:
 
 ## Default livewire components
 
-The account settings page consists of Livewire components that provide the page's functionality. You can [extend, replace or remove](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) any of the components on this page.
+The account settings page consists of Livewire components that provide the page's functionality. You can [extend, replace, or remove](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) any of the components on this page.
 
 The default Livewire components rendered onto the account settings page include:
 
@@ -126,7 +126,7 @@ class DeleteAccountAction implements DeleteAccountContract
 
 > {note} Your action must either extend ours or implement the `DeleteAccountAction` interface for the livewire component to call it when deleting the user's account.
 
-After you've defined your action class, just add it to the `profile-filament` config:
+After you've defined your action class, add it to the `profile-filament` config:
 
 ```php
 'actions' => [

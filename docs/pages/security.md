@@ -5,29 +5,28 @@ sort: 3
 
 ## Introduction
 
-The Security profile page provides a UI for a user to update their password, as well as managing a user's available two-factor methods.
+The Security profile page provides a UI for a user to update their password, as well as managing a user's available multi-factor authentication methods.
 
-Each of the components on this page can be customized and swapped out for your own implementations. See [Swap Components](/docs/profile-filament-plugin/{version}/customizations/page-customization#user-content-swap-components) for more information on how to do that.
+Here is what the security page can look like with the default update password form and a user that has all the multi-factor authentication providers supported by this package enabled on their account:
 
-If you're looking to remove a certain component from the page, check out the [Available Features](/docs/profile-filament-plugin/{version}/customizations/features#user-content-available-features) documentation for more information on how to remove each of them.
+![security page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pages/security.png?raw=true)
 
-Most of the [translations](/docs/profile-filament-plugin/{version}/installation#user-content-translations) for this page are located in the `pages/security.php` and `pages/mfa.php` language files.
+## Default livewire components
 
-## Update Password
+The security settings page consists of Livewire components that provide the page's functionality. You can [extend, replace, or remove](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) any of the components on this page.
+
+The default Livewire components rendered onto the security settings page include:
+
+- `Rawilk\ProfileFilament\Livewire\UpdatePassword`
+- `Rawilk\ProfileFilament\Auth\Multifactor\Livewire\MultiFactorAuthenticationManager`
+
+## Update password
 
 The Update Password component provides a simple form for your users to update their current password. By default, we require a user to confirm their current password, as well as re-entering the new password as a confirmation. Both of these fields can be removed from the form if desired.
 
-Here is a screenshot of the default update password form:
+### Password hashing
 
-![update password form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/update-password-form.png?raw=true)
-
-### Events
-
-The `UpdatePasswordAction` provided by this package will dispatch the `UserPasswordWasUpdated` event, which will receive the authenticated user. You can listen for this event in your application to send an email notification to a user when their password is updated, for example.
-
-### Password Hashing
-
-By default, we assume your user model is using the `hashed` attribute cast on your user's password field, so we will not hash the new password for you. If you're not using the hashed attribute cast, you will need to modify the config value like this:
+By default, we assume your user model is using the `hashed` attribute cast on your user's password field, so we will not hash the new password for you. If you're not using the hashed attribute cast, you will need to set the `hash_user_passwords` in the `profile-filament` config file to `true`:
 
 ```php
 // config/profile-filament.php
@@ -35,513 +34,122 @@ By default, we assume your user model is using the `hashed` attribute cast on yo
 'hash_user_passwords' => true,
 ```
 
-### Customization
+### Disabling password confirmation
 
-There are several ways you can customize the update password form. In this section we'll go over some of the ways you can accomplish this.
-
-#### Current Password Field
-
-If you don't want your users to have to enter their current password, you can remove the field when you register the plugin:
+If you don't want users to re-enter their new password as a confirmation, you can disable the field. Pass in a boolean `false` to the `requirePasswordConfirmation()` method on the plugin to remove this field:
 
 ```php
-use Rawilk\ProfileFilament\Features;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
-$panel->plugin(
-    ProfileFilamentPlugin::make()
-        ->features(
-            Features::defaults()->requireCurrentPasswordToUpdatePassword(false)
-        )
-)
+ProfileFilamentPlugin::make()
+    ->requirePasswordConfirmation(false)
 ```
 
-#### Password Confirmation Field
+### Disabling the current password field
 
-If you don't want your users to have to enter a password confirmation, you can remove the field when you register the plugin:
+It's recommended to leave this field enabled as a security measure, but you can remove the current password field from the update password form by passing a boolean `false` to the `requireCurrentPassword()` method on the plugin:
 
 ```php
-use Rawilk\ProfileFilament\Features;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
-$panel->plugin(
-    ProfileFilamentPlugin::make()
-        ->features(
-            Features::defaults()->requirePasswordConfirmationToUpdatePassword(false)
-        )
-)
+ProfileFilamentPlugin::make()
+    ->requireCurrentPassword(false)
 ```
 
-#### Action
+### Hiding the reset password link
 
-You can override our `UpdatePasswordAction` with your own if you need to. Here is a quick example of how you could do that:
+If your panel has the reset password feature enabled, we will show a link to reset the user's password on this form. If you'd rather not show the link here, you can hide it by passing a boolean `false` to the `showPasswordResetLinkInUpdatePasswordForm()` on the plugin:
 
 ```php
-namespace App\Actions;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
-use Rawilk\ProfileFilament\Actions\UpdatePasswordAction;
-use Illuminate\Contracts\Auth\Authenticatable as User;
+ProfileFilamentPlugin::make()
+    ->showPasswordResetLinkInUpdatePasswordForm(false)
+```
 
-class CustomUpdatePasswordAction extends UpdatePasswordAction
+If you decide to keep the link in the form, be sure to override the `mount()` method in Filament's request password reset page to remove the redirect if a user is authenticated.
+
+## Multi-factor authentication
+
+The multi-factor authentication (MFA) manager provides a UI for managing a user's second factors for authentication. Once a user enables MFA for the first time, a set of recovery codes will be generated for the user if they ever lose access to their second factors.
+
+Any [MFA provider](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication) you have enabled on the plugin in the panel will show up in the MFA manager component. Almost all the customization you can do is done in each of the MFA provider instances, since they each manage their own management schemas.
+
+### Preferred mfa provider
+
+The MFA manager also provides a simple UI for allowing a user to select their preferred MFA provider. Once a user has two or more providers enabled, we will show a select field that allows them to choose their preferred provider when authenticating. The preferred MFA provider selected will be the initial provider challenge shown during MFA and Sudo challenges.
+
+If you follow the steps to set up [MFA](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication), you should already have your user model set up to handle this feature. By default, our `InteractsWithMultiFactorAuthentication` trait will look for a nullable string column `preferred_mfa_provider` on your user model. You will need to override the trait methods if you want to store the user's preferrence differently:
+
+```php
+use Illuminate\Foundation\Auth\User as BaseUser;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
+use Rawilk\ProfileFilament\Auth\Multifactor\Concerns\InteractsWithMultiFactorAuthentication;
+
+class User extends BaseUser implements HasMultiFactorAuthentication
 {
-    public function __invoke(User $user, string $newPassword): void
+    use InteractsWithMultiFactorAuthentication;
+    
+    public function getPreferredMfaProvider(): ?string
     {
-        // ...
+        // return user's stored preference
     }
-}
-```
-
-To use your new action, register it in the config:
-
-```php
-// config/profile-filament.php
-
-'actions' => [
-    'update_password' => \App\Actions\CustomUpdatePasswordAction::class,
-],
-```
-
-## Two-Factor Authentication
-
-The Two-Factor authentication section allows a user to add either an authenticator app (totp) or webauthn (security) keys as second factors to authenticate. Once at least one second factor has been registered, recovery codes will be generated for a user, which they can then store in a safe place.
-
-Here is a screenshot of the base state of this section:
-
-![mfa overview](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/mfa-overview.png?raw=true)
-
-### Authenticator Apps
-
-Authenticator apps are used to generate one-time passwords (totp) that are used as a second factor to verify a user's identity during sign-in. Here is a screenshot of the form used to register an authenticator app. When [Sudo Mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is enabled, we will prompt for identity verification prior to showing the registration form.
-
-![totp form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/totp-form.png?raw=true)
-
-When an authenticator app is successfully registered, we will dispatch the `TwoFactorAppAdded` event from the `ConfirmTwoFactorAppAction`, which will receive the user and new authenticator app model instance. You may choose to listen for this event to alert a user when a new totp app is registered on their account.
-
-We will also mark mfa as enabled on the user if it isn't already, and then also generate a set of [Recovery Codes](#user-content-recovery-codes) for the user.
-
-#### Customize Confirm Action
-
-If you want more control over how an authenticator app is stored, you may override the `ConfirmTwoFactorAppAction`:
-
-```php
-namespace App\Actions;
-
-use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\StoreAuthenticatorAppAction;
-use Illuminate\Contracts\Auth\Authenticatable as User;
-
-class CustomConfirmAction extends StoreAuthenticatorAppAction
-{
-    public function __invoke(User $user, string $name, string $secret)
+    
+    public function setPreferredMfaProvider(?string $provider): void
     {
-        // ...
+        // update user's stored preference
     }
 }
 ```
 
-Now you just need to register the action in the config:
+## Page configuration
+
+In addition to the normal [page configuration](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-configurable-profile-pages) methods available, the security page also has some additional configuration methods it accepts to make customizing the page a little more convenient.
+
+### Hiding the update password form
+
+The security page allows you to hide the update password form entirely by passing a boolean `false` to the `updatePasswordForm()` method on the page configuration instance:
 
 ```php
-// config/profile-filament.php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\Security;
 
-'actions' => [
-    'confirm_authenticator_app' => \App\Actions\CustomConfirmAction::class,
-],
+ProfileFilamentPlugin::make()
+    ->securityPage(
+        Security::make()
+            ->slug('security')
+            ->updatePasswordForm(false)
+    )
 ```
 
-> {note} If you use a custom confirm action, you will need to make sure you either call the `MarkTwoFactorEnabledAction` class yourself, or enable mfa manually yourself on the user model.
+### Hiding the multi-factor authentication manager
 
-#### Deleting Authenticators
-
-When an authenticator app is deleted, we will dispatch the `TwoFactorAppRemoved` event from our `DeleteTwoFactorAppAction`, which will receive the authenticator app being deleted. You can in turn listen for this event and send an alert to your users when this happens if you need to.
-
-We will also call the `MarkTwoFactorDisabledAction`, which will disable mfa for a user if they have no other available mfa methods registered to their account. If you override the delete action, you will need to manually disable mfa for your user. Here is a simple example of how you can override this action.
+If you have MFA enabled on the plugin but want to hide our MFA manager component, you can pass a boolean `false` to the `manageMultiFactorForm` method on the page configuration instance:
 
 ```php
-namespace App\Actions;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\Security;
 
-use Rawilk\ProfileFilament\Models\AuthenticatorApp;
-use Rawilk\ProfileFilament\Auth\Multifactor\App\Actions\DeleteAuthenticatorAppAction;
-use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
-
-class CustomDeleteAction extends DeleteAuthenticatorAppAction
-{
-    public function __invoke(AuthenticatorApp $authenticatorApp): void
-    {
-        // ...
-
-        app(MarkMultiFactorDisabledAction::class)($authenticatorApp->user);
-    }
-}
+ProfileFilamentPlugin::make()
+    ->securityPage(
+        Security::make()
+            ->slug('security')
+            ->manageMultiFactorForm(false)
+    )
 ```
 
-Now you just need to register the action in the config:
+### Using a custom multi-factor authentication manager
+
+As an alternative method to [replacing](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) the `MultiFactorAuthenticationManager` Livewire component, you can pass a class-string of your Livewire component to the `manageMultiFactorForm()` method on the page configuration instance.
 
 ```php
-// config/profile-filament.php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Filament\Pages\Profile\Security;
 
-'actions' => [
-    'delete_authenticator_app' => \App\Actions\CustomDeleteAction::class,
-],
+ProfileFilamentPlugin::make()
+    ->securityPage(
+        Security::make()
+            ->slug('security')
+            ->manageMultiFactorForm(managerClass: YourCustomComponent::class)
+    )
 ```
-
-### Webauthn
-
-Webauthn (security) keys are typically hardware devices that can be used a second factor of authentication. There is typically a lot of boilerplate code that is required for registering and authenticating with webauthn keys, but this package takes care of most of the heavy lifting for you. See [Webauthn](/docs/profile-filament-plugin/{version}/advanced-usage/mfa#user-content-webauthn) for more information on customizing webauthn in your application.
-
-Also, be sure you have the webauthn public key generation routes registered in your app. See [Routes](/docs/profile-filament-plugin/{version}/installation#user-content-routes) for more information.
-
-Since this is a sensitive action, we will require a [sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) prompt before the registration form is shown.
-
-Here is a screenshot of what the registration form will look like for a webauthn key.
-
-![register webauthn key](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/register-webauthn-key.png?raw=true)
-
-We will ask for a name for the new key, and then when "Add" is clicked, the security key prompt from the browser will open. Depending on your device's capabilities, you should see a prompt similar to this:
-
-![webauthn prompt](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/webauthn-prompt.png?raw=true)
-
-When a webauthn key is registered, we will dispatch the `WebauthnKeyRegistered` event from our `RegisterWebauthnKeyAction`, which will receive the user and webauthn key being registered. You may choose to listen to this event, so you can alert your users when a new key is registered to their account.
-
-We will also mark mfa as enabled on the user with the `MarkTwoFactorEnabledAction`, and generate [recovery codes](#user-content-recovery-codes) for the user if they don't already have them.
-
-#### Customize Register Action
-
-Although not recommended, you may override the `RegisterWebauthnKeyAction` to change how webauthn keys are registered in your application. Here is a simple example of how you could override it, along with the code from our action class that is required to store the key.
-
-```php
-namespace App\Actions;
-
-use Rawilk\ProfileFilament\Actions\Webauthn\RegisterWebauthnKeyAction;
-use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
-use Webauthn\PublicKeyCredentialSource;
-use Illuminate\Contracts\Auth\Authenticatable as User;
-use Illuminate\Support\Arr;
-use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasCreated;
-
-class CustomRegisterWebauthnAction extends RegisterWebauthnKeyAction
-{
-    public function __invoke(
-        User $user,
-        PublicKeyCredentialSource $publicKeyCredentialSource,
-        array $attestation,
-        string $keyName,
-    ): WebauthnKey {
-        $webauthnKey = WebauthnKey::fromPublicKeyCredentialSource(
-            source: $publicKeyCredentialSource,
-            user: $user,
-            keyName: $keyName,
-            attachmentType: Arr::get($attestation, 'authenticatorAttachment'),
-        );
-
-        return tap($webauthnKey, function (WebauthnKey $webauthnKey) use ($user) {
-            $webauthnKey->save();
-
-            app(MarkMultiFactorEnabledAction::class)($user);
-
-            SecurityKeyWasCreated::dispatch($webauthnKey, $user);
-        });
-    }
-}
-```
-
-Now you just need to register your action in the config:
-
-```php
-// config/profile-filament.php
-
-'actions' => [
-    'register_webauthn_key' => \App\Actions\CustomRegisterWebauthnAction::class,
-],
-```
-
-#### Deleting Webauthn Keys
-
-When a webauthn key is deleted, we will dispatch the `WebauthnKeyDeleted` event from our `DeleteWebauthnKeyAction`, which will receive the webauthn key being deleted, and the user. You may choose to listen to this event, so you can alert users when a key is deleted from their account.
-
-We will also disable mfa and remove a user's recovery codes if they have no other mfa methods registered to their account.
-
-Here is a simple example of how you could override our `DeleteWebauthnKeyAction` with your own implementation; just remember to also disable mfa for a user if you're overriding it.
-
-```php
-namespace App\Actions;
-
-use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
-use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
-
-class CustomDeleteWebauthnKeyAction extends DeleteSecurityKeyAction
-{
-    public function __invoke(WebauthnKey $webauthnKey): void
-    {
-        // ...
-
-        app(MarkMultiFactorDisabledAction::class)($webauthnKey->user);
-    }
-}
-```
-
-Now you just need to register your action in the config:
-
-```php
-// config/profile-filament.php
-
-'actions' => [
-    'delete_webauthn_key' => \App\Actions\CustomDeleteWebauthnKeyAction::class,
-],
-```
-
-#### Upgrading To Passkeys
-
-When you have [Passkeys](#user-content-passkeys) enabled, and a webauthn key is a platform key (i.e. touch id on an iphone), it can be upgraded to a passkey, which can be used for userless authentication.
-
-[Sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is required (when enabled) to perform this action. Here is a screenshot of the prompt you will receive for this action:
-
-![upgrade passkey](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/upgrade-passkey.png?raw=true)
-
-Once the "Upgrade to passkey" button is clicked, you will receive the same prompt from the browser that you received when the key was first registered. When the passkey has been registered, we will dispatch the `WebauthnKeyUpgradeToPasskey` event from our `UpgradeToPasskeyAction`, which will receive the user, the newly created passkey, and the webauthn key that was upgraded.
-
-> {note} We delete the webauthn key model record that is being upgraded by default.
-
-Although we don't recommend it, here is a way you can override the upgrade action class. The code shown here is what is used in our action class.
-
-```php
-namespace App\Actions;
-
-use Illuminate\Support\Arr;
-use Illuminate\Contracts\Auth\Authenticatable as User;
-use Rawilk\ProfileFilament\Actions\Passkeys\UpgradeToPasskeyAction;
-use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\Events\Webauthn\WebauthnKeyUpgradeToPasskey;
-use Webauthn\PublicKeyCredentialSource;
-
-class CustomPasskeyUpgradeAction extends UpgradeToPasskeyAction
-{
-    public function __invoke(
-        User $user,
-        PublicKeyCredentialSource $publicKeyCredentialSource,
-        array $attestation,
-        WebauthnKey $webauthnKey,
-    ): WebauthnKey {
-        $passkey = WebauthnKey::fromPublicKeyCredentialSource(
-            source: $publicKeyCredentialSource,
-            user: $user,
-            keyName: $webauthnKey->name,
-            attachmentType: Arr::get($attestation, 'authenticatorAttachment'),
-        );
-
-        return tap($passkey, function (WebauthnKey $passkey) use ($webauthnKey, $user) {
-            $passkey->is_passkey = true;
-            $passkey->save();
-
-            $webauthnKey->delete();
-
-            cache()->forget($user::hasPasskeysCacheKey($user));
-
-            WebauthnKeyUpgradeToPasskey::dispatch($user, $passkey, $webauthnKey);
-        });
-    }
-}
-```
-
-Now you just need to register your action in the config:
-
-```php
-// config/profile-filament.php
-
-'actions' => [
-    'upgrade_to_passkey' => \App\Actions\CustomPasskeyUpgradeAction::class,
-],
-```
-
-### Recovery Codes
-
-Recovery codes can be used as a last resort for a user to authenticate into their account when they lose access to one of their registered mfa methods. We will generate recovery codes automatically when an [authenticator app](#user-content-authenticator-apps), [webauthn key](#user-content-webauthn), or [passkey](#user-content-passkeys) is registered for a user, using our `MarkTwoFactorEnabledAction`. This action will not do anything if the user already has mfa enabled on their account.
-
-When recovery codes are viewed, we will dispatch the `RecoveryCodesViewed` event, which will receive the authenticated user. If you need to do any logging or notifications for this, you may listen for this event in your application.
-
-Viewing the recovery codes is considered a sensitive action, so [sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is required (when enabled) to view them. Here is a screenshot of what the UI looks like when you're viewing them:
-
-![recovery codes](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/recovery-codes.png?raw=true)
-
-For convenience, we include actions to:
-
-- Download a text file of the codes
-- Print the codes
-- Copy the codes to clipboard
-
-#### Code Regeneration
-
-If a user needs to, they can generate a new set of codes. This can be useful if they believe their account has been compromised.
-
-> {tip} When a recovery code is used for authentication, we will automatically replace the used code with a new one.
-
-When new recovery codes are generated, we will dispatch the `RecoveryCodesRegenerated` event from our `GenerateNewRecoveryCodesAction`, which will receive the authenticated user.
-
-Here is an example of how you can override the action if you need to in your application:
-
-```php
-namespace App\Actions;
-
-use Illuminate\Contracts\Auth\Authenticatable as User;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Collection;
-use Rawilk\ProfileFilament\Actions\TwoFactor\GenerateNewRecoveryCodesAction;
-use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodesWereRegenerated;
-use Rawilk\ProfileFilament\Support\RecoveryCode;
-
-class CustomRecoveryCodeGeneration extends GenerateNewRecoveryCodesAction
-{
-    public function __invoke(User $user): void
-    {
-        $user->fill([
-            'two_factor_recovery_codes' => Crypt::encryptString(
-                Collection::times(8, fn () => RecoveryCode::generate())->toJson()
-            ),
-        ])->save();
-
-        RecoveryCodesWereRegenerated::dispatch($user);
-    }
-}
-```
-
-Now you just need to register your action in the config:
-
-```php
-// config/profile-filament.php
-
-'actions' => [
-    'generate_new_recovery_codes' => \App\Actions\CustomRecoveryCodesGeneration::class,
-],
-```
-
-If you just want to change how recovery codes are generated, you could alternatively register a callback function on the `RecoveryCode` class in a service provider:
-
-```php
-use Rawilk\ProfileFilament\Support\RecoveryCode;
-use Illuminate\Support\Str;
-
-RecoveryCode::generateCodesUsing(fn (): string => Str::random());
-```
-
-## Passkeys
-
-The Passkeys section allows a user to register a [Passkey](/docs/profile-filament-plugin/{version}/advanced-usage/mfa#user-content-passkeys). Passkeys can be used as an alternative to two-factor authentication. Two-factor authentication is still required to be enabled for passkeys, however, since we need to generate recovery codes for a user.
-
-Here is what the UI will look like when a user has no passkeys registered to them yet:
-
-![passkeys empty ui](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkeys-empty.png?raw=true)
-
-When a user has passkeys registered to them, the UI will look like this:
-
-![passkeys ui](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkeys-list.png?raw=true)
-
-The registration process is very similar to registering a webauthn key, except that we display the form in a modal instead, and only platform authenticators are allowed. This means that roaming authenticators, like YubiKeys or other hardware keys cannot be used as a passkey.
-
-Here is a screenshot of the passkey registration form:
-
-![passkeys registration form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/passkey-form.png?raw=true)
-
-When a passkey is registered, we will dispatch the `PasskeyRegistered` from our `RegisterPasskeyAction`, which will receive the passkey and the user. You may listen for this event to alert users of new passkeys registered on their account.
-
-We will also enable mfa for the user and generate recovery codes for them if they don't already have them using our `MarkTwoFactorEnabledAction`.
-
-### Customize Passkey Registration
-
-Although we don't recommend overriding the action, here is an example of how you can do it. The code shown in the example is taken from our action class.
-
-```php
-namespace App\Actions;
-
-use Illuminate\Contracts\Auth\Authenticatable as User;
-use Illuminate\Support\Arr;
-use Rawilk\ProfileFilament\Actions\Passkeys\RegisterPasskeyAction;
-use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorEnabledAction;
-use Rawilk\ProfileFilament\Events\Passkeys\PasskeyRegistered;
-use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Webauthn\PublicKeyCredentialSource;
-
-class CustomPasskeyRegistration extends RegisterPasskeyAction
-{
-    public function __invoke(
-        User $user,
-        PublicKeyCredentialSource $publicKeyCredentialSource,
-        array $attestation,
-        string $keyName,
-    ): WebauthnKey {
-        $passkey = WebauthnKey::fromPublicKeyCredentialSource(
-            source: $publicKeyCredentialSource,
-            user: $user,
-            keyName: $keyName,
-            attachmentType: Arr::get($attestation, 'authenticatorAttachment'),
-        );
-
-        return tap($passkey, function (WebauthnKey $passkey) use ($user) {
-            $passkey->is_passkey = true;
-            $passkey->save();
-
-            cache()->forget($user::hasPasskeysCacheKey($user));
-
-            app(MarkMultiFactorEnabledAction::class)($user);
-
-            PasskeyRegistered::dispatch($passkey, $user);
-        });
-    }
-}
-```
-
-Now you just need to register your action in the config:
-
-```php
-// config/profile-filament.php
-
-'actions' => [
-    'register_passkey' => \App\Actions\CustomPasskeyRegistration::class,
-],
-```
-
-### Passkey Deletion
-
-When a passkey is deleted, we will dispatch the `PasskeyDeleted` event from our `DeletePasskeyAction`, which will receive the passkey and authenticated user. You may listen for this event to alert users of passkeys being removed from their account.
-
-Since this is a sensitive action, [sudo mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) is also required when you have it enabled.
-
-We will also disable mfa for the user if they have no other mfa methods registered to their account.
-
-Here is an example of how you can override the `DeletePasskeyAction` if you need to in your application:
-
-```php
-namespace App\Actions;
-
-use Rawilk\ProfileFilament\Actions\Passkeys\DeletePasskeyAction;
-use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MarkMultiFactorDisabledAction;
-use Rawilk\ProfileFilament\Models\WebauthnKey;
-
-class CustomPasskeyDeletion extends DeletePasskeyAction
-{
-    public function __invoke(WebauthnKey $passkey): void
-    {
-        // ...
-
-        app(MarkMultiFactorDisabledAction::class)($passkey->user);
-    }
-}
-```
-
-Now you just need to register your action in the config:
-
-```php
-// config/profile-filament.php
-
-'actions' => [
-    'delete_passkey' => \App\Actions\CustomPasskeyDeletion::class,
-],
-```
-
-## Custom Content
-
-For convenience, we've included some render hooks in the mfa overview section to allow you to add in custom content as necessary. One example of needing the render hooks could be to insert a form for a user to choose their preferred mfa method. You can make use of the render hooks instead of completely overriding our views to accomplish this. Here are the render hooks available on this page:
-
-- `profile-filament::mfa.settings.before`: This will render your view in the two-factor authentication section right before the two-factor methods are listed.
-- `profile-filament::mfa.methods.after`: This will render your view right before the recovery codes section. Useful for adding additional mfa methods (note: this is not officially supported at this time, and may require additional work on your part to make it work correctly)
-
-For more information on render hooks, see: [https://filamentphp.com/docs/3.x/support/render-hooks](https://filamentphp.com/docs/3.x/support/render-hooks)

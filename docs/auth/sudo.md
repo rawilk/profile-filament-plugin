@@ -408,6 +408,102 @@ Route::get('/admin/sensitive-route', fn () => 'ok')
 
 > {note} If your sensitive route is not associated with a panel, the default panel will be used in the middleware.
 
+## Custom sudo providers
+
+Like with [MFA](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication), you are not limited to the package's sudo challenge providers.
+
+For this example, we are going to create a custom sudo challenge provider for the [custom mfa provider](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-custom-mfa-providers) we created. To create a custom sudo challenge provider, your class needs to implement the `SudoChallengeProvider` interface:
+
+```php
+namespace App\Auth\Sudo\Providers;
+
+use BackedEnum;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Rawilk\ProfileFilament\Auth\Sudo\Contracts\SudoChallengeProvider;
+use Filament\Support\Icons\Heroicon;
+use Filament\Auth\MultiFactor\Contracts\HasBeforeChallengeHook;
+use Filament\Schemas\Components\Component;
+use Filament\Actions\Action;
+
+class SmsSudoProvider implements SudoChallengeProvider, HasBeforeChallengeHook
+{
+    public static function make(): static
+    {
+        return app(static::class);
+    }
+    
+    public function isEnabled(Authenticatable $user): bool
+    {
+        // ...
+    }
+
+    public function getId(): string
+    {
+        return 'sms';
+    }
+    
+    public function beforeChallenge(Authenticatable $user): void
+    {
+        // send sms code
+    }
+    
+    /**
+     * @return array<Component|Action>
+     */
+    public function getChallengeFormComponents(Authenticatable $user, string $authenticateAction = 'authenticate'): array
+    {
+        return [
+            // ...
+        ];
+    }
+    
+    public function heading(Authenticatable $user): ?string
+    {
+        // optional
+        return __('SMS Code');
+    }
+    
+    public function icon(): null|string|BackedEnum|Htmlable
+    {
+        // optional
+        return Heroicon::OutlinedDevicePhoneMobile;
+    }
+    
+    public function getChallengeSubmitLabel(): ?string
+    {
+        // optional - return `null` to hide submit button
+        return __('Verify');
+    }
+    
+    public function getChangeToProviderLabel(): string
+    {
+        return __('Use sms code');
+    }
+}
+```
+
+In this provider we are also using Filament's `HasBeforeChallengeHook` interface. This allows us to execute some code before the provider's challenge is shown to the user. In this case, the provider is sending a text to the user with a verification code. If your provider doesn't need to do something like this, you can omit the trait.
+
+With your custom sudo challenge proivder created, you can enable it on the panel through the plugin instance:
+
+```php
+use App\Auth\Sudo\Providers\SmsSudoProvider;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Auth\Sudo\Password\SudoPasswordProvider;
+
+ProfileFilamentPlugin::make()
+    ->multiFactorAuthentication([
+        // ...
+    ])
+    ->sudoMode([
+        SmsSudoProvider::make(),
+        SudoPasswordProvider::make(),
+    ])
+```
+
+> {note} If your custom sudo challenge provider is for a MFA provider you created, it should use the **same** value for the `getId()` method as its MFA challenge provider counterpart.
+
 ## Disabling Sudo Mode
 
 If you don't want to use the plugin's sudo mode for sensitive actions, you may disable sudo mode by passing a boolean `false` to the `sudoMode()` method on the plugin:
