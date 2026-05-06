@@ -41,6 +41,14 @@ The callback you provide will receive a `$user` object as a parameter if you nee
 
 You could also extend or replace the `ProfileInfo` Livewire [component](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) instead if you wnat full control over it.
 
+### Default livewire components
+
+The Profile Info page consists of Livewire components that provide the page's functionality. You can [extend, replace or remove](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) any of the components on this page.
+
+The default Livewire components rendered onto the Profile Info page include:
+
+- `Rawilk\ProfileFilament\Livewire\Profile\ProfileInfo`
+
 ## Use a custom profile info page
 
 If you'd rather use your own page class, you are free to do that too. You can provide a class-string of your custom profile info page class to the `profileInfoPage()` method on the plugin:
@@ -53,17 +61,6 @@ ProfileFilamentPlugin::make()
 ```
 
 See [Pages](/docs/profile-filament-plugin/{version}/configuration/pages) for more information on customizing the pages.
-
-## Overriding pages
-
-If you want to extend or completely replace one of the plugin's profile pages, you can provide your own page class to it's given method on the plugin. It can be either class-string of your page, or a `PageConfiguration` instance:
-
-```php
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-
-ProfileFilamentPlugin::make()
-    ->securityPage(YourCustomSecurityPage::class)
-```
 
 ## Disable profile info
 

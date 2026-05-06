@@ -176,6 +176,17 @@ Depending on the infolist component class you're configuring there may be some p
 
 > {tip} Your callback function to `configureComponents()` should return an array of Filament schema components.
 
+## Overriding pages
+
+If you want to extend or completely replace one of the plugin's profile pages, you can provide your own page class to it's given method on the plugin. It can be either class-string of your page, or a `PageConfiguration` instance:
+
+```php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+
+ProfileFilamentPlugin::make()
+    ->securityPage(YourCustomSecurityPage::class)
+```
+
 ## Disabling profile pages
 
 Each of the available profile pages can be disabled entirely if you don't want to use them in the panel. Pass in a `null` value to the page's corresponding method on the plugin.
