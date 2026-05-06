@@ -63,4 +63,4 @@ ProfileFilamentPlugin::make()
     ->profileInfoPage(null)
 ```
 
-> {note} The profile info page is the default profile page. If you disable it, be sure to provide a different [default profile page](/docs/profile-filament-plugin{version}/configuration/pages#user-content-default-profile-page) to the `useDefaultProfilePage()` method on the plugin.
+> {note} The profile info page is the default profile page. If you disable it, be sure to provide a different [default profile page](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-default-profile-page) to the `useDefaultProfilePage()` method on the plugin.
