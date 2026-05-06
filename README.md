@@ -11,9 +11,9 @@
 
 ![social image](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/social-image.png?raw=true)
 
-This package provides a [Filament](https://filamentphp.com/) plugin for a user profile. The plugin acts as a starting point for your user profile, and provides
-multi-factor authentication, password management, session management, and more. A lot of the boilerplate code that is required for these functionalities
-is taken care of by this plugin.
+This package provides a [Filament](https://filamentphp.com/) plugin for a user profile. The plugin acts as a starting point for your user profile and provides
+multi-factor authentication, password management, session management, and more. This plugin
+ takes care of a lot of the boilerplate code that is required for these functionalities.
 
 Although this package is highly opinionated in how it handles many things, it is still flexible and customizable in most areas.
 
@@ -62,7 +62,7 @@ class AdminPanelProvider extends PanelProvider
 
 Here is what the base profile page will look like without any configuration:
 
-![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/base-profile.png?raw=true)
+![base profile page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pages/profile.png?raw=true)
 
 ## Documentation
 
@@ -112,8 +112,8 @@ Please review [my security policy](https://github.com/rawilk/profile-filament-pl
 
 - [Randall Wilk](https://github.com/rawilk)
 - [All Contributors](https://github.com/rawilk/profile-filament-plugin/graphs/contributors)
-- [livewire/livewire](https://livewire.laravel.com) - For some JS code snippets
-- [laragear/webauthn](https://github.com/Laragear/WebAuthn) - For inspiration on some webauthn concepts
+- [Filament](https://filamentphp.com) - For inspiration on multi-factor authentication concepts
+- [spatie/laravel-passkeys](https://github.com/spatie/laravel-passkeys) - For inspiration on some webauthn/passkey concepts
 - [claudiodekker/laravel-auth](https://github.com/claudiodekker/laravel-auth) - For some inspirations on multi-factor and sudo mode concepts
 - [protonemedia/laravel-verify-new-email](https://github.com/protonemedia/laravel-verify-new-email) - For inspirations on pending email change functionalities
 
