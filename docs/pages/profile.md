@@ -54,6 +54,17 @@ ProfileFilamentPlugin::make()
 
 See [Pages](/docs/profile-filament-plugin/{version}/configuration/pages) for more information on customizing the pages.
 
+## Overriding pages
+
+If you want to extend or completely replace one of the plugin's profile pages, you can provide your own page class to it's given method on the plugin. It can be either class-string of your page, or a `PageConfiguration` instance:
+
+```php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+
+ProfileFilamentPlugin::make()
+    ->securityPage(YourCustomSecurityPage::class)
+```
+
 ## Disable profile info
 
 If you'd rather disable the page entirely, you can provide a `null` value to the `profileInfoPage()` method on the plugin:
