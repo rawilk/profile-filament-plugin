@@ -39,6 +39,8 @@ The callback you provide will receive a `$user` object as a parameter if you nee
 
 > {tip} If you are providing your own schema for this, you'll probably also want to use a different edit profile action to allow the user to edit those fields as well.
 
+You could also extend or replace the `ProfileInfo` Livewire [component](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) instead if you wnat full control over it.
+
 ## Use a custom profile info page
 
 If you'd rather use your own page class, you are free to do that too. You can provide a class-string of your custom profile info page class to the `profileInfoPage()` method on the plugin:

@@ -65,19 +65,33 @@ abstract class ProfilePage extends Page
     #[Computed]
     public function livewireComponents(): array
     {
-        if ($this->pageConfiguration) {
-            $components = $this->pageConfiguration->getLivewireComponents();
-
-            if (is_array($components)) {
-                return $components;
-            }
-        }
-
-        return $this->defaultLivewireComponents();
+        return $this->getPageConfigurationComponents() ?? $this->defaultLivewireComponents();
     }
 
     protected function defaultLivewireComponents(): array
     {
         return [];
+    }
+
+    protected function getPageConfigurationComponents(): ?array
+    {
+        if (! $this->pageConfiguration) {
+            return null;
+        }
+
+        $components = $this->pageConfiguration->getLivewireComponents();
+
+        if (! is_array($components)) {
+            return null;
+        }
+
+        if ($this->pageConfiguration->shouldMergeLivewireComponents()) {
+            return [
+                ...$this->defaultLivewireComponents(),
+                ...$components,
+            ];
+        }
+
+        return $components;
     }
 }

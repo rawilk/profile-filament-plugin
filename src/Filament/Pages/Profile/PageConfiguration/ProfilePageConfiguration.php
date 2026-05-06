@@ -23,6 +23,8 @@ abstract class ProfilePageConfiguration extends PageConfiguration
 
     protected ?array $livewireComponents = null;
 
+    protected bool $mergeLivewireComponents = false;
+
     protected null|string|Htmlable $title = null;
 
     abstract protected function getDefaultNavigationIcon(): string|BackedEnum|null;
@@ -33,9 +35,10 @@ abstract class ProfilePageConfiguration extends PageConfiguration
 
     abstract protected function getDefaultTitle(): ?string;
 
-    public function components(?array $components = null): static
+    public function components(?array $components = null, bool $merge = false): static
     {
         $this->livewireComponents = $components;
+        $this->mergeLivewireComponents = $merge;
 
         return $this;
     }
@@ -79,6 +82,11 @@ abstract class ProfilePageConfiguration extends PageConfiguration
     public function getLivewireComponents(): ?array
     {
         return $this->livewireComponents;
+    }
+
+    public function shouldMergeLivewireComponents(): bool
+    {
+        return $this->mergeLivewireComponents;
     }
 
     public function getNavigationGroup(): string|UnitEnum|null
