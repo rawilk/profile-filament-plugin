@@ -7,121 +7,130 @@ sort: 2
 
 The Settings page is meant to act as an account settings page for your users to modify certain account settings that aren't necessarily public. It's also for account admin functions, such as deleting your account.
 
-Each of the components on this page can be customized and swapped out for your own implementations. See [Swap Components](/docs/profile-filament-plugin/{version}/customizations/page-customization#user-content-swap-components) for more information on how to do that.
-
 Here is what the account settings page will look like by default:
 
-![settings page](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/settings-page.png?raw=true)
+![account settings](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pages/account-settings.png?raw=true)
+
+## Default livewire components
+
+The account settings page consists of Livewire components that provide the page's functionality. You can [extend, replace or remove](/docs/profile-filament-plugin/{version}/configuration/pages#user-content-livewire-components) any of the components on this page.
+
+The default Livewire components rendered onto the account settings page include:
+
+- `Rawilk\ProfileFilament\Livewire\Emails\UserEmail`
+- `Rawilk\ProfileFilament\Livewire\DeleteAccount`
 
 ## Email address
 
-This component is responsible for displaying the authenticated user's email address, and providing a form to edit it. If you have the `MustVerifyNewEmail` contract on your user model, this component will also show a pending email change for the authenticated user as well. See the [Pending Email Verification](/docs/profile-filament-plugin/{version}/installation#user-content-pending-email-verification) installation docs for more information on configuring this.
+This Livewire component is responsible for displaying the authenticated user's email and providing a form to edit it.
 
-If you have [Sudo Mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode) enabled, we will require the user to verify their identity before they are allowed to edit their email address.
+If you have [Sudo Mode](/docs/profile-filament-plugin/{version}/auth/sudo) enabled, we will require the user to verify their identity before they are allowed to edit their email address.
 
-If you want to completely remove this form from the page, please see [Features](/docs/profile-filament-plugin/{version}/customizations/features#user-content-update-email) for more information on how to do that.
+By default, we will update the user's email address without any kind of verification from the user.
 
-Here is what the form looks like if you require users to verify new email addresses:
+### Require email change verification
 
-![edit email form](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/edit-email-form.png?raw=true)
+For added account security, you can require users to verify their new email address before it's actually updated on their account. This is done by sending a verification email to the new address, which contains a link that the user must click to verify their new email address. The email address in the database is not updated until the user clicks the link in the email.
 
-When a user submits the edit email form, we will send an email to the new email address with a verification link, which will be a temporary signed url. This link is set to expire in 60 minutes of it being sent. The value for this expiration is determined by the `auth.verification.expire` configuration value. You can modify this in your `config/auth.php` file.
+The link that a user is sent is valid for 60 minutes. At the same time as the email to the new address is sent, an email to the old address is also sent, with a link to block the change. This is a security feature to potentially prevent a user from being affected by a malicious actor.
 
-If you need to customize the email that is sent, you may modify either the language lines that are used (`mail.php` language file) in the mailable, or modify the mailable itself. Please see the [Pending Email Verification](/docs/profile-filament-plugin/{version}/advanced-usage/mailables#user-content-pending-email-verification) docs for more information on customizing this email.
+> {tip} This feature can (and should) be used alongside the `MustVerifyEmail` contract provided by Laravel.
 
-When there is a pending email change for the user, we will show that in the UI, along with actions to either resend the link or cancel the change. Here is a screenshot of what that looks like by default:
+To start, you need to enable email change verification on your panel:
 
-![pending email change](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/pending-email-change.png?raw=true)
+```php
+use Filament\Panel;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
-> {tip} Like the edit email form, the cancel email change action requires sudo mode verification first, if you have sudo mode enabled.
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        // ...
+        ->emailChangeVerification()
+        ->plugin(
+            ProfileFilamentPlugin::make()
+        );
+}
+```
 
-### Other situations
+> {note} While we are enabling email change verification on the panel, we are completely overriding the default behavior with the plugin.
 
-If you don't have `MustVerifyNewEmail` added on your User model, but have Laravel's `MustVerifyEmail` contract on your user model, we will update the user's email address immediately, but also invalidate their email verification status and send a new email verification notification to the user.
+Next, you need to ensure the `create_pending_user_emails_table` [migration](/docs/profile-filament-plugin/{version}/installation#user-content-migrations). Here is the content of the migration if you don't publish the package's migrations.
 
-If you don't have either of those contracts on your user model, we will just update the user's email address immediately and do nothing else.
+```php
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Rawilk\ProfileFilament\Support\Config;
+
+Schema::create(Config::getTableName('pending_user_email'), function (Blueprint $table) {
+    $table->id();
+
+    $table->morphs('user');
+    $table->string('email')->index();
+    $table->string('token');
+
+    $table->timestamp('created_at')->nullable();
+});
+```
+
+### Require email verification only
+
+If you are only requiring initial email verification, we will still send an email verification notification to the new address, however, we will update the email address in the database right away. There is also no security feature to block the email address change.
+
+For this feature you only need to implement the `MustVerifyEmail` trait on your user model and make sure that you have an `email_verified_at` column on your `users` database table.
+
+```php
+use Illuminate\Foundation\Auth\User as BaseUser;
+use Illuminate\Auth\MustVerifyEmail;
+
+class User extends BaseUser implements MustVerifyEmail
+{
+    // ...
+}
+```
+
+> {note} If you have email verification required on the filament panel (`$panel->emailVerification()`) and the user updates their email address, we will reload the page so they are forced to see the email verification prompt until they verify their new email.
 
 ## Delete Account
 
-This component is responsible for deleting the authenticated user's account, and then logging them out. We've kept this component very basic by default, but it can easily be customized to meet your application's needs.
+This Livewire component is responsible for deleting the authenticated user's account and then logging them out. We've kept this component very basic by default, but it can be customized to meet your application's needs.
 
-If you want to completely remove this form from the page, please see [Features](/docs/profile-filament-plugin/{version}/customizations/features#user-content-delete-account) for more information on how to do that.
+This is a sensitive action, so [Sudo Mode](/docs/profile-filament-plugin/{version}/auth/sudo) is required if you have it enabled on the plugin. We will also require the user to enter their email address as a confirmation that they are truly sure they want to delete their account.
 
-In addition to [Sudo Mode](/docs/profile-filament-plugin/{version}/advanced-usage/sudo-mode), we also require the user to enter their email address in as a confirmation that they are truly sure they want to delete their account. If you've ever deleted a repository on GitHub, this will seem familiar. Here is a screenshot of what this confirmation form will look like:
+Here is a screenshot of the prompt once you've entered sudo mode:
 
-![delete account confirmation](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/delete-account-confirm.png?raw=true)
+![delete account confirmation](https://github.com/rawilk/profile-filament-plugin/blob/main/assets/images/actions/delete-account.png?raw=true)
 
-### Customization
+### Customize account deletion logic
 
-Here are some of the ways you can customize the delete account process in your application.
+For a lot of applications you will probably need to customize the logic for deleting a user's account. We use an [action](/docs/profile-filament-plugin/{version}/configuration/actions) class for handling the account deletion process.
 
-#### Translations
-
-If you just need to adjust some verbiage, [publishing](/docs/profile-filament-plugin/{version}/installation#user-content-translations) and modifying the language lines are the way to go. Most of the language lines can be found in the `pages/settings.php` language file.
-
-#### View
-
-For some changes, overriding our package's view may be a viable solution. Be sure to [publish the package views](/docs/profile-filament-plugin/{version}/installation#user-content-views), and then override the `livewire/delete-account.blade.php` view.
-
-#### Action
-
-Sometimes, you may just need to override how the user account is deleted. To do this, you just need to override the delete account action class, and then add your custom class to the config file.
+We've kept it very basic by default, but you can create your own action class to handle the deletion logic:
 
 ```php
 namespace App\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
-use Rawilk\ProfileFilament\Actions\DeleteAccountAction;
+use Rawilk\ProfileFilament\Contracts\DeleteAccountAction as DeleteAccountContract;
 
-class CustomDeleteAccountAction extends DeleteAccountAction
+class DeleteAccountAction implements DeleteAccountContract
 {
     public function __invoke(User $user)
     {
-        $user->delete();
-
-        // ...
+        // $user->delete();
     }
 }
 ```
 
-Now you just need to add your custom action class to the config file:
+> {tip} You don't need to worry about logging the user out with the action; the Filament delete user account action will handle that for you.
+
+> {note} Your action must either extend ours or implement the `DeleteAccountAction` interface for the livewire component to call it when deleting the user's account.
+
+After you've defined your action class, just add it to the `profile-filament` config:
 
 ```php
-// config/profile-filament.php
-
 'actions' => [
-    'delete_account' => \App\Actions\DeleteAccountAction::class,
+    'delete_account' => App\Actions\DeleteAccountAction::class,
     // ...
 ],
-```
-
-#### Swap Component
-
-For the most control and customization, you can implement your own livewire component:
-
-```php
-namespace App\Livewire;
-
-use Rawilk\ProfileFilament\Livewire\DeleteAccount as BaseDeleteAccount;
-
-class DeleteAccount extends BaseDeleteAccount
-{
-    // ...
-}
-```
-
-```php
-use App\Livewire\DeleteAccount;
-use Rawilk\ProfileFilament\Filament\Pages\ProfileTemp\Settings;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-use Rawilk\ProfileFilament\Livewire\DeleteAccount as BaseDeleteAccount;
-
-$panel->plugin(
-    ProfileFilamentPlugin::make()
-        ->swapComponent(
-            page: Settings::class,
-            component: BaseDeleteAccount::class,
-            newComponent: DeleteAccount::class,
-        )
-)
 ```

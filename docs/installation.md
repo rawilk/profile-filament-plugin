@@ -89,32 +89,3 @@ A great way to ensure the latest assets are always loaded is to add the `filamen
     }
 }
 ```
-
-## Email Change Verification
-
-This package offers the ability to force users to verify any changes to their email address before the system updates their actual email. This can be considered a security feature, as it requires a user to verify they own an email address before the system persists the change to their user account.
-
-To implement this feature, you need to enable email change verification on the panel (not the plugin) and run the migrations found in the `create_pending_user_emails_table` migration from this package. See the [Migrations](#user-content-migrations) section for more information on migrations.
-
-```php
-// app/Providers/Filament/AdminPanelProvider.php
-
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
-
-class AdminPanelProvider extends PanelProvider
-{
-    public function panel(Panel $panel): Panel
-    {
-        return $panel
-            // ...
-            ->emailChangeVerification()
-            ->plugin(
-                ProfileFilamentPlugin::make()
-            );
-    }
-}
-```
-
-When this feature is enabled and a user submits a request to update their email address, we'll first send a verification email to their new email address first before we update their user record. We will also email their current email address to allow them to block the email change.
-
-> {tip} This feature can (and should) be used alongside the `MustVerifyEmail` contract provided by Laravel. If you enable email verification on the panel, we will also provide a custom email verification prompt and controller.
