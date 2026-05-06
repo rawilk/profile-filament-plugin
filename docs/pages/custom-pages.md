@@ -25,16 +25,16 @@ use Filament\Support\Icons\Heroicon;
 class NotificationSettings extends Page
 {
     protected static ?string $cluster = ProfileCluster::class;
-    
+
     protected static ?int $navigationSort = 5;
-    
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBell;
-    
+
     public static function getNavigationLabel(): string
     {
         return __('Notification Settings');
     }
-    
+
     public function content(Schema $schema): Schema
     {
         return $schema

@@ -13,7 +13,7 @@
 
 This package provides a [Filament](https://filamentphp.com/) plugin for a user profile. The plugin acts as a starting point for your user profile and provides
 multi-factor authentication, password management, session management, and more. This plugin
- takes care of a lot of the boilerplate code that is required for these functionalities.
+takes care of a lot of the boilerplate code that is required for these functionalities.
 
 Although this package is highly opinionated in how it handles many things, it is still flexible and customizable in most areas.
 

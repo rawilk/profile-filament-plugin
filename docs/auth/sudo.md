@@ -75,7 +75,7 @@ use Rawilk\ProfileFilament\Auth\Sudo\Password\SudoPasswordProvider;
 ProfileFilamentPlugin::make()
     ->sudoMode([
         SudoPasswordProvider::make()
-            ->disableWhenUserHasMultiFactorAuthentication()        
+            ->disableWhenUserHasMultiFactorAuthentication()
     ])
 ```
 
@@ -90,7 +90,7 @@ use Rawilk\ProfileFilament\Auth\Sudo\Password\SudoPasswordProvider;
 ProfileFilamentPlugin::make()
     ->sudoMode([
         SudoPasswordProvider::make()
-            ->hideResetPasswordLink()        
+            ->hideResetPasswordLink()
     ])
 ```
 
@@ -118,7 +118,7 @@ ProfileFilamentPlugin::make()
 
 ### Changing the app code expiration time
 
-You may change the expiration of the app codes like with the [app authentication mfa provider](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-changing-the-app-code-expiration-time). 
+You may change the expiration of the app codes like with the [app authentication mfa provider](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-changing-the-app-code-expiration-time).
 
 To change the code window, for example to only be valid for 2 minutes after it is generated, you can use the `codeWindow()` method on the `SudoAppAuthenticationProvider` instance, set to `4`.
 
@@ -184,7 +184,7 @@ ProfileFilamentPlugin::make()
 
 ## Requiring sudo mode for actions
 
-It's recommended to use a custom action class for simplicity; however, you can require sudo mode on [inline actions](#user-content-requiring-sudo-mode-for-inline-actions) too. 
+It's recommended to use a custom action class for simplicity; however, you can require sudo mode on [inline actions](#user-content-requiring-sudo-mode-for-inline-actions) too.
 
 Your action class will need to use the `RequiresSudoChallenge` trait, which will help with showing the sudo challenge when necessary. Here is a simple example of an action class that requires sudo mode.
 
@@ -197,24 +197,24 @@ use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallenge;
 class SensitiveAction extends Action
 {
     use RequiresSudoChallenge;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->registerSudoChallenge();
-        
+
         $this->modalHeading('My sensitive action');
-        
+
         $this->schema([
             // ...
         ]);
-        
+
         $this->action(function () {
             if ($this->shouldChallengeForSudo()) {
                 $this->cancel();
             }
-            
+
             // Perform sensitive action
         });
     }
@@ -238,7 +238,7 @@ class SensitiveAction extends Action
     {
         // ...
     }
-    
+
     protected function getBeforeCallback(): ?Closure
     {
         return function () {
@@ -266,18 +266,18 @@ use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallengeWitho
 class SensitiveAction extends Action
 {
     use RequiresSudoChallengeWithoutModal;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->registerSudoChallenge();
-        
+
         $this->action(function () {
             if ($this->shouldChallengeForSudo()) {
                 $this->cancel();
             }
-            
+
             // do sensitive action
         });
     }
@@ -303,18 +303,18 @@ class YourLivewireComponent extends Component implements HasActions, HasSchemas
     use InteractsWithActions;
     use InteractsWithSchemas;
     use NeedsSudoChallengeAction;
-    
+
     public function render(): string
     {
         return <<<'HTML'
         <div>
             {{ $this->content }}
-            
+
             <x-filament-actions::modals />
         </div>
         HTML;
     }
-    
+
     public function content(Schema $schema): Schema
     {
         return $schema
@@ -346,7 +346,7 @@ use Filament\Actions\Contracts\HasActions;
 class YourLivewireComponent extends Component
 {
     use InteractsWithSudo;
-    
+
     public function content(Schema $schema): Schema
     {
         return $schema
@@ -359,20 +359,20 @@ class YourLivewireComponent extends Component
                         if (! $this->shouldChallengeForSudo()) {
                             return;
                         }
-                        
+
                         SudoModeChallengeWasPresented::dispatch(auth()->user(), $request);
-                        
+
                         $livewire->mountAction('sudoChallenge');
                     })
                     ->mountUsing(function (HasActions $livewire, Request $request) {
                         if (! $this->shouldChallengeForSudo()) {
-                            $this->extendSudo(); 
-                        
+                            $this->extendSudo();
+
                             return;
                         }
-                        
+
                         SudoModeChallengeWasPresented::dispatch(auth()->user(), $request);
-                        
+
                         $livewire->mountAction('sudoChallenge');
                     })
                     ->schema([
@@ -382,7 +382,7 @@ class YourLivewireComponent extends Component
                         if ($this->shouldChallengeForSudo()) {
                             $action->cancel();
                         }
-                        
+
                         // Do sensitive action
                     }),
             ]);
@@ -432,7 +432,7 @@ class SmsSudoProvider implements SudoChallengeProvider, HasBeforeChallengeHook
     {
         return app(static::class);
     }
-    
+
     public function isEnabled(Authenticatable $user): bool
     {
         // ...
@@ -442,12 +442,12 @@ class SmsSudoProvider implements SudoChallengeProvider, HasBeforeChallengeHook
     {
         return 'sms';
     }
-    
+
     public function beforeChallenge(Authenticatable $user): void
     {
         // send sms code
     }
-    
+
     /**
      * @return array<Component|Action>
      */
@@ -457,25 +457,25 @@ class SmsSudoProvider implements SudoChallengeProvider, HasBeforeChallengeHook
             // ...
         ];
     }
-    
+
     public function heading(Authenticatable $user): ?string
     {
         // optional
         return __('SMS Code');
     }
-    
+
     public function icon(): null|string|BackedEnum|Htmlable
     {
         // optional
         return Heroicon::OutlinedDevicePhoneMobile;
     }
-    
+
     public function getChallengeSubmitLabel(): ?string
     {
         // optional - return `null` to hide submit button
         return __('Verify');
     }
-    
+
     public function getChangeToProviderLabel(): string
     {
         return __('Use sms code');

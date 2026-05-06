@@ -89,12 +89,12 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Concerns\InteractsWithMultiFactorAut
 class User extends BaseUser implements HasMultiFactorAuthentication
 {
     use InteractsWithMultiFactorAuthentication;
-    
+
     public function getPreferredMfaProvider(): ?string
     {
         // return user's stored preference
     }
-    
+
     public function setPreferredMfaProvider(?string $provider): void
     {
         // update user's stored preference

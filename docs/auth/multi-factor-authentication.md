@@ -50,8 +50,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements HasMultiFactorAuthentication
 {
     use InteractsWithMultiFactorAuthentication;
-    // ...    
-} 
+    // ...
+}
 ```
 
 > {tip} The plugin provides a default implementation for speed and simplicity, but you could implement the required methods yourself and customize the way your user model indicates to the plugin that a user has MFA enabled on their account.
@@ -112,7 +112,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements HasAppAuthentication
 {
     use InteractsWithAppAuthentication;
-    
+
     // ...
 }
 ```
@@ -134,7 +134,7 @@ public function panel(Panel $panel): Panel
             ProfileFilamentPlugin::make()
                 ->multiFactorAuthentication([
                     AppAuthenticationProvider::make()
-                ])            
+                ])
         );
 }
 ```
@@ -152,7 +152,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
 ProfileFilamentPlugin::make()
     ->multiFactorAuthentication([
         AppAuthenticationProvider::make()
-            ->codeWindow(4),   
+            ->codeWindow(4),
     ])
 ```
 
@@ -167,7 +167,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
 ProfileFilamentPlugin::make()
     ->multiFactorAuthentication([
         AppAuthenticationProvider::make()
-            ->brandName('Custom App Name'),   
+            ->brandName('Custom App Name'),
     ])
 ```
 
@@ -182,7 +182,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
 ProfileFilamentPlugin::make()
     ->multiFactorAuthentication([
         AppAuthenticationProvider::make()
-            ->limitAppRegistrationsTo(5)   
+            ->limitAppRegistrationsTo(5)
     ])
 ```
 
@@ -217,7 +217,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements HasEmailAuthentication
 {
     use InteractsWithEmailAuthentication;
-    
+
     // ...
 }
 ```
@@ -313,7 +313,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements HasWebauthn
 {
     use InteractsWithWebauthn;
-    
+
     // ...
 }
 ```
@@ -333,7 +333,7 @@ public function panel(Panel $panel): Panel
             ProfileFilamentPlugin::make()
                 ->multiFactorAuthentication([
                     WebauthnProvider::make()
-                ])            
+                ])
         );
 }
 ```
@@ -352,7 +352,7 @@ Route::webauthn();
 
 This will register the necessary routes for our passkey login to function properly.
 
-> {note} These routes require sessions to work properly and should be part of the `web` middleware group. 
+> {note} These routes require sessions to work properly and should be part of the `web` middleware group.
 
 ### Passkey Login
 
@@ -460,7 +460,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
 ProfileFilamentPlugin::make()
     ->multiFactorAuthentication([
         WebauthnProvider::make()
-            ->limitRegistrationsTo(10)   
+            ->limitRegistrationsTo(10)
     ])
 ```
 
@@ -520,45 +520,45 @@ class CustomRecoveryProvider implements RecoveryProvider
     {
         return filled($user->getAuthenticationRecoveryCodes());
     }
-    
+
     public function needsToBeSetup(HasMultiFactorAuthenticationRecovery $user): bool
     {
         return blank($user->getAuthenticationRecoveryCodes());
     }
-    
+
     public function getManagementSchemaComponents(): array
     {
         return [
             // Any filament schema components
         ];
     }
-    
+
     public function generateRecoveryCodes(): array
     {
         return [
             // ...
         ];
     }
-    
+
     public function saveRecoveryCodes(HasMultiFactorAuthenticationRecovery $user, ?array $codes): void
     {
         // Save codes for the user
     }
-    
+
     public function getChallengeFormComponents(Authenticatable $user): array
     {
         return [
             // Any filament schema components
         ];
     }
-    
+
     public function getChallengeSubmitLabel(): ?string
     {
         return 'Verify account';
     }
-    
+
     public function getChangeToProviderActionLabel(Authenticatable $user): ?string
-    {   
+    {
         return 'Use recovery code';
     }
 }
@@ -692,17 +692,17 @@ class SmsProvider implements MultiFactorAuthenticationProvider, HasBeforeChallen
     {
         return app(static::class);
     }
-    
+
     public function isEnabled(Authenticatable $user): bool
     {
         // ...
     }
-    
+
     public function getId(): string
     {
         return 'sms';
     }
-    
+
     /**
      * This is a label that's shown in the default preferred mfa
      * provider select ui component.
@@ -711,12 +711,12 @@ class SmsProvider implements MultiFactorAuthenticationProvider, HasBeforeChallen
     {
         return __('SMS Text Codes');
     }
-    
+
     public function beforeChallenge(Authenticatable $user): void
     {
         // send sms code
     }
-    
+
     /**
      * @return array<Component|Action>
      */
@@ -726,7 +726,7 @@ class SmsProvider implements MultiFactorAuthenticationProvider, HasBeforeChallen
             // ...
         ];
     }
-    
+
     /**
      * @return array<Component|Action>
      */
@@ -736,13 +736,13 @@ class SmsProvider implements MultiFactorAuthenticationProvider, HasBeforeChallen
             // ...
         ];
     }
-    
+
     public function getChallengeSubmitLabel(): ?string
     {
         // return `null` to hide the submit button in the form.
         return __('Verify');
     }
-    
+
     public function getChangeToProviderActionLabel(Authenticatable $user): ?string
     {
         return __('Use an SMS code');
@@ -798,7 +798,7 @@ class AuthenticateUser
     public function __invoke(MultiFactorEventBagContract $request, Closure $next)
     {
         // $data = $request->getData();
-    
+
         return $next($request);
     }
 }

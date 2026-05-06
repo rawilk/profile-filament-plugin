@@ -25,7 +25,7 @@ class CustomUpdatePasswordAction extends UpdatePasswordAction
     {
         // Call the parent method to update the password
         parent::__invoke($user, $newPassword);
-        
+
         // Add your custom logic here
     }
 }
@@ -59,7 +59,7 @@ return [
     'webauthn' => [
         'actions' => [
             'store_security_key' => App\Actions\CustomStoreSecurityKeyAction::class,
-        ],  
+        ],
     ],
 ];
 ```

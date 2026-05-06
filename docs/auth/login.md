@@ -5,7 +5,7 @@ sort: 1
 
 ## Introduction
 
-To utilize the [multi-factor authentication](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication) (MFA) features from this package, you will need to modify Filament's login page. Unlike how Filament handles MFA, I prefer to handle it on a separate challenge page instead of integrating it directly into the login form. The approach I take for the authentication process is very opinionated, however you are free to implement MFA differently if your application needs are different. 
+To utilize the [multi-factor authentication](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication) (MFA) features from this package, you will need to modify Filament's login page. Unlike how Filament handles MFA, I prefer to handle it on a separate challenge page instead of integrating it directly into the login form. The approach I take for the authentication process is very opinionated, however you are free to implement MFA differently if your application needs are different.
 
 ## Modify the login page
 
@@ -45,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 ProfileFilamentPlugin::make()
                     ->multiFactorAuthentication([
                         AppAuthenticationProvider::make(),
-                    ])                
+                    ])
             )
     }
 }
@@ -81,9 +81,9 @@ class AttemptToAuthenticate
         if (! auth()->attempt($request->getCredentialsFromFormData())) {
             // ...
         }
-        
+
         $request->setUser(auth()->user());
-    
+
         return $next($request);
     }
 }
@@ -125,11 +125,11 @@ ProfileFilamentPlugin::make()
         if ($user->isBanned()) {
             return false;
         }
-        
+
         if (! ($user instanceof FilamentUser)) {
             return true;
         }
-        
+
         return $user->canAccessPanel(Filament::getCurrentOrDefaultPanel());
     })
 ```
