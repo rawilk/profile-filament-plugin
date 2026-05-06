@@ -1,235 +1,128 @@
 ---
 title: Events
-sort: 3
+sort: 1
 ---
 
 ## Introduction
 
-There are a lot of events that are dispatched from this package. Listening for these events can help you perform additional logging or send out security alerts to your users.
+There are several events that are dispatched from this package. Listening for these events can help you perform additional logging or send out security alerts to your users.
 
-## Available Events
+## Authentication
 
-The following events are dispatched from the package. The base namespace for each event is `Rawilk\ProfileFilament\Events`.
+The following events are dispatched during the authentication process:
 
-### TwoFactorAppAdded
+### PreparingAuthenticatedSession
 
-**Namespace**: `AuthenticatorApps\TwoFactorAppAdded`
+The `Rawilk\ProfileFilament\Auth\Login\Events\PreparingAuthenticatedSession` event is dispatched during the login or MFA authentication process right before the session is regenerated. It has a property `user` for the authenticated user.
 
-This event is dispatched when an authenticator (totp) app is registered for a user. It will receive the following parameters:
+## Multi-Factor Authentication
 
-- `$user`: The authenticated user
-- `$authenticatorApp`: The `AuthenticatorApp` model being registered
+The following events are dispatched for general MFA actions:
 
-### TwoFactorAppRemoved
+### MultiFactorAuthenticationChallengeWasPresented
 
-**Namespace**: `AuthenticatorApps\TwoFactorAppRemoved`
+The `Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationChallengeWasPresented` event is dispatched when a user attempts to login but is redirected to the MFA challenge form. It has a property `user` for the authenticated user.
 
-This event is dispatched when an authenticator (totp) app is deleted. It will receive the following parameters:
+### MultiFactorAuthenticationWasEnabled
 
-- `$user`: The authenticated user
-- `$authenticatorApp`: The `AuthenticatorApp` model being deleted
+The `Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationWasEnabled` event is dispatched when a user completely initially enables MFA on their account. It has a `user` property for the user MFA was enabled for.
 
-### TwoFactorAppUpdated
+### MultiFactorAuthenticationWasDisabled
 
-**Namespace**: `AuthenticatorApps\TwoFactorAppUpdated`
+The `Rawilk\ProfileFilament\Auth\Multifactor\Events\MultiFactorAuthenticationWasDisabled` event is dispatched when a user completely disables MFA on their account. This happens when there are no available MFA providers enabled on their account. It has a `user` property for the user MFA was disabled for.
 
-This event is dispatched when an authenticator app's name is updated. It will receive the following parameters:
+## Authenticator Apps
 
-- `$user`: The authenticated user
-- `$authenticatorApp`: The `AuthenticatorApp` model being updated
--
+The following events are dispatched for actions related to Authenticator Apps:
 
-### TwoFactorAppUsed
+### AuthenticatorAppWasCreated
 
-**Namespace**: `AuthenticatorApps\TwoFactorAppUsed`
+The `Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasCreated` event is dispatched when a user registers a new authenticator app to their account. It has a `user` property for the user and an `authenticatorApp` property for the new authenticator app.
 
-This event is dispatched when an authenticator (totp) app is used to verify a user's identity. It will receive the following parameters:
+### AuthenticatorAppWasUpdated
 
-- `$user`: The user the app belongs to
-- `$authenticatorApp`: The `AuthenticatorApp` model being used
+The `Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUpdated` event is dispatched when a user updates an existing authenticator app's details (e.g., its name). It has an `authenticatorApp` property for the updated app and a `user` property for the owner.
 
-### PasskeyDeleted
+### AuthenticatorAppWasUsed
 
-**Namespace**: `Passkeys\PasskeyDeleted`
+The `Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUsed` event is dispatched when a user successfully uses an authenticator app to pass an MFA or sudo challenge. It has a `user` property for the user and an `authenticatorApp` property for the authenticator app that was used.
 
-This event is dispatched when user deletes a passkey. It will receive the following parameters:
+### AuthenticatorAppWasDeleted
 
-- `$passkey`: The `WebauthnKey` passkey model being deleted
-- `$user`: The user the passkey belongs to
+The `Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasDeleted` event is dispatched when a user removes an authenticator app from their account. It has a `user` property for the user and an `authenticatorApp` property for the authenticator app that was deleted.
 
-### PasskeyRegistered
+## Security Keys
 
-**Namespace**: `Passkeys\PasskeyRegistered`
+The following events are dispatched for actions related to Security Keys (WebAuthn):
 
-This event is dispatched when user registers a passkey. It will receive the following parameters:
+### SecurityKeyWasCreated
 
-- `$passkey`: The `WebauthnKey` passkey model being registered
-- `$user`: The user the passkey belongs to
+The `Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasCreated` event is dispatched when a user registers a new security key (WebAuthn) to their account. It has a `webauthnKey` property for the new key and a `user` property for the user.
 
-### PasskeyUpdated
+### SecurityKeyWasUpdated
 
-**Namespace**: `Passkeys\PasskeyUpdated`
+The `Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUpdated` event is dispatched when a user updates an existing security key's details. It has a `webauthnKey` property for the updated key and a `user` property for the owner.
 
-This event is dispatched when user updates a passkey's name. It will receive the following parameters:
+### SecurityKeyWasUsed
 
-- `$passkey`: The `WebauthnKey` passkey model being updated
-- `$user`: The user the passkey belongs to
+The `Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUsed` event is dispatched when a user successfully uses a security key to pass an MFA or sudo challenge. It has `user`, `webauthnKey`, and `request` properties.
 
-### EmailAddressReverted
+### SecurityKeyWasDeleted
 
-**Namespace**: `PendingUserEmails\EmailAddressReverted`
+The `Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasDeleted` event is dispatched when a user removes a security key from their account. It has a `webauthnKey` property for the key that was deleted and a `user` property for the user.
 
-This event is dispatched when user clicks the revert url link in the Pending Email Verified email. It will receive the following parameters:
+## Recovery Codes
 
-- `$user`: The user reverting their email
-- `$revertedFrom`: The email address that was cancelled
-- `$revertedTo`: The email address the user will now use
+The following events are dispatched for actions related to MFA Recovery Codes:
+
+### RecoveryCodesWereRegenerated
+
+The `Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodesWereRegenerated` event is dispatched when a user generates a new set of MFA recovery codes. It has a `user` property for the user who regenerated the codes.
+
+### RecoveryCodeWasUsed
+
+The `Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Events\RecoveryCodeWasUsed` event is dispatched when a user uses one of their recovery codes to pass an MFA challenge. It has a `user` property for the user.
+
+## Email Authentication
+
+The following events are dispatched for actions related to Email MFA:
+
+### EmailAuthenticationWasEnabled
+
+The `Rawilk\ProfileFilament\Auth\Multifactor\Email\Events\EmailAuthenticationWasEnabled` event is dispatched when a user enables email MFA on their account. It has a `user` property for the user.
+
+### EmailAuthenticationWasDisabled
+
+The `Rawilk\ProfileFilament\Auth\Multifactor\Email\Events\EmailAuthenticationWasDisabled` event is dispatched when a user disables email MFA on their account. It has a `user` property for the user.
+
+## Sudo Mode
+
+The following events are dispatched for actions related to Sudo Mode:
+
+### SudoModeChallengeWasPresented
+
+The `Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented` event is dispatched when a user is prompted to enter sudo mode. It has `user` and `request` properties.
+
+### SudoModeWasActivated
+
+The `Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeWasActivated` event is dispatched when a user successfully enters sudo mode. It has `user` and `request` properties.
+
+## Profile & Account
+
+The following events are dispatched for actions related to user profile and account management:
+
+### ProfileInformationWasUpdated
+
+The `Rawilk\ProfileFilament\Events\Profile\ProfileInformationWasUpdated` event is dispatched when a user updates their profile information. It has a `user` property for the user.
 
 ### NewUserEmailVerified
 
-**Namespace**: `PendingUserEmails\NewUserEmailVerified`
-
-This event is dispatched when a user verifies an email address change. It will receive the following parameters:
-
-- `$user`: The user that verified their new email address
-- `$previousEmail`: The user's previous email address
-
-### ProfileInformationUpdated
-
-**Namespace**: `Profile\ProfileInformationUpdated`
-
-This event is dispatched when a user updates their profile information. It will receive the following parameters:
-
-- `$user`: The authenticated user
-
-### SudoModeActivated
-
-**Namespace**: `Sudo\SudoModeActivated`
-
-This event is dispatched when user successfully confirms their identity for sudo mode. It will receive the following parameters:
-
-- `$user`: The user that entered sudo mode
-- `$request`: The current request object
-
-### SudoModeChallenged
-
-**Namespace**: `Sudo\SudoModeChallenged`
-
-This event is dispatched when user is shown a sudo mode prompt. It will receive the following parameters:
-
-- `$user`: The user that was shown the sudo prompt
-- `$request`: The current request object
-
-### WebauthnKeyDeleted
-
-**Namespace**: `Webauthn\WebauthnKeyDeleted`
-
-This event is dispatched when user deletes a webauthn key from their account. It will receive the following parameters:
-
-- `$webauthnKey`: The webauthn key being deleted
-- `$user`: The user the key belongs to
-
-### WebauthnKeyRegistered
-
-**Namespace**: `Webauthn\WebauthnKeyRegistered`
-
-This event is dispatched when user registers a new webauthn key to their account. It will receive the following parameters:
-
-- `$webauthnKey`: The webauthn key being registered
-- `$user`: The user the key belongs to
-
-### WebauthnKeyUpdated
-
-**Namespace**: `Webauthn\WebauthnKeyUpdated`
-
-This event is dispatched when user deletes a webauthn updates a webauthn key's name. It will receive the following parameters:
-
-- `$webauthnKey`: The webauthn key being updated
-- `$user`: The user the key belongs to
-
-### WebauthnKeyUpgradeToPasskey
-
-**Namespace**: `Webauthn\WebauthnKeyUpgradeToPasskey`
-
-This event is dispatched when user upgrades a webauthn key to a passkey. It will receive the following parameters:
-
-- `$user`: The user the key belongs to
-- `$passkey`: The newly registered passkey
-- `$upgradedFrom`: The webauthn key that was upgraded (and deleted)
-
-### WebauthnKeyUsed
-
-**Namespace**: `Webauthn\WebauthnKeyUsed`
-
-This event is dispatched when user uses a webauthn key to verify their identity. It will receive the following parameters:
-
-- `$user`: The user the key belongs to
-- `$webauthnKey`: The webauthn key being used
-
-> {tip} This will also be dispatched when for a passkey when it is used.
-
-### RecoveryCodeReplaced
-
-**Namespace**: `RecoveryCodeReplaced`
-
-This event is dispatched when user uses a recovery code and it is replaced. It will receive the following parameters:
-
-- `$user`: The user using a recovery code
-- `$oldCode`: The code that was used
-- `$newCode`: The new code being assigned to the user
-
-### RecoveryCodesRegenerated
-
-**Namespace**: `RecoveryCodesRegenerated`
-
-This event is dispatched when user regenerates their recovery codes. It will receive the following parameters:
-
-- `$user`: The user regenerating recovery codes
-
-### RecoveryCodesViewed
-
-**Namespace**: `RecoveryCodesViewed`
-
-This event is dispatched when user views their recovery codes. It will receive the following parameters:
-
-- `$user`: The user viewing their recovery codes
-
-### TwoFactorAuthenticationChallenged
-
-**Namespace**: `TwoFactorAuthenticationChallenged`
-
-This event is dispatched when a user is forced to verify their identity with two-factor authentication. It will receive the following parameters:
-
-- `$user`: The user being challenged
-
-### TwoFactorAuthenticationWasDisabled
-
-**Namespace**: `TwoFactorAuthenticationWasDisabled`
-
-This event is dispatched when a user removes every mfa method on their account and has mfa disabled. It will receive the following parameters:
-
-- `$user`: The user disabling mfa
-
-### TwoFactorAuthenticationWasEnabled
-
-**Namespace**: `TwoFactorAuthenticationWasEnabled`
-
-This event is dispatched when a user first adds a second factor of authentication and mfa is enabled on their account. It will receive the following parameters:
-
-- `$user`: The user enabling mfa
-
-### UserDeletedAccount
-
-**Namespace**: `UserDeletedAccount`
-
-This event is dispatched when a user deletes their own account. It will receive the following parameters:
-
-- `$user`: The user being deleted
+The `Rawilk\ProfileFilament\Events\PendingUserEmails\NewUserEmailVerified` event is dispatched when a user verifies a new email address. It has a `user` property for the user and a `previousEmail` property containing the email address before the change.
 
 ### UserPasswordWasUpdated
 
-**Namespace**: `UserPasswordWasUpdated`
+The `Rawilk\ProfileFilament\Events\UserPasswordWasUpdated` event is dispatched when a user successfully updates their account password. It has a `user` property for the user.
 
-This event is dispatched when a user updates their password. It will receive the following parameters:
+### UserDeletedAccount
 
-- `$user`: The user updating their password
+The `Rawilk\ProfileFilament\Events\UserDeletedAccount` event is dispatched when a user deletes their account. It has a `user` property for the user.
