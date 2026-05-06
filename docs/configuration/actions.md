@@ -5,7 +5,7 @@ sort: 3
 
 ## Introduction
 
-Some functionality of this package is implemented in action classes. You can override the default behavior by creating your own action classes and registering them in the `config/profile-filament.php` config file.
+Not to be confused with the Filament actions in the package, some functionality of this package is implemented in action classes. You can override the default behavior by creating your own action classes and registering them in the `config/profile-filament.php` config file.
 
 ## Overriding actions
 
