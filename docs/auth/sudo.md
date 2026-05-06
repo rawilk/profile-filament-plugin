@@ -483,9 +483,9 @@ class SmsSudoProvider implements SudoChallengeProvider, HasBeforeChallengeHook
 }
 ```
 
-In this provider we are also using Filament's `HasBeforeChallengeHook` interface. This allows us to execute some code before the provider's challenge is shown to the user. In this case, the provider is sending a text to the user with a verification code. If your provider doesn't need to do something like this, you can omit the trait.
+In this provider we are also using Filament's `HasBeforeChallengeHook` interface. This allows us to execute some code before the provider's challenge is shown to the user. In this case, the provider is sending a text to the user with a verification code. If your provider doesn't need to do something like this, you can omit the interface.
 
-With your custom sudo challenge proivder created, you can enable it on the panel through the plugin instance:
+With your custom sudo challenge provider created, you can enable it on the panel through the plugin instance:
 
 ```php
 use App\Auth\Sudo\Providers\SmsSudoProvider;
