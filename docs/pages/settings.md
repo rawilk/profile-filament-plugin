@@ -55,7 +55,7 @@ public function panel(Panel $panel): Panel
 
 > {note} While we are enabling email change verification on the panel, we are completely overriding the default behavior with the plugin.
 
-Next, you need to ensure the `create_pending_user_emails_table` [migration](/docs/profile-filament-plugin/{version}/installation#user-content-migrations). Here is the content of the migration if you don't publish the package's migrations.
+Next, you need to ensure you run the `create_pending_user_emails_table` [migration](/docs/profile-filament-plugin/{version}/installation#user-content-migrations). Here is the content of the migration you need to create the table:
 
 ```php
 use Illuminate\Database\Schema\Blueprint;
@@ -89,7 +89,7 @@ class User extends BaseUser implements MustVerifyEmail
 }
 ```
 
-> {note} If you have email verification required on the filament panel (`$panel->emailVerification()`) and the user updates their email address, we will reload the page so they are forced to see the email verification prompt until they verify their new email.
+> {note} If you have email verification required on the filament panel (using `$panel->emailVerification()`) and the user updates their email address, we will reload the page so they are forced to see the email verification prompt until they verify their new email.
 
 ## Delete Account
 

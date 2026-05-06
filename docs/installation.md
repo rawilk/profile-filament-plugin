@@ -28,7 +28,7 @@ You can publish the configuration file with:
 php artisan vendor:publish --tag="profile-filament-config"
 ```
 
-You can view the default configuration here: https://github.com/rawilk/profile-filament-plugin/blob/{branch}/config/profile-filament.php
+You can view the default configuration here: [https://github.com/rawilk/profile-filament-plugin/blob/{branch}/config/profile-filament.php](https://github.com/rawilk/profile-filament-plugin/blob/{branch}/config/profile-filament.php)
 
 > {tip} The config options found in this file are mostly global options. There are many options are available on the plugin class itself when registering it in a panel service provider. We will also detail below some of the global configurations you can make from the config file.
 
