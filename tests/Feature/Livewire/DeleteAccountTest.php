@@ -83,7 +83,7 @@ describe('validation', function () {
                 ]
             )
             ->assertHasActionErrors([
-                'email' => __('profile-filament::pages/settings.delete_account.actions.delete.incorrect_email'),
+                'email' => __('profile-filament::pages/settings/delete-account/actions/delete.modal.form.email.messages.incorrect'),
             ])
             ->assertNoRedirect();
 
