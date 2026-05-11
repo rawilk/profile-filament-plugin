@@ -138,9 +138,9 @@ ProfileFilamentPlugin::make()
     ])
 ```
 
-## Webauthn Provider
+## WebAuthn Provider
 
-You must first enable the [Webauthn Provider](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-webauthn-authentication) on the plugin. Then, your user must register at least one security key to their account for this challenge to show up.
+You must first enable the [WebAuthn Provider](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-webauthn-authentication) on the plugin. Then, your user must register at least one security key to their account for this challenge to show up.
 
 To enable this provider, you can add an instance of the `SudoWebauthnProvider` to the `sudoMode()` method on the plugin.
 

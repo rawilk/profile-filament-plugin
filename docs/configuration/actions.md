@@ -47,7 +47,7 @@ return [
 
 ## Overriding webauthn actions
 
-The actions related to [Webauthn](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-webauthn-authentication) are stored in the `webauthn.actions` config key instead of the `actions` key in the `config/profile-filament.php` config file.
+The actions related to [WebAuthn](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-webauthn-authentication) are stored in the `webauthn.actions` config key instead of the `actions` key in the `config/profile-filament.php` config file.
 
 [Overriding](#user-content-overriding-actions) them requires the same process as the other actions in the package; once you've created your custom webauthn action you can place it in the `webauthn.actions` config key for the relevant action you're overriding:
 

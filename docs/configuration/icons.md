@@ -27,7 +27,7 @@ Using class `Rawilk\ProfileFilament\Enums\ProfileFilamentIcon`
 - `ProfileFilamentIcon::MfaEmail` - Email authentication provider management schema icon. Also shown in the sudo challenge form
 - `ProfileFilamentIcon::MfaTotp` - Authenticator app provider management schema icon. Also shown in the sudo challenge form
 - `ProfileFilamentIcon::MfaRecoveryCodes` - Recovery codes provider management schema icon
-- `ProfileFilamentIcon::MfaWebauthn` - Webauthn provider management schema icon. Also shown in the sudo challenge form
+- `ProfileFilamentIcon::MfaWebauthn` - WebAuthn provider management schema icon. Also shown in the sudo challenge form
 - `ProfileFilamentIcon::MfaWebauthnUnsupported` - Icon used in the error message when webauthn is not supported in the current browser
 - `ProfileFilamentIcon::PendingEmailInfo` - Icon shows next to the text indicating that an email change is pending for the user
 - `ProfileFilamentIcon::SessionDesktop` - Desktop session icon

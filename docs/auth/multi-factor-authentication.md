@@ -15,7 +15,7 @@ This package includes three providers of MFA which you can enable out of the box
 
 - [App Authentication](#user-content-app-authentication) uses a Google Authenticator-compatible app (such as Google Authenticator, Authy or Microsoft Authenticator apps) to generate a time-based one-time password (TOTP) that is used to verify the user.
 - [Email Authentication](#user-content-email-authentication) sends a one-time code to the user's email address, which they must enter to verify their identity.
-- [Webauthn Authentication](#user-content-webauthn-authentication) allows a user to use either a Passkey or a Hardware Security Key to verify their identity.
+- [WebAuthn Authentication](#user-content-webauthn-authentication) allows a user to use either a Passkey or a Hardware Security Key to verify their identity.
 
 By default, the package provides a [security page](/docs/profile-filament-plugin/{version}/pages/security) with a multi-factor authentication management component that allows users to set up multi-factor authentication with. As long as at least one MFA provider is configured to the plugin, the MFA manager component will show up.
 
@@ -269,9 +269,9 @@ ProfileFilamentPlugin::make()
     ]);
 ```
 
-## Webauthn Authentication
+## WebAuthn Authentication
 
-[Webauthn](https://webauthn.guide/) can be used as an alternative to App Authentication (TOTP) codes. Our implementation with the `WebauthnProvider` allows users to use either [Passkeys](https://www.webauthn.me/passkeys) or Hardware Security Keys such as a [YubiKey](https://www.yubico.com/).
+[WebAuthn](https://webauthn.guide/) can be used as an alternative to App Authentication (TOTP) codes. Our implementation with the `WebAuthnProvider` allows users to use either [Passkeys](https://www.webauthn.me/passkeys) or Hardware Security Keys such as a [YubiKey](https://www.yubico.com/).
 
 To get started with this provider, you'll need to make sure you run the migration to create the `webauthn_keys` table:
 
@@ -338,7 +338,7 @@ public function panel(Panel $panel): Panel
 }
 ```
 
-### Webauthn Routes
+### WebAuthn Routes
 
 If you intend to use [Passkey login](#user-content-passkey-login), you should register the passkey routes in a route file using the `Webauthn()` route macro:
 
@@ -448,6 +448,8 @@ For most applications, the defaults we have set in the [config](/docs/profile-fi
     ]
 ]
 ```
+
+> {note} The `id` for the `relying_party` should be the domain of the application without the scheme, userinfo, port or path. IP addresses are not allowed either. Supported values include: `www.sub.domain.com`, `sub.domain.com`, `domain.com`.
 
 ### Limit Security Key Registrations
 
