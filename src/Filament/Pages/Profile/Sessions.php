@@ -22,7 +22,7 @@ class Sessions extends ProfilePage
 
     protected static function getDefaultNavigationLabel(): ?string
     {
-        return __('profile-filament::pages/sessions.title');
+        return __('profile-filament::pages/sessions/page.title');
     }
 
     protected static function getDefaultNavigationIcon(): string|BackedEnum|null
@@ -37,7 +37,7 @@ class Sessions extends ProfilePage
 
     protected static function getDefaultTitle(): null|string|Htmlable
     {
-        return __('profile-filament::pages/sessions.title');
+        return __('profile-filament::pages/sessions/page.title');
     }
 
     protected function defaultLivewireComponents(): array

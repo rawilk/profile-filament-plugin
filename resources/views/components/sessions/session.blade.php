@@ -23,15 +23,15 @@
 
                     <div class="flex-1">
                         <div class="text-sm">
-                            {{ $session->agent()->platform() ?: __('profile-filament::pages/sessions.manager.unknown_platform') }}
+                            {{ $session->agent()->platform() ?: __('profile-filament::pages/sessions/page.manager.list.unknown.platform') }}
                             -
-                            {{ $session->agent()->browser() ?: __('profile-filament::pages/sessions.manager.unknown_browser') }}
+                            {{ $session->agent()->browser() ?: __('profile-filament::pages/sessions/page.manager.list.unknown.browser') }}
                         </div>
 
                         <div class="text-xs mt-1">
                             <x-filament::link
                                 href="https://tools.keycdn.com/geo?host={{ $session->ipAddress() }}"
-                                :tooltip="__('profile-filament::pages/sessions.manager.ip_info_tooltip')"
+                                :tooltip="__('profile-filament::pages/sessions/page.manager.list.ip-info.tooltip')"
                                 target="_blank"
                                 rel="nofollow noopener"
                                 size="xs"
@@ -43,9 +43,9 @@
                             <span aria-hidden="true">-</span>
 
                             @if ($session->isCurrentDevice())
-                                <span class="text-success-500 font-semibold">{{ __('profile-filament::pages/sessions.manager.current_device') }}</span>
+                                <span class="text-success-500 font-semibold">{{ __('profile-filament::pages/sessions/page.manager.list.current-device') }}</span>
                             @else
-                                <span>{{ __('profile-filament::pages/sessions.manager.last_activity', ['time' => $session->lastActive()]) }}</span>
+                                <span>{{ __('profile-filament::pages/sessions/page.manager.list.last-activity', ['time' => $session->lastActive()]) }}</span>
                             @endif
                         </div>
                     </div>

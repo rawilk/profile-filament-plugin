@@ -25,21 +25,4 @@ return [
             'If you did not make this request, please contact us immediately.',
         ],
     ],
-
-    //    'email_updated' => [
-    //        'subject' => 'Email address updated',
-    //        'greeting' => 'Hello,',
-    //        'line1' => 'You are receiving this email because your :app_name account email address was recently updated.',
-    //        'line2' => 'From now on, you will need to use ":email" to sign into your account.',
-    //        'line3' => 'If this was you, no further action is required.',
-    //        'line4' => 'If you did not initiate this change, [click this link](:url) to revert the change. This link will expire in :expire.',
-    //        'salutation' => 'Thanks,<br>:app_name',
-    //    ],
-
-    'request_details' => [
-        'heading' => '**Request details**',
-        'ip' => 'IP address: :ip',
-        'date' => 'Date: :date',
-    ],
-
 ];

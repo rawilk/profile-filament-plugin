@@ -162,7 +162,7 @@ class UpdatePassword extends ProfileComponent
     protected function getFormSchema(): array
     {
         return [
-            Section::make(__('profile-filament::pages/security.password.title'))
+            Section::make(__('profile-filament::pages/security/password/component.heading'))
                 ->schema([
                     $this->getPasswordComponent(),
                     $this->getPasswordConfirmationComponent(),
@@ -181,7 +181,7 @@ class UpdatePassword extends ProfileComponent
     protected function getSuccessNotification(): ?Notification
     {
         return Notification::make()
-            ->title(__('profile-filament::pages/security.password.form.notifications.saved.title'))
+            ->title(__('profile-filament::pages/security/password/component.notifications.saved.title'))
             ->success();
     }
 
@@ -202,9 +202,9 @@ class UpdatePassword extends ProfileComponent
     protected function getCurrentPasswordComponent(): Component
     {
         return PasswordInput::make('current_password')
-            ->label(__('profile-filament::pages/security.password.form.current_password.label'))
-            ->validationAttribute(__('profile-filament::pages/security.password.form.current_password.validation_attribute'))
-            ->belowContent(__('profile-filament::pages/security.password.form.current_password.below_content'))
+            ->label(__('profile-filament::pages/security/password/component.form.current-password.label'))
+            ->validationAttribute(__('profile-filament::pages/security/password/component.form.current-password.validation-attribute'))
+            ->belowContent(__('profile-filament::pages/security/password/component.form.current-password.below-content'))
             ->required()
             ->autocomplete('current-password')
             ->currentPassword(guard: Filament::getAuthGuard())
@@ -216,8 +216,8 @@ class UpdatePassword extends ProfileComponent
     protected function getPasswordComponent(): Component
     {
         return PasswordInput::make('password')
-            ->label(__('profile-filament::pages/security.password.form.password.label'))
-            ->validationAttribute(__('profile-filament::pages/security.password.form.password.validation_attribute'))
+            ->label(__('profile-filament::pages/security/password/component.form.password.label'))
+            ->validationAttribute(__('profile-filament::pages/security/password/component.form.password.validation-attribute'))
             ->copyable()
             ->regeneratePassword()
             ->inlineSuffix()
@@ -237,8 +237,8 @@ class UpdatePassword extends ProfileComponent
     protected function getPasswordConfirmationComponent(): Component
     {
         return PasswordInput::make('password_confirmation')
-            ->label(__('profile-filament::pages/security.password.form.password_confirmation.label'))
-            ->validationAttribute(__('profile-filament::pages/security.password.form.password_confirmation.validation_attribute'))
+            ->label(__('profile-filament::pages/security/password/component.form.password-confirmation.label'))
+            ->validationAttribute(__('profile-filament::pages/security/password/component.form.password-confirmation.validation-attribute'))
             ->hidePasswordManagerIcons()
             ->autocomplete('new-password')
             ->required()
@@ -251,7 +251,7 @@ class UpdatePassword extends ProfileComponent
     protected function getSaveFormAction(): Action
     {
         return Action::make('save')
-            ->label(__('profile-filament::pages/security.password.form.actions.save.label'))
+            ->label(__('profile-filament::pages/security/password/component.actions.save.label'))
             ->submit('updatePassword')
             ->keyBindings(['mod+s']);
     }
@@ -259,7 +259,7 @@ class UpdatePassword extends ProfileComponent
     protected function getForgotPasswordLinkAction(): Action
     {
         return Action::make('forgotPassword')
-            ->label(__('profile-filament::pages/security.password.form.actions.forgot_password.label'))
+            ->label(__('profile-filament::pages/security/password/component.actions.forgot-password.label'))
             ->link()
             ->url($this->passwordResetUrl)
             ->visible(fn (Get $get): bool => filled($get('password')) && filled($this->passwordResetUrl));

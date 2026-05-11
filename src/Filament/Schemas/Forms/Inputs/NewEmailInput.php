@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs;
 
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
+use Rawilk\ProfileFilament\Support\Config;
 
 class NewEmailInput extends TextInput
 {
@@ -13,13 +14,15 @@ class NewEmailInput extends TextInput
     {
         parent::setUp();
 
-        $this->label(__('profile-filament::pages/settings.email.actions.edit.email_label'));
+        $this->label(__('profile-filament::pages/settings/email/actions/edit.modal.form.email.label'));
 
-        $this->placeholder(__('profile-filament::pages/settings.email.actions.edit.email_placeholder', ['host' => request()?->getHost()]));
+        $this->validationAttribute(__('profile-filament::pages/settings/email/actions/edit.modal.form.email.validation-attribute'));
+
+        $this->placeholder(__('profile-filament::pages/settings/email/actions/edit.modal.form.email.placeholder', ['host' => request()?->getHost()]));
 
         $this->belowContent(
             fn (): ?string => Filament::hasEmailChangeVerification()
-                ? __('profile-filament::pages/settings.email.actions.edit.email_help')
+                ? __('profile-filament::pages/settings/email/actions/edit.modal.form.email.help')
                 : null
         );
 
@@ -30,7 +33,7 @@ class NewEmailInput extends TextInput
         $this->email();
 
         $this->unique(
-            table: fn () => app(config('auth.providers.users.model'))->getTable(),
+            table: fn () => app(Config::getAuthenticatableModel())->getTable(),
             column: 'email',
             ignoreRecord: true,
         );

@@ -20,19 +20,19 @@ class EditProfileInfoAction extends Action
     {
         parent::setUp();
 
-        $this->label(__('profile-filament::pages/profile.info.actions.edit.trigger'));
+        $this->label(__('profile-filament::pages/profile/actions/edit.label'));
 
         $this->color('primary');
 
         $this->size(Size::Small);
 
-        $this->modalHeading(__('profile-filament::pages/profile.info.actions.edit.modal_title'));
+        $this->modalHeading(__('profile-filament::pages/profile/actions/edit.modal.heading'));
 
-        $this->modalSubmitActionLabel(__('profile-filament::pages/profile.info.actions.edit.submit'));
+        $this->modalSubmitActionLabel(__('profile-filament::pages/profile/actions/edit.modal.actions.submit.label'));
 
         $this->modalWidth(Width::ExtraLarge);
 
-        $this->successNotificationTitle(__('profile-filament::pages/profile.info.actions.edit.success'));
+        $this->successNotificationTitle(__('profile-filament::pages/profile/actions/edit.notifications.saved.title'));
 
         $this->schema([
             ProfileNameInput::make(),

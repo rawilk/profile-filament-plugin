@@ -16,7 +16,7 @@ class SessionsConfiguration extends ProfilePageConfiguration
 
     protected function getDefaultNavigationLabel(): ?string
     {
-        return __('profile-filament::pages/sessions.title');
+        return __('profile-filament::pages/sessions/page.title');
     }
 
     protected function getDefaultNavigationSort(): ?int
@@ -26,6 +26,6 @@ class SessionsConfiguration extends ProfilePageConfiguration
 
     protected function getDefaultTitle(): ?string
     {
-        return __('profile-filament::pages/sessions.title');
+        return __('profile-filament::pages/sessions/page.title');
     }
 }

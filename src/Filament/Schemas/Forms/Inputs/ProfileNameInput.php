@@ -12,7 +12,9 @@ class ProfileNameInput extends TextInput
     {
         parent::setUp();
 
-        $this->label(__('profile-filament::pages/profile.info.name.form_label'));
+        $this->label(__('profile-filament::pages/profile/actions/edit.modal.form.name.label'));
+
+        $this->validationAttribute(__('profile-filament::pages/profile/actions/edit.modal.form.name.validation-attribute'));
 
         $this->required();
 

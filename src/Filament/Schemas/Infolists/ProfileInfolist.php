@@ -38,7 +38,7 @@ class ProfileInfolist
     public static function createdAtComponent(): Component
     {
         return TextEntry::make('created_at')
-            ->label(__('profile-filament::pages/profile.info.created_at.label'))
+            ->label(__('profile-filament::pages/profile/page.info.fields.created-at.label'))
             ->dateTime(
                 format: 'F j, Y',
                 timezone: ProfileFilament::userTimezone(),
@@ -48,7 +48,7 @@ class ProfileInfolist
     public static function nameComponent(): Component
     {
         return TextEntry::make('name')
-            ->label(__('profile-filament::pages/profile.info.name.label'));
+            ->label(__('profile-filament::pages/profile/page.info.fields.name.label'));
     }
 
     protected static function resolveComponents(Model|Authenticatable $user): array
@@ -61,7 +61,7 @@ class ProfileInfolist
         }
 
         return [
-            Section::make(__('Profile Information'))
+            Section::make(__('profile-filament::pages/profile/page.info.heading'))
                 ->headerActions([
                     EditProfileInfoAction::make(),
                 ])

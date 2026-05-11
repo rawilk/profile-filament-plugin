@@ -16,7 +16,7 @@ class SettingsConfiguration extends ProfilePageConfiguration
 
     protected function getDefaultNavigationLabel(): ?string
     {
-        return __('profile-filament::pages/settings.title');
+        return __('profile-filament::pages/settings/page.title');
     }
 
     protected function getDefaultNavigationSort(): ?int
@@ -26,6 +26,6 @@ class SettingsConfiguration extends ProfilePageConfiguration
 
     protected function getDefaultTitle(): ?string
     {
-        return __('profile-filament::pages/settings.title');
+        return __('profile-filament::pages/settings/page.title');
     }
 }

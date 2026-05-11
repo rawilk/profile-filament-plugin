@@ -32,15 +32,15 @@ class DeleteAccountAction extends Action
 
         $this->color('danger');
 
-        $this->label(__('profile-filament::pages/settings.delete_account.actions.delete.trigger'));
+        $this->label(__('profile-filament::pages/settings/delete-account/actions/delete.label'));
 
-        $this->modalSubmitActionLabel(__('profile-filament::pages/settings.delete_account.actions.delete.submit_button'));
+        $this->modalSubmitActionLabel(__('profile-filament::pages/settings/delete-account/actions/delete.modal.actions.submit.label'));
 
         $this->modalIcon(FilamentIcon::resolve('actions::delete-action.modal') ?? Heroicon::OutlinedTrash);
 
         $this->modalDescription(new HtmlString(Blade::render(<<<'HTML'
         <div class="fi-modal-description text-sm text-gray-500 dark:text-gray-400 text-left text-pretty">
-            {{ __('profile-filament::pages/settings.delete_account.description') }}
+            {{ __('profile-filament::pages/settings/delete-account/component.description') }}
         </div>
         HTML)));
 
@@ -50,7 +50,7 @@ class DeleteAccountAction extends Action
             DeleteAccountEmailConfirmationInput::make('email'),
         ]);
 
-        $this->successNotificationTitle(__('profile-filament::pages/settings.delete_account.actions.delete.success'));
+        $this->successNotificationTitle(__('profile-filament::pages/settings/delete-account/actions/delete.notifications.success.title'));
 
         $this->successRedirectUrl(fn () => Filament::getLoginUrl());
 

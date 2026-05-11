@@ -19,9 +19,9 @@ class PreferredMultiFactorProviderSelect
     public static function make(Collection $enabledMultiFactorProviders, HasMultiFactorAuthentication $user): Component
     {
         return Select::make('preferred_mfa_provider')
-            ->label(__('profile-filament::pages/security.mfa.form.preferred_mfa_provider.label'))
-            ->placeholder(__('profile-filament::pages/security.mfa.form.preferred_mfa_provider.placeholder'))
-            ->belowContent(__('profile-filament::pages/security.mfa.form.preferred_mfa_provider.description'))
+            ->label(__('profile-filament::pages/security/multi-factor/component.preferred-mfa-provider.label'))
+            ->placeholder(__('profile-filament::pages/security/multi-factor/component.preferred-mfa-provider.placeholder'))
+            ->belowContent(__('profile-filament::pages/security/multi-factor/component.preferred-mfa-provider.description'))
             ->options(
                 $enabledMultiFactorProviders->mapWithKeys(
                     fn (MultiFactorAuthenticationProvider $provider) => [$provider->getId() => $provider->getSelectLabel()]
@@ -35,7 +35,7 @@ class PreferredMultiFactorProviderSelect
 
                 Notification::make()
                     ->success()
-                    ->title(__('profile-filament::pages/security.mfa.form.preferred_mfa_provider.notifications.saved.title'))
+                    ->title(__('profile-filament::pages/security/multi-factor/component.preferred-mfa-provider.notifications.saved.title'))
                     ->send();
             });
     }

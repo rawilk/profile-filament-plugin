@@ -53,7 +53,7 @@ class SecurityConfiguration extends ProfilePageConfiguration
 
     protected function getDefaultNavigationLabel(): ?string
     {
-        return __('profile-filament::pages/security.title');
+        return __('profile-filament::pages/security/page.title');
     }
 
     protected function getDefaultNavigationSort(): ?int
@@ -63,6 +63,6 @@ class SecurityConfiguration extends ProfilePageConfiguration
 
     protected function getDefaultTitle(): ?string
     {
-        return __('profile-filament::pages/security.title');
+        return __('profile-filament::pages/security/page.title');
     }
 }

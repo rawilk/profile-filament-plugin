@@ -76,11 +76,11 @@ class UserEmailInfolist
                 ->heading(function () use ($pendingEmail): Htmlable {
                     return new HtmlString(Blade::render(<<<'HTML'
                     <span class="flex items-center gap-x-2">
-                        <span>{{ __('profile-filament::pages/settings.email.heading') }}</span>
+                        <span>{{ __('profile-filament::pages/settings/email/component.heading') }}</span>
 
                         @if ($pendingEmail)
                             <x-filament::badge color="warning">
-                                {{ __('profile-filament::pages/settings.email.change_pending_badge') }}
+                                {{ __('profile-filament::pages/settings/email/component.infolist.pending-change.badge') }}
                             </x-filament::badge>
                         @endif
                     </span>

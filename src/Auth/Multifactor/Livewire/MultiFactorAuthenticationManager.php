@@ -78,16 +78,16 @@ class MultiFactorAuthenticationManager extends ProfileComponent
     {
         return $schema
             ->components([
-                Section::make(__('profile-filament::pages/security.mfa.title'))
-                    ->description(__('profile-filament::pages/security.mfa.description'))
+                Section::make(__('profile-filament::pages/security/multi-factor/component.heading'))
+                    ->description(__('profile-filament::pages/security/multi-factor/component.description'))
                     ->divided()
                     ->statePath('data')
                     ->afterHeader(
                         fn (): Text => $this->hasMultiFactorAuthenticationEnabled()
-                            ? Text::make(__('profile-filament::pages/security.mfa.messages.enabled'))
+                            ? Text::make(__('profile-filament::pages/security/multi-factor/component.messages.enabled'))
                                 ->badge()
                                 ->color('success')
-                            : Text::make(__('profile-filament::pages/security.mfa.messages.disabled'))
+                            : Text::make(__('profile-filament::pages/security/multi-factor/component.messages.disabled'))
                                 ->badge()
                                 ->color('danger'),
                     )

@@ -33,20 +33,22 @@ class EditEmailAction extends Action
 
         $this->color('primary');
 
-        $this->label(__('profile-filament::pages/settings.email.actions.edit.trigger'));
+        $this->label(__('profile-filament::pages/settings/email/actions/edit.label'));
 
         $this->modalWidth(Width::ExtraLarge);
 
-        $this->modalHeading(__('profile-filament::pages/settings.email.actions.edit.modal_title'));
+        $this->modalHeading(__('profile-filament::pages/settings/email/actions/edit.modal.heading'));
+
+        $this->modalSubmitActionLabel(__('profile-filament::pages/settings/email/actions/edit.modal.actions.submit.label'));
 
         $this->successNotification(
             fn (): Notification => Notification::make()
                 ->success()
-                ->title(__('profile-filament::pages/settings.email.actions.edit.success_title'))
+                ->title(__('profile-filament::pages/settings/email/actions/edit.notifications.success.title'))
                 ->body(
                     Filament::hasEmailChangeVerification()
-                        ? __('profile-filament::pages/settings.email.actions.edit.success_body_pending')
-                        : __('profile-filament::pages/settings.email.actions.edit.success_body')
+                        ? __('profile-filament::pages/settings/email/actions/edit.notifications.success.body-pending')
+                        : __('profile-filament::pages/settings/email/actions/edit.notifications.success.body')
                 )
         );
 

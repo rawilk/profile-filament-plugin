@@ -15,9 +15,11 @@ class DeleteAccountEmailConfirmationInput extends TextInput
     {
         parent::setUp();
 
-        $this->label(__('profile-filament::pages/settings.delete_account.actions.delete.email_label', [
+        $this->label(__('profile-filament::pages/settings/delete-account/actions/delete.modal.form.email.label', [
             'email' => Filament::auth()->user()->email,
         ]));
+
+        $this->validationAttribute(__('profile-filament::pages/settings/delete-account/actions/delete.modal.form.email.validation-attribute'));
 
         $this->email();
 
@@ -25,8 +27,10 @@ class DeleteAccountEmailConfirmationInput extends TextInput
 
         $this->rules([
             fn (): Closure => function (string $attribute, $value, Closure $fail) {
-                if (Str::lower($value) !== Str::lower(Filament::auth()->user()->email)) {
-                    $fail(__('profile-filament::pages/settings.delete_account.actions.delete.incorrect_email'));
+                if (
+                    ! hash_equals(Str::lower(Filament::auth()->user()->email), Str::lower($value))
+                ) {
+                    $fail(__('profile-filament::pages/settings/delete-account/actions/delete.modal.form.email.messages.incorrect'));
                 }
             },
         ]);

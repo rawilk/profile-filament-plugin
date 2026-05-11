@@ -29,7 +29,7 @@ class SecurityUrlHelpText extends Text
 
                 <span>
                     {{
-                        str(__('profile-filament::pages/settings.account_security_link', [
+                        str(__('profile-filament::pages/settings/email/component.infolist.account-security-link.content', [
                             'url' => $url,
                         ]))
                             ->inlineMarkdown()

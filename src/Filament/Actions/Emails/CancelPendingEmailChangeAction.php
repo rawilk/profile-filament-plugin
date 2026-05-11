@@ -22,7 +22,7 @@ class CancelPendingEmailChangeAction extends Action
 
         $this->registerSudoChallenge();
 
-        $this->label(__('profile-filament::pages/settings.email.actions.cancel.trigger'));
+        $this->label(__('profile-filament::pages/settings/email/actions/cancel-pending-email-change.label'));
 
         $this->link();
 

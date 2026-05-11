@@ -35,11 +35,11 @@ class PendingEmailChangeText extends Text
                     </div>
 
                     <div class="flex-1">
-                        <div class="text-sm font-bold">{{ __('profile-filament::pages/settings.email.pending_heading') }}</div>
+                        <div class="text-sm font-bold">{{ __('profile-filament::pages/settings/email/component.infolist.pending-change.heading') }}</div>
 
                         <div class="mt-1 text-sm">
                             {{
-                                str(__('profile-filament::pages/settings.email.pending_description', [
+                                str(__('profile-filament::pages/settings/email/component.infolist.pending-change.description', [
                                     'email' => e($pendingEmail?->email)
                                 ]))
                                     ->inlineMarkdown()

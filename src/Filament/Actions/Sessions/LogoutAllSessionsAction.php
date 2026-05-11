@@ -27,24 +27,25 @@ class LogoutAllSessionsAction extends Action
 
         $this->link();
 
-        $this->label(__('profile-filament::pages/sessions.manager.actions.revoke_all.trigger'));
+        $this->label(__('profile-filament::pages/sessions/actions/logout-all.label'));
 
         $this->modalWidth(Width::Large);
 
-        $this->modalSubmitActionLabel(__('profile-filament::pages/sessions.manager.actions.revoke_all.submit_button'));
+        $this->modalSubmitActionLabel(__('profile-filament::pages/sessions/actions/logout-all.modal.actions.submit.label'));
 
-        $this->modalHeading(__('profile-filament::pages/sessions.manager.actions.revoke_all.modal_title'));
+        $this->modalHeading(__('profile-filament::pages/sessions/actions/logout-all.modal.heading'));
 
         $this->modalDescription(str('<span aria-hidden="true"></span>')->inlineMarkdown()->toHtmlString());
 
         $this->modalIcon(ProfileFilamentIcon::LogoutSessionModalIcon->resolve());
 
-        $this->successNotificationTitle(__('profile-filament::pages/sessions.manager.actions.revoke_all.success'));
+        $this->successNotificationTitle(__('profile-filament::pages/sessions/actions/logout-all.notifications.success.title'));
 
         $this->schema([
             CurrentPasswordInput::make('password')
-                ->label(__('profile-filament::pages/sessions.manager.password_input_label'))
-                ->helperText(__('profile-filament::pages/sessions.manager.password_input_helper')),
+                ->label(__('profile-filament::pages/sessions/actions/logout-all.modal.form.password.label'))
+                ->validationAttribute(__('profile-filament::pages/sessions/actions/logout-all.modal.form.password.validation-attribute'))
+                ->helperText(__('profile-filament::pages/sessions/actions/logout-all.modal.form.password.help')),
         ]);
 
         $this->action(function (Component $livewire) {

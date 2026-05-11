@@ -12,8 +12,8 @@ class EmailTextEntry extends TextEntry
     {
         parent::setUp();
 
-        $this->label(__('profile-filament::pages/settings.email.label'));
+        $this->label(__('profile-filament::pages/settings/email/component.infolist.email.label'));
 
-        $this->helperText(__('profile-filament::pages/settings.email.email_description'));
+        $this->helperText(__('profile-filament::pages/settings/email/component.infolist.email.help'));
     }
 }

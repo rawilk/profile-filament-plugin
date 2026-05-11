@@ -21,15 +21,15 @@ class ResendPendingEmailAction extends Action
     {
         parent::setUp();
 
-        $this->label(__('profile-filament::pages/settings.email.actions.resend.trigger'));
+        $this->label(__('profile-filament::pages/settings/email/actions/resend-pending-email.label'));
 
         $this->link();
 
         $this->successNotification(
             Notification::make()
                 ->success()
-                ->title(__('profile-filament::pages/settings.email.actions.resend.success_title'))
-                ->body(__('profile-filament::pages/settings.email.actions.resend.success_body'))
+                ->title(__('profile-filament::pages/settings/email/actions/resend-pending-email.notifications.success.title'))
+                ->body(__('profile-filament::pages/settings/email/actions/resend-pending-email.notifications.success.body'))
         );
 
         $this->action(function (?PendingUserEmail $record) {
@@ -76,9 +76,9 @@ class ResendPendingEmailAction extends Action
     protected function getRateLimitedNotification(int $secondsUntilAvailable): ?Notification
     {
         return Notification::make()
-            ->title(__('profile-filament::pages/settings.email.actions.resend.throttled.title'))
+            ->title(__('profile-filament::pages/settings/email/actions/resend-pending-email.messages.throttled.title'))
             ->body(
-                __('profile-filament::pages/settings.email.actions.resend.throttled.body', [
+                __('profile-filament::pages/settings/email/actions/resend-pending-email.messages.throttled.body', [
                     'seconds' => $secondsUntilAvailable,
                     'minutes' => ceil($secondsUntilAvailable / 60),
                 ])

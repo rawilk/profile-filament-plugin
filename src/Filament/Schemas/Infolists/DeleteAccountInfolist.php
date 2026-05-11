@@ -48,11 +48,11 @@ class DeleteAccountInfolist
         }
 
         return [
-            Section::make(__('profile-filament::pages/settings.delete_account.title'))
+            Section::make(__('profile-filament::pages/settings/delete-account/component.heading'))
                 ->icon(Heroicon::OutlinedExclamationCircle)
                 ->iconColor('danger')
                 ->schema([
-                    Text::make(__('profile-filament::pages/settings.delete_account.description')),
+                    Text::make(__('profile-filament::pages/settings/delete-account/component.description')),
 
                     $deleteAction,
                 ]),

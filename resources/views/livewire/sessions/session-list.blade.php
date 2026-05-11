@@ -1,4 +1,4 @@
-<p class="text-sm" wire:ignore>{{ __('profile-filament::pages/sessions.manager.list_description') }}</p>
+<p class="text-sm" wire:ignore>{{ __('profile-filament::pages/sessions/page.manager.list.description') }}</p>
 
 <div class="pf-session-list-ctn mt-4 divide-y border border-gray-300 dark:border-gray-600 rounded-md divide-gray-300 dark:divide-gray-600">
     @foreach ($sessions as $session)

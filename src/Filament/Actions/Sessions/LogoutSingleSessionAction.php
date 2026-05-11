@@ -26,15 +26,17 @@ class LogoutSingleSessionAction extends Action
 
         $this->requiresConfirmation();
 
-        $this->label(__('profile-filament::pages/sessions.manager.actions.revoke.trigger'));
+        $this->label(__('profile-filament::pages/sessions/actions/logout-single.label'));
 
         $this->color('danger');
 
         $this->size(Size::Small);
 
-        $this->modalSubmitActionLabel(__('profile-filament::pages/sessions.manager.actions.revoke.submit_button'));
+        $this->modalSubmitActionLabel(__('profile-filament::pages/sessions/actions/logout-single.modal.actions.submit.label'));
 
-        $this->successNotificationTitle(__('profile-filament::pages/sessions.manager.actions.revoke.success'));
+        $this->successNotificationTitle(__('profile-filament::pages/sessions/actions/logout-single.notifications.success.title'));
+
+        $this->modalHeading(__('profile-filament::pages/sessions/actions/logout-single.modal.heading'));
 
         $this->modalDescription(str('<span aria-hidden="true"></span>')->inlineMarkdown()->toHtmlString());
 
@@ -42,8 +44,9 @@ class LogoutSingleSessionAction extends Action
 
         $this->schema([
             CurrentPasswordInput::make('password')
-                ->label(__('profile-filament::pages/sessions.manager.password_input_label'))
-                ->helperText(__('profile-filament::pages/sessions.manager.password_input_helper')),
+                ->label(__('profile-filament::pages/sessions/actions/logout-single.modal.form.password.label'))
+                ->validationAttribute(__('profile-filament::pages/sessions/actions/logout-single.modal.form.password.validation-attribute'))
+                ->helperText(__('profile-filament::pages/sessions/actions/logout-single.modal.form.password.help')),
         ]);
 
         $this->action(function (array $arguments, Component $livewire) {

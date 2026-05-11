@@ -50,8 +50,8 @@ class SessionManagerInfolist
         }
 
         return [
-            Section::make(__('profile-filament::pages/sessions.manager.heading'))
-                ->description(__('profile-filament::pages/sessions.manager.description'))
+            Section::make(__('profile-filament::pages/sessions/page.manager.heading'))
+                ->description(__('profile-filament::pages/sessions/page.manager.description'))
                 ->schema([
                     $logoutAllSessionsAction,
 

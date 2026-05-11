@@ -29,7 +29,7 @@ class Security extends ProfilePage
 
     protected static function getDefaultNavigationLabel(): ?string
     {
-        return __('profile-filament::pages/security.title');
+        return __('profile-filament::pages/security/page.title');
     }
 
     protected static function getDefaultNavigationIcon(): string|BackedEnum|null
@@ -44,7 +44,7 @@ class Security extends ProfilePage
 
     protected static function getDefaultTitle(): null|string|Htmlable
     {
-        return __('profile-filament::pages/security.title');
+        return __('profile-filament::pages/security/page.title');
     }
 
     protected function defaultLivewireComponents(): array
