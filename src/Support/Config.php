@@ -94,7 +94,9 @@ final class Config
 
     public static function getRelyingPartyId(): string
     {
-        return config('profile-filament.webauthn.relying_party.id');
+        $id = config('profile-filament.webauthn.relying_party.id');
+
+        return parse_url($id, PHP_URL_HOST) ?? $id;
     }
 
     public static function getRelyingPartyIcon(): ?string
