@@ -59,6 +59,11 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         $this->registerIcons();
 
         $this->app->scoped(
+            ProfileFilament::class,
+            fn () => new ProfileFilament,
+        );
+
+        $this->app->scoped(
             Mfa::class,
             fn () => new Mfa,
         );
