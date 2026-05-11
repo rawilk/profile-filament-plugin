@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component as FilamentComponent;
 use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\UnorderedList;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
@@ -21,6 +22,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Sudo\Contracts\SudoChallengeProvider;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
@@ -72,6 +74,10 @@ trait IssuesSudoChallenge
                 $enabledSudoProviders = $this->enabledSudoProviders;
 
                 return [
+                    Text::make(fn (Component $livewire) => $livewire->getErrorBag()->first('multiFactorError'))
+                        ->color('danger')
+                        ->visible(fn (Component $livewire) => $livewire->getErrorBag()->has('multiFactorError')),
+
                     ...$enabledSudoProviders->map(
                         fn (SudoChallengeProvider $provider): FilamentComponent => Group::make($provider->getChallengeFormComponents($this->user, authenticateAction: 'authenticate'))
                             ->statePath($provider->getId())
