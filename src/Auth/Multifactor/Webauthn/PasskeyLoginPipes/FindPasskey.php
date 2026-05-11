@@ -16,11 +16,17 @@ class FindPasskey
 {
     public function __invoke(PasskeyLoginEventBagContract $request, Closure $next)
     {
+        $storedOptions = WebauthnSession::AuthenticationOptions->pull();
+
+        if (blank($storedOptions)) {
+            $this->throwFailureException();
+        }
+
         $findPasskeyAction = Config::getWebauthnAction('find_security_key_to_authenticate', FindSecurityKeyToAuthenticateAction::class);
 
         $passkey = $findPasskeyAction(
             publicKeyCredentialJson: data_get($request->getData(), 'passkeyResponse'),
-            securityKeyOptionsJson: WebauthnSession::AuthenticationOptions->get(),
+            securityKeyOptionsJson: $storedOptions,
             requiresPasskey: true,
         );
 
