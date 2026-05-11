@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Filament\Pages;
 
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Filament\Pages\SimplePage;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
@@ -21,6 +23,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Illuminate\Support\Uri;
@@ -171,6 +174,10 @@ class CrossDomainWebauthnAuth extends SimplePage
 
     public function authenticate(array $arguments): void
     {
+        if ($this->isRateLimited($this->user)) {
+            return;
+        }
+
         $origin = Js::from(
             Uri::of("https://{$this->origin}")->value()
         );
@@ -256,5 +263,41 @@ class CrossDomainWebauthnAuth extends SimplePage
         cache()->put('mfa.external-challenge:' . $this->user->getKey(), $challenge, now()->addSeconds(30));
 
         return $challenge;
+    }
+
+    protected function isRateLimited(Authenticatable $user): bool
+    {
+        $rateLimitKey = "pf-cross-domain-webauthn-auth:{$user->getAuthIdentifier()}";
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, maxAttempts: 5)) {
+            $this->getRateLimitedNotification(
+                new TooManyRequestsException(
+                    static::class,
+                    'authenticate',
+                    request()->ip(),
+                    RateLimiter::availableIn($rateLimitKey),
+                )
+            )?->send();
+
+            return true;
+        }
+
+        RateLimiter::hit($rateLimitKey);
+
+        return false;
+    }
+
+    protected function getRateLimitedNotification(TooManyRequestsException $exception): ?Notification
+    {
+        return Notification::make()
+            ->title(__('filament-panels::auth/pages/login.notifications.throttled.title', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => $exception->minutesUntilAvailable,
+            ]))
+            ->body(array_key_exists('body', __('filament-panels::auth/pages/login.notifications.throttled') ?: []) ? __('filament-panels::auth/pages/login.notifications.throttled.body', [
+                'seconds' => $exception->secondsUntilAvailable,
+                'minutes' => $exception->minutesUntilAvailable,
+            ]) : null)
+            ->danger();
     }
 }
