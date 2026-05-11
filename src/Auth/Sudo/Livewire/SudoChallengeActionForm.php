@@ -14,7 +14,9 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Livewire\Component;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasAfterValidationCheck;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\IssuesSudoChallenge;
 use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeWasActivated;
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
@@ -63,13 +65,22 @@ class SudoChallengeActionForm extends Component implements HasActions, HasSchema
         HTML;
     }
 
-    public function authenticate(Request $request): void
+    public function authenticate(Request $request, array $arguments = []): void
     {
         if ($this->isSudoRateLimited($this->user)) {
             return;
         }
 
         $this->form->validate();
+
+        // This is mostly for cross-domain webauthn requests.
+        if (Arr::has($arguments, 'challenge')) {
+            if (! ProfileFilament::verifyCrossDomainRequest($arguments, $this->user)) {
+                return;
+            }
+        } elseif ($this->currentProviderInstance instanceof HasAfterValidationCheck) {
+            $this->currentProviderInstance->afterValidationCheck($this->form->getState(), $this);
+        }
 
         Sudo::activate();
         SudoModeWasActivated::dispatch($this->user, $request);

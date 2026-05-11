@@ -77,6 +77,20 @@ Route::name('filament.')
                                             ->name('set-up-required');
                                     });
                             }
+
+                            // Webauthn authentication on a different domain.
+                            if ($plugin->shouldRegisterCrossDomainWebauthnRoutes()) {
+                                Route::as('auth.webauthn.')
+                                    ->group(function () use ($plugin): void {
+                                        Route::get($plugin->getCrossDomainWebauthnRegistrationSlug(), $plugin->getCrossDomainWebauthnRegisterRouteAction())
+                                            ->name('cross-domain-registration')
+                                            ->middleware(['signed', 'throttle:6,1']);
+
+                                        Route::get($plugin->getCrossDomainWebauthnAuthSlug(), $plugin->getCrossDomainWebauthnAuthRouteAction())
+                                            ->name('cross-domain-authentication')
+                                            ->middleware(['signed', 'throttle:6,1']);
+                                    });
+                            }
                         }
 
                         // Sudo Challenge

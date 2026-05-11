@@ -15,6 +15,8 @@ use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
@@ -25,7 +27,9 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
 use Rawilk\ProfileFilament\Auth\Sudo\Actions\Concerns\RequiresSudoChallenge;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\Webauthn\SecurityKeyNameInput;
+use Rawilk\ProfileFilament\Support\Config;
 use Throwable;
 
 class SetupSecurityKeyAction extends Action
@@ -88,6 +92,23 @@ class SetupSecurityKeyAction extends Action
                     'class' => 'webauthn-register',
                 ])
                 ->action(function (Action $action, HasActions $livewire) {
+                    if (ProfileFilament::plugin()->needsCrossDomainWebauthn(request()->getHost())) {
+                        $url = ProfileFilament::plugin()->getCrossDomainWebauthnRegistrationUrl(
+                            user: $this->getUser(),
+                            originHost: request()->getHost(),
+                            data: [
+                                'providerId' => $this->getProvider()->getId(),
+                            ],
+                        );
+
+                        $livewire->dispatch('webauthnExternalRegister', [
+                            'url' => $url,
+                            'relyingPartyId' => Config::getRelyingPartyId(),
+                        ]);
+
+                        return;
+                    }
+
                     $rateLimitingKey = 'pf-set-up-webauthn:' . $this->getUser()->getAuthIdentifier();
 
                     if (RateLimiter::tooManyAttempts($rateLimitingKey, maxAttempts: 5)) {
@@ -114,6 +135,18 @@ class SetupSecurityKeyAction extends Action
         ]);
 
         $this->action(function (HasActions $livewire, array $arguments, array $data) {
+            // If userId and securityKeyId are present, we registered the key in a different window.
+            if (Arr::has($arguments, ['userId', 'securityKeyId'])) {
+                $this->handleCrossDomainRegistration(
+                    $arguments['userId'],
+                    $arguments['securityKeyId'],
+                    $data['name'],
+                    $livewire,
+                );
+
+                return;
+            }
+
             if ($this->shouldChallengeForSudo()) {
                 $this->cancel();
             }
@@ -143,11 +176,7 @@ class SetupSecurityKeyAction extends Action
                 $this->setUpRecoveryCodesIfNeeded($livewire, $user);
             });
 
-            Notification::make()
-                ->success()
-                ->title(__('profile-filament::auth/multi-factor/webauthn/actions/set-up.notifications.enabled.title'))
-                ->icon(Heroicon::OutlinedLockClosed)
-                ->send();
+            $this->storedNotification()?->send();
         });
     }
 
@@ -182,6 +211,44 @@ class SetupSecurityKeyAction extends Action
         return $user;
     }
 
+    protected function handleCrossDomainRegistration(
+        string $userId,
+        string $securityKeyId,
+        string $name,
+        HasActions $livewire,
+    ): void {
+        /** @var Authenticatable&HasWebauthn $user */
+        $user = Filament::auth()->user();
+
+        if (! hash_equals((string) $user->getAuthIdentifier(), (string) Crypt::decrypt($userId))) {
+            $this->getFailureNotification()?->send();
+
+            return;
+        }
+
+        // Make sure the security key exists and belongs to the user
+        /** @var \Rawilk\ProfileFilament\Models\WebauthnKey $securityKey */
+        $securityKey = $user->securityKeys()->find(
+            Crypt::decrypt($securityKeyId)
+        );
+
+        if (! $securityKey) {
+            $this->getFailureNotification()?->send();
+
+            return;
+        }
+
+        DB::transaction(function () use ($user, $livewire, $name, $securityKey) {
+            $securityKey->forceFill(['name' => $name])->save();
+
+            $this->setPreferredMultiFactorProvider($user, $this->getProvider()->getId());
+
+            $this->setUpRecoveryCodesIfNeeded($livewire, $user);
+        });
+
+        $this->storedNotification()?->send();
+    }
+
     protected function getRateLimitedNotification(TooManyRequestsException $exception): ?Notification
     {
         return Notification::make()
@@ -198,5 +265,20 @@ class SetupSecurityKeyAction extends Action
                     ])
                     : null
             );
+    }
+
+    protected function getFailureNotification(): ?Notification
+    {
+        return Notification::make()
+            ->title(__('profile-filament::auth/multi-factor/webauthn/actions/set-up.messages.failed'))
+            ->danger();
+    }
+
+    protected function storedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title(__('profile-filament::auth/multi-factor/webauthn/actions/set-up.notifications.enabled.title'))
+            ->icon(Heroicon::OutlinedLockClosed);
     }
 }

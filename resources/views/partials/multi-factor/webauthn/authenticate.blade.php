@@ -4,92 +4,52 @@
     'livewireId',
 ])
 
-<div
-    x-on:webauthn-auth-started.window.stop="processing = true; hasErrors = false"
-    x-on:webauthn-auth-stopped.window.stop="processing = false"
-    x-on:webauthn-auth-failed.window.stop="onFail"
-    x-data="{
-        processing: false,
-        hasErrors: false,
-        errorMessage: undefined,
-
-        onFail(event) {
-            this.hasErrors = true;
-
-            this.errorMessage = event?.detail?.message ?? {{ Js::from($failedText) }};
-        },
-    }"
-    wire:ignore
+<x-profile-filament::multi-factor.webauthn-auth
+    :prompt-text="$promptText"
+    :failed-text="$failedText"
+    :livewire-id="$livewireId"
 >
-    @if ($promptText)
-        <div class="text-center text-pretty" x-show="(! processing) && (! hasErrors)">{{ $promptText }}</div>
-    @endif
+    Livewire.find(livewireId).call(
+        'mountAction',
+        'authenticateWebauthn',
+        {
+            authenticationResponse: JSON.stringify(authenticationResponse),
+        },
+        @js([
+            'schemaComponent' => 'form.webauthn',
+        ])
+    );
 
-    <x-profile-filament::webauthn-waiting-indicator
-        x-show="processing"
-        style="display: none;"
-        x-cloak
-        :message="__('profile-filament::auth/multi-factor/webauthn/provider.messages.waiting-for-input')"
-    />
+    <x-slot:scripts>
+        Livewire.on('webauthnExternalAuth', function ([{ url, relyingPartyId }]) {
+            const width = 600;
+            const height = 600;
+            const left = window.screenX + ((window.innerWidth - width) / 2);
+            const top = window.screenY + ((window.innerHeight - height) / 2);
 
-    @if ($failedText)
-        <div x-show="hasErrors && ! processing">
-            <template x-if="hasErrors">
-                <p class="text-danger-500 text-center text-pretty" role="alert" x-text="errorMessage">
-                </p>
-            </template>
-        </div>
-    @endif
-</div>
+            const authWindow = window.open(
+                url,
+                null,
+                `width=${width},height=${height},top=${top},left=${left},status=no,menubar=no,toolbar=no`
+            );
 
-@script
-<script>
-    const isArray = obj => Array.isArray(obj);
-    const isObjectish = obj => typeof obj === 'object' && obj !== null;
-    const isObject = obj => isObjectish(obj) && ! isArray(obj);
-    const objectHasKey = (obj, key) => key in obj;
+            if (! authWindow) {
+                alert(@js(__('profile-filament::auth/multi-factor/webauthn/actions/auth-on-domain.form.messages.popups-disabled.webauthn')));
 
-    Livewire.on('webauthnAuthenticationReady', async function ([{ webauthnOptions }]) {
-        window.dispatchEvent(
-            new CustomEvent('webauthn-auth-started')
-        );
+                return;
+            }
 
-        const authenticationResponse = await startAuthentication({ optionsJSON: webauthnOptions })
-            .catch(() => window.dispatchEvent(
-                new CustomEvent('webauthn-auth-failed')
-            ))
-            .finally(() => window.dispatchEvent(
-                new CustomEvent('webauthn-auth-stopped')
-            ));
-
-        if (! isObject(authenticationResponse)) {
-            return;
-        }
-
-        if (! objectHasKey(authenticationResponse, 'id')) {
-            return;
-        }
-
-        Livewire.find('{{ $livewireId }}').call(
-            'mountAction',
-            'authenticateWebauthn',
-            {
-                authenticationResponse: JSON.stringify(authenticationResponse),
-            },
-            @js([
-                'schemaComponent' => 'form.webauthn',
-            ])
-        );
-    });
-
-    Livewire.on('webauthnAuthenticationFailed', function ([{ message }]) {
-        window.dispatchEvent(
-            new CustomEvent('webauthn-auth-failed', {
-                detail: {
-                    message,
+            window.addEventListener('message', function (event) {
+                if (event.origin !== `https://${relyingPartyId}`) {
+                    return;
                 }
-            })
-        )
-    });
-</script>
-@endscript
+
+                if (event.data.type === 'webauthn-external-auth-success') {
+                    Livewire.find(livewireId).call('authenticate', { userId: event.data.userId, challenge: event.data.challenge, nonce: event.data.nonce });
+
+                    authWindow.close();
+                }
+            });
+        });
+    </x-slot:scripts>
+</x-profile-filament::multi-factor.webauthn-auth>

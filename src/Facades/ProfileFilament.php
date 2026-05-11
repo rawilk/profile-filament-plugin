@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 use Rawilk\ProfileFilament\ProfileFilament as ProfileFilamentService;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
  * @method static string challenge(int $length = 32)
@@ -19,6 +20,10 @@ use Rawilk\ProfileFilament\ProfileFilament as ProfileFilamentService;
  * @method static string preferredMfaProviderFor(User $user, Collection $enabledProviders)
  * @method static string preferredSudoChallengeProviderFor(User $user, Collection $enabledProviders)
  * @method static string userTimezone(User $user = null)
+ * @method static ProfileFilamentPlugin plugin()
+ * @method static void verifyWebauthnNonce(?string $encryptedNonce)
+ * @method static string generateWebauthnNonce()
+ * @method static bool verifyWebauthnChallenge(array $data, User $user)
  *
  * @see ProfileFilamentService
  */

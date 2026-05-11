@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasAfterValidationCheck;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
@@ -133,7 +134,7 @@ class MultiFactorChallenge extends SimplePage
         return __('profile-filament::auth/multi-factor/challenge/challenge.subheading');
     }
 
-    public function authenticate(): LoginResponse|Responsable|null
+    public function authenticate(array $arguments = []): LoginResponse|Responsable|null
     {
         if (! $this->user) {
             redirect()->to(Filament::getLoginUrl());
@@ -145,8 +146,19 @@ class MultiFactorChallenge extends SimplePage
             return null;
         }
 
+        $data = $this->form->getState();
+
+        // This is mostly for cross-domain webauthn requests.
+        if (Arr::has($arguments, 'challenge')) {
+            if (! ProfileFilament::verifyCrossDomainRequest($arguments, $this->user)) {
+                return null;
+            }
+        } elseif ($this->currentProviderInstance instanceof HasAfterValidationCheck) {
+            $this->currentProviderInstance->afterValidationCheck($data, $this);
+        }
+
         $eventBag = app(MultiFactorEventBagContract::class)
-            ->setData($this->form->getState())
+            ->setData($data)
             ->setRequest(request())
             ->setRemember(Mfa::remember())
             ->setUser($this->user);

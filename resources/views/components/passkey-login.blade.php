@@ -1,5 +1,12 @@
+@php
+    use Rawilk\ProfileFilament\Facades\ProfileFilament;
+
+    $needsCrossDomainWebauthn = ProfileFilament::plugin()->needsCrossDomainWebauthn(request()->getHost());
+@endphp
+
 <div
-    @include('profile-filament::partials.multi-factor.webauthn.passkey-script')
+    @includeWhen(! $needsCrossDomainWebauthn, 'profile-filament::partials.multi-factor.webauthn.scripts.passkey-script')
+    @includeWhen($needsCrossDomainWebauthn, 'profile-filament::partials.multi-factor.webauthn.scripts.passkey-external-script')
     x-show="isSupported"
     x-cloak
 >

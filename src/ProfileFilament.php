@@ -10,13 +10,19 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
-use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
 use Rawilk\ProfileFilament\Auth\Sudo\Contracts\SudoChallengeProvider;
+use RuntimeException;
+use Throwable;
 use Valorin\Random\Random;
 
 class ProfileFilament
@@ -46,6 +52,11 @@ class ProfileFilament
      * or other requests that require some sort of challenge.
      */
     public static ?Closure $generateChallengesUsingCallback = null;
+
+    /**
+     * The plugin instance for the current panel.
+     */
+    protected ?ProfileFilamentPlugin $plugin = null;
 
     /**
      * Register a callback that is responsible for retrieving the authenticated user's timezone.
@@ -86,6 +97,21 @@ class ProfileFilament
     public static function generateChallengesUsing(?Closure $callback): void
     {
         static::$generateChallengesUsingCallback = $callback;
+    }
+
+    public function plugin(): ProfileFilamentPlugin
+    {
+        if ($this->plugin) {
+            return $this->plugin;
+        }
+
+        $panel = Filament::getCurrentOrDefaultPanel();
+
+        if (! $panel->hasPlugin(ProfileFilamentPlugin::PLUGIN_ID)) {
+            throw new LogicException('The ProfileFilamentPlugin is not part of the current panel.');
+        }
+
+        return $this->plugin = $panel->getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
     }
 
     /**
@@ -205,5 +231,65 @@ class ProfileFilament
         }
 
         return Random::token(length: $length);
+    }
+
+    public function generateWebauthnNonce(): string
+    {
+        $nonce = Str::random(32) . ':' . now()->unix();
+
+        WebauthnSession::Nonce->put($nonce);
+
+        return Crypt::encrypt($nonce);
+    }
+
+    public function verifyWebauthnNonce(?string $encryptedNonce): void
+    {
+        [$nonce, $timestamp] = explode(':', Crypt::decrypt($encryptedNonce), 2);
+        [$storedNonce, $storedTimestamp] = explode(':', WebauthnSession::Nonce->pull(), 2);
+
+        if (! hash_equals($storedNonce, $nonce)) {
+            throw new RuntimeException('Invalid nonce');
+        }
+
+        if (! hash_equals($storedTimestamp, $timestamp)) {
+            throw new RuntimeException('Invalid nonce timestamp');
+        }
+
+        if ((int) $storedTimestamp < now()->subMinutes(15)->unix()) {
+            throw new RuntimeException('Nonce has expired');
+        }
+    }
+
+    /**
+     * Mostly for cross-domain webauthn, we need to ensure the response we're processing
+     * is valid for the user.
+     */
+    public function verifyCrossDomainRequest(array $data, Authenticatable $user): bool
+    {
+        $storedChallenge = cache()->pull('mfa.external-challenge:' . $user->getKey());
+
+        if (! Hash::check($storedChallenge, $data['challenge'])) {
+            return false;
+        }
+
+        // Ensure the challenge is for the correct user.
+        $decryptedUserId = (string) rescue(
+            fn () => Crypt::decrypt($data['userId']),
+            fn () => ''
+        );
+
+        if (! hash_equals((string) $user->getAuthIdentifier(), $decryptedUserId)) {
+            return false;
+        }
+
+        if (Arr::has($data, 'nonce')) {
+            try {
+                $this->verifyWebauthnNonce($data['nonce']);
+            } catch (Throwable) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

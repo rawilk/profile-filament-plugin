@@ -7,23 +7,29 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn;
 use Filament\Actions\Action;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Hidden;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\View;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasAfterValidationCheck;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\DeleteSecurityKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\GenerateSecurityKeyRegistrationOptionsAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\StoreSecurityKeyAction;
+use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Filament\Actions\SetupSecurityKeyAction;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
 use Rawilk\ProfileFilament\Support\Config;
 
-class WebauthnProvider implements MultiFactorAuthenticationProvider
+class WebauthnProvider implements HasAfterValidationCheck, MultiFactorAuthenticationProvider
 {
     use Concerns\VerifiesWebauthn;
 
@@ -51,7 +57,7 @@ class WebauthnProvider implements MultiFactorAuthenticationProvider
 
     public function getManagementSchemaComponents(): array
     {
-        /** @var Contracts\HasWebauthn $user */
+        /** @var HasWebauthn $user */
         $user = Filament::auth()->user();
 
         return [
@@ -94,10 +100,10 @@ class WebauthnProvider implements MultiFactorAuthenticationProvider
         ];
     }
 
-    public function generateRegistrationOptions(): string
+    public function generateRegistrationOptions(?HasWebauthn $user = null): string
     {
-        /** @var Authenticatable&Contracts\HasWebauthn $user */
-        $user = Filament::auth()->user();
+        /** @var Authenticatable&HasWebauthn $user */
+        $user ??= Filament::auth()->user();
 
         $generateSecurityKeyOptionsAction = Config::getWebauthnAction(
             'generate_security_key_registration_options',
@@ -111,17 +117,17 @@ class WebauthnProvider implements MultiFactorAuthenticationProvider
         return $options;
     }
 
-    public function storeSecurityKey(string $securityKeyJson, array $data, string $hostName): void
+    public function storeSecurityKey(string $securityKeyJson, array $data, string $hostName, ?Authenticatable $user = null): WebauthnKey
     {
-        /** @var Authenticatable&Contracts\HasWebauthn $user */
-        $user = Filament::auth()->user();
+        /** @var Authenticatable&HasWebauthn $user */
+        $user ??= Filament::auth()->user();
 
         $storeSecurityKeyAction = Config::getWebauthnAction(
             'store_security_key',
             StoreSecurityKeyAction::class,
         );
 
-        $storeSecurityKeyAction(
+        return $storeSecurityKeyAction(
             user: $user,
             securityKeyJson: $securityKeyJson,
             securityKeyOptionsJson: WebauthnSession::RegistrationOptions->pull(),
@@ -140,6 +146,10 @@ class WebauthnProvider implements MultiFactorAuthenticationProvider
     public function getChallengeFormComponents(Authenticatable $user): array
     {
         return [
+            // Here to prevent user from finding the livewire component with JavaScript in the dev tools and calling
+            // authenticate() themselves to bypass the challenge form.
+            Hidden::make('_webauthn_challenge'),
+
             View::make('profile-filament::partials.multi-factor.webauthn.authenticate')
                 ->viewData(fn (Component $livewire) => [
                     'promptText' => __('profile-filament::auth/multi-factor/webauthn/provider.challenge-form.form.prompt.label'),
@@ -152,11 +162,19 @@ class WebauthnProvider implements MultiFactorAuthenticationProvider
                 ->extraAttributes([
                     'class' => 'w-full',
                 ])
-                ->action(function (HasActions $livewire, array $arguments, Request $request) use ($user) {
+                ->action(function (HasActions $livewire, array $arguments, Request $request, Action $action) use ($user) {
                     $authenticationResponse = data_get($arguments, 'authenticationResponse');
 
                     if (filled($authenticationResponse)) {
                         if ($this->isValidSecurityKeyChallenge($authenticationResponse, $request, $user)) {
+                            $challenge = Str::random(32);
+
+                            $action->getSchemaContainer()->fill([
+                                '_webauthn_challenge' => Crypt::encryptString($challenge),
+                            ]);
+
+                            WebauthnSession::ChallengeAssertion->put($challenge);
+
                             /** @var \Rawilk\ProfileFilament\Auth\Multifactor\Filament\MultiFactorChallenge $livewire */
                             return $livewire->authenticate();
                         }
@@ -168,8 +186,27 @@ class WebauthnProvider implements MultiFactorAuthenticationProvider
                         return;
                     }
 
-                    $livewire->dispatch('webauthnAuthenticationReady', [
-                        'webauthnOptions' => json_decode($this->generateAuthenticationOptions($user)),
+                    if (! ProfileFilament::plugin()->needsCrossDomainWebauthn($request->getHost())) {
+                        $livewire->dispatch('webauthnAuthenticationReady', [
+                            'webauthnOptions' => json_decode($this->generateAuthenticationOptions($user)),
+                        ]);
+
+                        return;
+                    }
+
+                    $url = ProfileFilament::plugin()->getCrossDomainWebauthnAuthenticationUrl(
+                        user: $user,
+                        originalHost: request()->getHost(),
+                        data: [
+                            'providerId' => $this->getId(),
+                            'passkey' => false,
+                            'nonce' => ProfileFilament::generateWebauthnNonce(),
+                        ],
+                    );
+
+                    $livewire->dispatch('webauthnExternalAuth', [
+                        'url' => $url,
+                        'relyingPartyId' => Config::getRelyingPartyId(),
                     ]);
                 }),
         ];

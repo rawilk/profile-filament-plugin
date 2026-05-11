@@ -18,6 +18,7 @@ class ProfileFilamentPlugin implements Plugin
     use EvaluatesClosures;
     use ProfilePlugin\Concerns\AddsProfileMenuItem;
     use ProfilePlugin\Concerns\HasAuth;
+    use ProfilePlugin\Concerns\HasCrossDomainWebauthn;
     use ProfilePlugin\Concerns\HasEmailVerification;
     use ProfilePlugin\Concerns\HasMultiFactorAuth;
     use ProfilePlugin\Concerns\HasProfileCluster;

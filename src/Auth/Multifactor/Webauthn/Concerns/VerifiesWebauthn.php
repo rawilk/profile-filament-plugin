@@ -6,6 +6,9 @@ namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Concerns;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\FindSecurityKeyToAuthenticateAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Actions\GenerateSecurityKeyAuthenticationOptionsAction;
@@ -66,5 +69,27 @@ trait VerifiesWebauthn
         SecurityKeyWasUsed::dispatch($user ?? $securityKey->user, $securityKey, $request);
 
         return true;
+    }
+
+    public function afterValidationCheck(array $data, Component $livewire): void
+    {
+        $challenge = data_get($data, $this->getId() . '._webauthn_challenge');
+
+        if (blank($challenge)) {
+            $this->throwFailedValidationError();
+        }
+
+        $challenge = Crypt::decryptString($challenge);
+
+        if (! hash_equals(WebauthnSession::ChallengeAssertion->pull(), $challenge)) {
+            $this->throwFailedValidationError();
+        }
+    }
+
+    protected function throwFailedValidationError(): never
+    {
+        throw ValidationException::withMessages([
+            'multiFactorError' => __('auth.failed'),
+        ]);
     }
 }

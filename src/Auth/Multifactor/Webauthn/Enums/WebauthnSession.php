@@ -8,6 +8,8 @@ enum WebauthnSession: string
 {
     case AuthenticationOptions = 'webauthn-authentication-options';
     case RegistrationOptions = 'webauthn-registration-options';
+    case ChallengeAssertion = 'webauthn-challenge-assertion';
+    case Nonce = 'webauthn-nonce';
 
     public function get(): mixed
     {
