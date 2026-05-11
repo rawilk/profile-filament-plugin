@@ -3,30 +3,26 @@
 declare(strict_types=1);
 
 return [
-    'pending_email_verification' => [
+    'verify-email-change' => [
         'subject' => 'Verifique seu endereço de e-mail',
-        'greeting' => 'Olá,',
-        'line1' => 'Foi feita uma solicitação na sua conta para alterar seu endereço de e-mail para :email. Por favor, clique no botão abaixo para verificar seu novo endereço de e-mail.',
-        'button' => 'Verificar novo endereço de e-mail',
-        'line2' => 'Atenção — este link só funciona por :expire. Depois disso, será necessário solicitar um novo para verificar seu endereço de e-mail.',
-        'line3' => 'Se você não atualizou seu endereço de e-mail, nenhuma ação adicional é necessária.',
-        'salutation' => 'Obrigado,<br>:app_name',
+        'action' => 'Verificar Novo Endereço de E-mail',
+
+        'lines' => [
+            'Uma solicitação foi feita em sua conta para alterar seu endereço de e-mail para :email. Clique no botão abaixo para verificar seu novo endereço de e-mail.',
+            'Atenção — este link funciona apenas por :expire. Depois disso, você precisará solicitar um novo para verificar seu endereço de e-mail.',
+            'Se você não atualizou seu endereço de e-mail, nenhuma ação adicional é necessária.',
+        ],
     ],
 
-    'email_updated' => [
-        'subject' => 'Endereço de e-mail atualizado',
-        'greeting' => 'Olá,',
-        'line1' => 'Você está recebendo este e-mail porque o endereço de e-mail da sua conta :app_name foi atualizado recentemente.',
-        'line2' => 'A partir de agora, você precisará usar ":email" para entrar na sua conta.',
-        'line3' => 'Se foi você que fez esta alteração, nenhuma ação adicional é necessária.',
-        'line4' => 'Se você não iniciou esta alteração, [clique neste link](:url) para reverter a alteração. Este link expirará em :expire.',
-        'salutation' => 'Obrigado,<br>:app_name',
-    ],
+    'notice-of-email-change-request' => [
+        'subject' => 'Seu endereço de e-mail está sendo alterado',
+        'action' => 'Bloquear Alteração de E-mail',
 
-    'request_details' => [
-        'heading' => '**Detalhes da solicitação**',
-        'ip' => 'Endereço IP: :ip',
-        'date' => 'Data: :date',
+        'lines' => [
+            'Recebemos uma solicitação para alterar o endereço de e-mail associado à sua conta.',
+            'Uma vez verificado, o novo endereço de e-mail em sua conta será: :email.',
+            'Você pode bloquear a alteração antes que ela seja verificada clicando no botão abaixo.',
+            'Se você não fez esta solicitação, entre em contato conosco imediatamente.',
+        ],
     ],
-
 ];
