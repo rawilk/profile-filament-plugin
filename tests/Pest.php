@@ -58,7 +58,7 @@ function enableSudoMode(?array $providers = null): void
         SudoPasswordProvider::make(),
     ];
 
-    (fn () => $this->sudoChallengeProviderCache = [])->call($plugin);
+    (fn () => $this->sudoChallengeProviderCache = null)->call($plugin);
 
     $plugin->sudoMode($providers);
 }

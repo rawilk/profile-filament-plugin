@@ -17,7 +17,9 @@ trait HasSudoMode
     protected array|SudoChallengeProvider|Closure|null $sudoChallengeProviders = null;
 
     /** @var array<string, SudoChallengeProvider> */
-    protected array $sudoChallengeProviderCache = [];
+    protected ?array $sudoChallengeProviderCache = null;
+
+    protected ?Closure $onlyChallengeSudoWhenCallback = null;
 
     protected string $sudoChallengeRouteSlug = 'sessions/sudo-challenge';
 
@@ -33,6 +35,16 @@ trait HasSudoMode
             : $providers;
 
         $this->sudoChallengeRouteAction = $routeChallengeAction;
+
+        return $this;
+    }
+
+    /**
+     * Register a callback to determine if a sudo challenge should be shown.
+     */
+    public function onlyChallengeSudoWhen(?Closure $callback = null): static
+    {
+        $this->onlyChallengeSudoWhenCallback = $callback;
 
         return $this;
     }
@@ -64,7 +76,7 @@ trait HasSudoMode
 
     public function getSudoChallengeProviders(): array
     {
-        if (! empty($this->sudoChallengeProviderCache)) {
+        if ($this->sudoChallengeProviderCache !== null) {
             return $this->sudoChallengeProviderCache;
         }
 
@@ -90,6 +102,10 @@ trait HasSudoMode
 
     public function hasSudoMode(): bool
     {
+        if ($this->onlyChallengeSudoWhenCallback !== null && ! ($this->evaluate($this->onlyChallengeSudoWhenCallback))) {
+            return false;
+        }
+
         return ! empty($this->getSudoChallengeProviders());
     }
 }

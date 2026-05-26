@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Rawilk\ProfileFilament\Auth\Sudo\Webauthn\SudoWebauthnProvider;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
+
+use function Pest\Laravel\be;
 
 beforeEach(function () {
     $this->plugin = ProfileFilamentPlugin::make();
@@ -32,5 +35,21 @@ describe('sudo mode', function () {
         $this->plugin->sudoMode(providers: false);
 
         expect($this->plugin->hasSudoMode())->toBeFalse();
+    });
+
+    it('can conditionally disable sudo mode checks with a callback', function () {
+        be($user = User::factory()->create());
+
+        $this->plugin->sudoMode(providers: null);
+
+        expect($this->plugin->hasSudoMode())->toBeTrue();
+
+        $this->plugin->onlyChallengeSudoWhen(fn (): bool => auth()->user()->isNot($user));
+
+        expect($this->plugin->hasSudoMode())->toBeFalse();
+
+        be(User::factory()->create());
+
+        expect($this->plugin->hasSudoMode())->toBeTrue();
     });
 });
