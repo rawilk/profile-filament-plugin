@@ -47,7 +47,7 @@ ProfileFilamentPlugin::make()
 
 One thing to note: Some options are available for both the `MultiFactorChallengeProvider` and their `SudoChallengeProvider` counterparts; however, you will need to change those options on both instances when you do modify any of the options.
 
-> {tip} Don't forget to pass in an instance of the `SudoPasswordProvider` when adding in your other providers!
+> {tip} Remember to pass in an instance of the `SudoPasswordProvider` when adding in your other providers!
 
 > {tip} Any custom sudo challenge providers you create should use the same `id` as their `MultiFactorChallengeProvider` counterpart (if applicable).
 
@@ -514,3 +514,22 @@ use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 ProfileFilamentPlugin::make()
     ->sudoMode(false)
 ```
+
+### Conditionally enabling sudo mode
+
+You may wish to only enable sudo mode checks for certain users or under certain conditions. You can use the `onlyChallengeSudoWhen()` method on the plugin to provide a callback that will be evaluated to determine if sudo mode should be enforced.
+
+```php
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+
+ProfileFilamentPlugin::make()
+    ->onlyChallengeSudoWhen(function (): bool {
+        if (auth()->check()) {
+            return auth()->user()->isAdmin();
+        }
+        
+        return true;
+    })
+```
+
+> {note} When using a callback for `onlyChallengeSudoWhen()`, be aware that the authenticated user may not always be available, depending on where the check is being performed. You should account for this in your callback logic if necessary.
