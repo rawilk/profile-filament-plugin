@@ -5,7 +5,7 @@ sort: 4
 
 ## Introduction
 
-When using the [WebAuthn](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-webauthn-provider) multi-factor provider you are typically limited to using passkeys and security keys on a single domain. This package attempts to work around this limitation with WebAuthn. 
+When using the [WebAuthn](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-webauthn-provider) multi-factor provider you are typically limited to using passkeys and security keys on a single domain. This package attempts to work around this limitation with WebAuthn.
 
 This limitation isn't typically a problem for most applications, as they aren't accessed from multiple domains. The problem with this arises with some multi-tenant applications that allow tenants to use custom domains. Now, if a user registers a WebAuthn credential on the tenant's custom domain in your application, they can only use the credential when accessing the site on that domain. However, they won't be able to use that credential if they are able to access the application on your central SaaS domain or on another tenant's domain if they have access to it.
 

@@ -527,7 +527,7 @@ ProfileFilamentPlugin::make()
         if (auth()->check()) {
             return auth()->user()->isAdmin();
         }
-        
+
         return true;
     })
 ```
