@@ -2,8 +2,10 @@ name: Normalize Markdown
 
 on:
   push:
+    branches:
+      - main
     paths:
-      - '*.md'
+      - '**/*.md'
       - '.github/workflows/markdown-normalize.yml'
 
 permissions:
@@ -13,13 +15,14 @@ jobs:
   normalize:
     timeout-minutes: 1
     runs-on: ubuntu-latest
+
     steps:
       - name: Git checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.ref_name }}
 
       - name: Prettify markdown
         uses: creyD/prettier_action@v4.6
         with:
-          prettier_options: --write **/*.md
+          prettier_options: --write "**/*.md"
