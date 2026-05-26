@@ -16,6 +16,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsWithSudo;
+use Rawilk\ProfileFilament\Auth\Sudo\Livewire\SudoChallengeActionForm;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
 use Rawilk\ProfileFilament\Enums\RenderHook as PluginRenderHook;
 
@@ -69,7 +70,7 @@ class SudoChallengeAction extends Action
                 HTML))
             ),
 
-            Livewire::make('sudo-challenge-action-form'),
+            Livewire::make(SudoChallengeActionForm::class),
 
             Text::make(
                 new HtmlString(Blade::render(<<<'HTML'
