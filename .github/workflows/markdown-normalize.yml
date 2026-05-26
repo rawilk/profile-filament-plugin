@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - '*.md'
+      - '**/*.md'
       - '.github/workflows/markdown-normalize.yml'
 
 permissions:
@@ -25,4 +25,4 @@ jobs:
       - name: Prettify markdown
         uses: creyD/prettier_action@v4.6
         with:
-          prettier_options: --write "**/*.md"
+          prettier_options: --write **/*.md
