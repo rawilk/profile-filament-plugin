@@ -17,7 +17,7 @@ trait HasSudoMode
     protected array|SudoChallengeProvider|Closure|null $sudoChallengeProviders = null;
 
     /** @var array<string, SudoChallengeProvider> */
-    protected array $sudoChallengeProviderCache = [];
+    protected ?array $sudoChallengeProviderCache = null;
 
     protected string $sudoChallengeRouteSlug = 'sessions/sudo-challenge';
 
@@ -64,7 +64,7 @@ trait HasSudoMode
 
     public function getSudoChallengeProviders(): array
     {
-        if (! empty($this->sudoChallengeProviderCache)) {
+        if ($this->sudoChallengeProviderCache !== null) {
             return $this->sudoChallengeProviderCache;
         }
 
