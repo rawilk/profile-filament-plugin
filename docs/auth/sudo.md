@@ -515,7 +515,7 @@ ProfileFilamentPlugin::make()
     ->sudoMode(false)
 ```
 
-### Conditionally enabling sudo mode
+### Conditionally enforcing sudo mode
 
 You may wish to only enable sudo mode checks for certain users or under certain conditions. You can use the `onlyChallengeSudoWhen()` method on the plugin to provide a callback that will be evaluated to determine if sudo mode should be enforced.
 
