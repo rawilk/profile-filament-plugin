@@ -13,6 +13,7 @@ use Livewire\Livewire;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Livewire\AuthenticatorAppActions;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
+use Rawilk\ProfileFilament\Auth\Multifactor\Livewire\MultiFactorAuthenticationManager;
 use Rawilk\ProfileFilament\Auth\Multifactor\Services\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
@@ -158,5 +159,6 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
         Livewire::component(PackageLivewire\DeleteAccount::class, PackageLivewire\DeleteAccount::class);
         Livewire::component(PackageLivewire\UpdatePassword::class, PackageLivewire\UpdatePassword::class);
         Livewire::component(PackageLivewire\Sessions\SessionManager::class, PackageLivewire\Sessions\SessionManager::class);
+        Livewire::component(MultiFactorAuthenticationManager::class);
     }
 }
