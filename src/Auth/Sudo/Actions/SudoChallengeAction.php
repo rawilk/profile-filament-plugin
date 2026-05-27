@@ -70,7 +70,7 @@ class SudoChallengeAction extends Action
                 HTML))
             ),
 
-            Livewire::make(SudoChallengeActionForm::class),
+            Livewire::make(SudoChallengeActionForm::class)->key('sudoChallengeActionForm'),
 
             Text::make(
                 new HtmlString(Blade::render(<<<'HTML'
