@@ -137,3 +137,41 @@ ProfileFilamentPlugin::make()
 > {tip} We will use this same callback during the [MFA](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication) process and during [Passkey login](/docs/profile-filament-plugin/{version}/auth/multi-factor-authentication#user-content-passkey-login) as well to verify a user is allowed to sign in.
 
 > {note} When providing custom logic here we **will not** perform the `$user->canAccessPanel(...)` check anymore for you. It is up to you to include that condition in your custom logic.
+
+### Custom authorization error messages
+
+If you return a boolean `false` value from the `attemptAuthWith()` callback, we will show the error message for `__('auth.failed')` from your application's language line files. You can show a custom error message however by throwing an instance of `LoginException` in the callback. We will listen for that exception and use the exception's error message instead.
+
+First, create an exception class that extends our `LoginException`:
+
+```php
+// app/Exceptions/LoginException.php
+
+use Rawilk\ProfileFilament\Auth\Exceptions\LoginException as BaseException;
+
+class LoginException extends BaseException
+{
+    public static function banned(): self
+    {
+        return self(__('Your account is banned'));
+    }
+}
+```
+
+Now you need to throw that exception in your callback in `attemptAuthWith()`:
+
+```php
+use App\Exceptions\LoginException;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Filament\Facades\Filament;
+
+ProfileFilamentPlugin::make()
+    ->attemptAuthWith(function (Authenticatable $user): bool {
+        if (! $user->isActive()) {
+            throw LoginException::banned();
+        }
+        
+        return $user->canAccessPanel(Filament::getCurrentOrDefaultPanel());
+    });
+```

@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes;
 
 use Closure;
 use Illuminate\Support\Timebox;
+use Rawilk\ProfileFilament\Auth\Exceptions\LoginException;
 use Rawilk\ProfileFilament\Auth\Login\Dto\LoginEventBagContract;
 
 class ResolveUser
@@ -29,17 +30,23 @@ class ResolveUser
 
             $user = $userProvider->retrieveByCredentials($credentials);
 
-            if ($this->hasValidCredentials($userProvider, $user, $credentials) && $this->shouldLogin($user, $request->getAuthGuard())) {
-                $timebox->returnEarly();
+            $errorMessage = null;
 
-                $request->setUser($user);
+            try {
+                if ($this->hasValidCredentials($userProvider, $user, $credentials) && $this->shouldLogin($user, $request->getAuthGuard())) {
+                    $timebox->returnEarly();
 
-                return;
+                    $request->setUser($user);
+
+                    return;
+                }
+            } catch (LoginException $exception) {
+                $errorMessage = $exception->getMessage();
             }
 
             $this->fireFailedEvent($request->getAuthGuard(), $user, $credentials);
 
-            $this->throwFailureValidationException();
+            $this->throwFailureValidationException(error: $errorMessage);
         }, microseconds: 200000);
 
         return $next($request);

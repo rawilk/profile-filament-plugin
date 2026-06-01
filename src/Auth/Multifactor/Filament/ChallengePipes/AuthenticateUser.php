@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Auth\Multifactor\Filament\ChallengePipes;
 
 use Closure;
+use Rawilk\ProfileFilament\Auth\Exceptions\LoginException;
 use Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\Concerns\HasAuthChecks;
 use Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\Concerns\ThrowsFailedEvents;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
@@ -20,9 +21,18 @@ class AuthenticateUser
         $authGuard = $request->getAuthGuard();
         $user = $request->user();
 
-        if (! $this->shouldLogin($user, $authGuard)) {
+        $error = null;
+
+        try {
+            $allowedToLogin = $this->shouldLogin($user, $authGuard);
+        } catch (LoginException $exception) {
+            $allowedToLogin = false;
+            $error = $exception->getMessage();
+        }
+
+        if (! $allowedToLogin) {
             $this->fireFailedEvent($authGuard, $user, credentials: []);
-            $this->throwFailureValidationException(validationKey: 'multiFactorError');
+            $this->throwFailureValidationException(validationKey: 'multiFactorError', error: $error);
         }
 
         $authGuard->login(
