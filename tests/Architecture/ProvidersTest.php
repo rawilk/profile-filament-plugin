@@ -18,7 +18,7 @@ arch()
     ->expect('Rawilk\ProfileFilament\Providers')
     ->classes()
     ->toExtend(ServiceProvider::class)
-    ->toHaveSuffix('ServiceProvider');
+    ->toHaveSuffix('ServiceProvider')->ignoring(['Rawilk\ProfileFilament\Providers\Concerns']);
 
 arch()
     ->expect('Rawilk\ProfileFilament\Providers')
