@@ -28,6 +28,9 @@ trait HasAuthChecks
         return (! is_null($user)) && $userProvider->validateCredentials($user, $credentials);
     }
 
+    /**
+     * @throws \Rawilk\ProfileFilament\Auth\Exceptions\LoginException
+     */
     protected function shouldLogin(Authenticatable $user, ?StatefulGuard $guard = null): bool
     {
         $guard ??= Filament::auth();
