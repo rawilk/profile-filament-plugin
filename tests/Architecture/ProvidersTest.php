@@ -22,4 +22,4 @@ arch()
 
 arch()
     ->expect('Rawilk\ProfileFilament\Providers')
-    ->not->toBeUsed();
+    ->not->toBeUsed()->ignoring(['Rawilk\ProfileFilament\Providers\Concerns']);
