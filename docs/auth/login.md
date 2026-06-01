@@ -171,7 +171,7 @@ ProfileFilamentPlugin::make()
         if (! $user->isActive()) {
             throw LoginException::banned();
         }
-        
+
         return $user->canAccessPanel(Filament::getCurrentOrDefaultPanel());
     });
 ```
