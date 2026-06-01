@@ -9,19 +9,15 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Route;
-use Livewire\Livewire;
-use Rawilk\ProfileFilament\Auth\Multifactor\App\Livewire\AuthenticatorAppActions;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Filament\Dto\MultiFactorEventBagContract;
-use Rawilk\ProfileFilament\Auth\Multifactor\Livewire\MultiFactorAuthenticationManager;
 use Rawilk\ProfileFilament\Auth\Multifactor\Services\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBag;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers\AuthenticateUsingPasskeyController;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers\GeneratePasskeyAuthenticationOptionsController;
-use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Livewire\SecurityKeyActions;
 use Rawilk\ProfileFilament\Auth\Sudo\Services\Sudo;
-use Rawilk\ProfileFilament\Livewire as PackageLivewire;
+use Rawilk\ProfileFilament\Providers\Concerns\HasComponents;
 use Rawilk\ProfileFilament\Responses\BlockEmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\EmailChangeVerificationResponse;
 use Rawilk\ProfileFilament\Responses\MultiFactorChallengeResponse;
@@ -31,6 +27,8 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
 {
+    use HasComponents;
+
     public function configurePackage(Package $package): void
     {
         $package
@@ -146,19 +144,5 @@ final class ProfileFilamentPluginServiceProvider extends PackageServiceProvider
                             ->middleware(['guest']);
                     });
             });
-    }
-
-    private function registerLivewireComponents(): void
-    {
-        Livewire::component('sudo-challenge-action-form', Auth\Sudo\Livewire\SudoChallengeActionForm::class);
-        Livewire::component('authenticator-app-actions', AuthenticatorAppActions::class);
-        Livewire::component('security-key-actions', SecurityKeyActions::class);
-
-        Livewire::component(PackageLivewire\Profile\ProfileInfo::class, PackageLivewire\Profile\ProfileInfo::class);
-        Livewire::component(PackageLivewire\Emails\UserEmail::class, PackageLivewire\Emails\UserEmail::class);
-        Livewire::component(PackageLivewire\DeleteAccount::class, PackageLivewire\DeleteAccount::class);
-        Livewire::component(PackageLivewire\UpdatePassword::class, PackageLivewire\UpdatePassword::class);
-        Livewire::component(PackageLivewire\Sessions\SessionManager::class, PackageLivewire\Sessions\SessionManager::class);
-        Livewire::component(MultiFactorAuthenticationManager::class);
     }
 }
