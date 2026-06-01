@@ -21,10 +21,12 @@ trait ThrowsFailedEvents
         ]));
     }
 
-    protected function throwFailureValidationException(string $validationKey = 'data.email'): never
+    protected function throwFailureValidationException(string $validationKey = 'data.email', ?string $error = null): never
     {
+        $error ??= __('auth.failed');
+
         throw ValidationException::withMessages([
-            $validationKey => __('auth.failed'),
+            $validationKey => $error,
         ]);
     }
 }
