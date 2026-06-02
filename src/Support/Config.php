@@ -115,6 +115,11 @@ final class Config
         return $expiration;
     }
 
+    public static function getTimeboxDuration(): int
+    {
+        return (int) config('auth.timebox_duration', 200_000);
+    }
+
     private static function ensureValidActionClass(string $actionName, string $actionBaseClass, string $actionClass): void
     {
         if (! is_a($actionClass, $actionBaseClass, true)) {

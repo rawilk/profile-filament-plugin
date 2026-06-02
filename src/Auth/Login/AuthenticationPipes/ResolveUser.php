@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Support\Timebox;
 use Rawilk\ProfileFilament\Auth\Exceptions\LoginException;
 use Rawilk\ProfileFilament\Auth\Login\Dto\LoginEventBagContract;
+use Rawilk\ProfileFilament\Support\Config;
 
 class ResolveUser
 {
@@ -47,7 +48,7 @@ class ResolveUser
             $this->fireFailedEvent($request->getAuthGuard(), $user, $credentials);
 
             $this->throwFailureValidationException(error: $errorMessage);
-        }, microseconds: 200000);
+        }, microseconds: Config::getTimeboxDuration());
 
         return $next($request);
     }

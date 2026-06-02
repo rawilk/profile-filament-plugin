@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\PasskeyLoginPipes;
 
 use Closure;
+use Illuminate\Support\Timebox;
 use Rawilk\ProfileFilament\Auth\Exceptions\LoginException;
 use Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\Concerns\HasAuthChecks;
 use Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\Concerns\ThrowsFailedEvents;
 use Rawilk\ProfileFilament\Auth\Multifactor\Facades\Mfa;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagContract;
+use Rawilk\ProfileFilament\Support\Config;
 
 class AuthenticateUser
 {
@@ -21,19 +23,23 @@ class AuthenticateUser
         $authGuard = $request->getAuthGuard();
         $user = $request->user();
 
-        $error = null;
+        app(Timebox::class)->call(function (Timebox $timebox) use ($user, $authGuard) {
+            $error = null;
 
-        try {
-            $allowedToLogin = $this->shouldLogin($user, $authGuard);
-        } catch (LoginException $exception) {
-            $allowedToLogin = false;
-            $error = $exception->getMessage();
-        }
+            try {
+                $allowedToLogin = $this->shouldLogin($user, $authGuard);
+            } catch (LoginException $exception) {
+                $allowedToLogin = false;
+                $error = $exception->getMessage();
+            }
 
-        if (! $allowedToLogin) {
-            $this->fireFailedEvent($authGuard, $user, credentials: []);
-            $this->throwFailureValidationException(validationKey: 'passkey', error: $error);
-        }
+            if (! $allowedToLogin) {
+                $this->fireFailedEvent($authGuard, $user, credentials: []);
+                $this->throwFailureValidationException(validationKey: 'passkey', error: $error);
+            }
+
+            $timebox->returnEarly();
+        }, microseconds: Config::getTimeboxDuration());
 
         $authGuard->login(
             user: $user,
