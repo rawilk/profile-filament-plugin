@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Controllers;
 
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
+use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Pipeline;
@@ -23,6 +24,8 @@ class AuthenticateUsingPasskeyController
         if ($request->filled('_options')) {
             $this->handleCrossDomainAuthentication($request);
         }
+
+        $this->setPanel($request->input('panel'));
 
         $eventBag = app(PasskeyLoginEventBagContract::class)
             ->setData($request->validated())
@@ -47,5 +50,23 @@ class AuthenticateUsingPasskeyController
         }
 
         WebauthnSession::AuthenticationOptions->put($decryptedOptions);
+    }
+
+    /**
+     * Our passkey routes aren't bound to a panel, so we need to set the correct
+     * panel to ensure the correct authentication process is used.
+     */
+    protected function setPanel(?string $panelId): void
+    {
+        $defaultPanelId = Filament::getId();
+
+        $panelId = (string) rescue(
+            fn () => filled($panelId) ? Crypt::decryptString($panelId) : $defaultPanelId,
+            fn () => $defaultPanelId,
+        );
+
+        $panel = Filament::getPanel($panelId);
+
+        Filament::setCurrentPanel($panel);
     }
 }

@@ -3,6 +3,7 @@ x-data="{
     hasErrors: false,
     isSupported: true,
     validationError: @js($errors->first('passkey')),
+    panel: @js(Crypt::encryptString($panel)),
 
     init() {
         this.isSupported = browserSupportsWebAuthn();
@@ -42,6 +43,7 @@ x-data="{
 
         form.addEventListener('formdata', ({ formData }) => {
             formData.append('passkeyResponse', JSON.stringify(passkeyResponse));
+            formData.append('panel', this.panel);
 
             {{-- we are assuming this is a default filament form here to grab the remember me value --}}
             const rememberCheckbox = document.getElementById('form.remember');

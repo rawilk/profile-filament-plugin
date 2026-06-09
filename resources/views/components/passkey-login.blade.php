@@ -1,3 +1,7 @@
+@props([
+    'panel' => filament()->getId(),
+])
+
 @php
     use Rawilk\ProfileFilament\Facades\ProfileFilament;
 

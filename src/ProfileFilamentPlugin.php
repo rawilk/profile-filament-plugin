@@ -63,7 +63,16 @@ class ProfileFilamentPlugin implements Plugin
         if ($this->shouldAddPasskeyActionToLogin()) {
             FilamentView::registerRenderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
-                fn () => Blade::render('<x-profile-filament::passkey-login />'),
+                fn () => Blade::render(<<<HTML
+                <x-profile-filament::passkey-login
+                    panel="{$panel->getId()}"
+                />
+                HTML),
+                //                fn () => Blade::render(
+                //                    '<x-profile-filament::passkey-login
+                //
+                //                     />'
+                //                ),
             );
         }
     }
