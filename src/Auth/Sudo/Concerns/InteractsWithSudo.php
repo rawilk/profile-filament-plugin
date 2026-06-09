@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Auth\Sudo\Concerns;
 
 use Rawilk\ProfileFilament\Auth\Sudo\Facades\Sudo;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 trait InteractsWithSudo
 {
     protected function panelAllowsSudoMode(): bool
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->hasSudoMode();
+        return ProfileFilament::plugin()->hasSudoMode();
     }
 
     protected function sudoModeIsActive(): bool

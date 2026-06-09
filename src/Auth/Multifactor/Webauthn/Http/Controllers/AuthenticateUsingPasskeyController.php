@@ -14,7 +14,6 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Dto\PasskeyLoginEventBagCon
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Http\Requests\AuthenticateUsingPasskeyRequest;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Throwable;
 
 class AuthenticateUsingPasskeyController
@@ -33,7 +32,7 @@ class AuthenticateUsingPasskeyController
             ->setRemember($request->boolean('remember'));
 
         return Pipeline::send($eventBag)
-            ->through(filament(ProfileFilamentPlugin::PLUGIN_ID)->getPasskeyLoginPipes())
+            ->through(ProfileFilament::plugin()->getPasskeyLoginPipes())
             ->then(fn () => app(LoginResponse::class));
     }
 

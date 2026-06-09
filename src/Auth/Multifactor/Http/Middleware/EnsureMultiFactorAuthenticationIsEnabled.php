@@ -8,7 +8,7 @@ use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 class EnsureMultiFactorAuthenticationIsEnabled
 {
@@ -25,7 +25,7 @@ class EnsureMultiFactorAuthenticationIsEnabled
         }
 
         return redirect()->guest(
-            filament(ProfileFilamentPlugin::PLUGIN_ID)->getSetUpRequiredMultiFactorAuthenticationUrl()
+            ProfileFilament::plugin()->getSetUpRequiredMultiFactorAuthenticationUrl()
         );
     }
 }

@@ -8,7 +8,7 @@ use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Illuminate\Support\Facades\Pipeline;
 use Rawilk\ProfileFilament\Auth\Login\Dto\LoginEventBag;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 /**
  * @mixin \Filament\Auth\Pages\Login
@@ -31,7 +31,7 @@ trait HandlesLoginForm
             ->setRequest(request());
 
         return Pipeline::send($eventBag)
-            ->through(filament(ProfileFilamentPlugin::PLUGIN_ID)->getLoginPipes())
+            ->through(ProfileFilament::plugin()->getLoginPipes())
             ->then(fn () => app(LoginResponse::class));
     }
 }

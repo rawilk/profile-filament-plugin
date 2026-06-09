@@ -7,6 +7,7 @@ use Filament\Panel;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Rawilk\ProfileFilament\Auth\Multifactor\Enums\MfaSession;
 use Rawilk\ProfileFilament\Auth\Sudo\Password\SudoPasswordProvider;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Pages\Profile\Settings;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Rawilk\ProfileFilament\Tests\TestCase;
@@ -65,5 +66,5 @@ function enableSudoMode(?array $providers = null): void
 
 function getProfileSettingsUrl(): string
 {
-    return filament(ProfileFilamentPlugin::PLUGIN_ID)->getPageUrl(Settings::class);
+    return ProfileFilament::plugin()->getPageUrl(Settings::class);
 }

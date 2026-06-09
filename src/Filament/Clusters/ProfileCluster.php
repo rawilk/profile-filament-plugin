@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Filament\Clusters;
 
 use Filament\Clusters\Cluster;
 use Filament\Panel;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class ProfileCluster extends Cluster
@@ -25,7 +26,7 @@ class ProfileCluster extends Cluster
 
     public function mount(): void
     {
-        $url = filament(ProfileFilamentPlugin::PLUGIN_ID)->getDefaultProfilePageUrl();
+        $url = ProfileFilament::plugin()->getDefaultProfilePageUrl();
         if (filled($url)) {
             redirect($url);
 

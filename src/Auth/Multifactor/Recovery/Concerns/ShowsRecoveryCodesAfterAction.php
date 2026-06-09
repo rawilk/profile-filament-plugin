@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Actions\ShowRecoveryCodesAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Contracts\HasMultiFactorAuthenticationRecovery;
 use Rawilk\ProfileFilament\Auth\Multifactor\Recovery\Enums\RecoveryCodeSession;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 /**
  * @mixin \Filament\Actions\Action
@@ -31,8 +31,7 @@ trait ShowsRecoveryCodesAfterAction
             return;
         }
 
-        /** @var ProfileFilamentPlugin $plugin */
-        $plugin = filament(ProfileFilamentPlugin::PLUGIN_ID);
+        $plugin = ProfileFilament::plugin();
         $provider = $plugin->getMultiFactorRecoveryProvider();
 
         $recoveryCodes = $provider->generateRecoveryCodes();
@@ -51,8 +50,7 @@ trait ShowsRecoveryCodesAfterAction
 
     protected function needsToSetUpRecoveryCodes(Authenticatable $user): bool
     {
-        /** @var ProfileFilamentPlugin $plugin */
-        $plugin = filament(ProfileFilamentPlugin::PLUGIN_ID);
+        $plugin = ProfileFilament::plugin();
 
         if (! $plugin->isMultiFactorRecoverable()) {
             return false;

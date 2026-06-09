@@ -8,8 +8,8 @@ use Filament\Facades\Filament;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Features\SupportRedirects\Redirector;
 use Rawilk\ProfileFilament\Contracts\Responses\BlockEmailVerificationResponse as Responsable;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Pages\Profile\Settings;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class BlockEmailChangeVerificationResponse implements Responsable
 {
@@ -20,7 +20,7 @@ class BlockEmailChangeVerificationResponse implements Responsable
 
     protected function getIntendedUrl(): ?string
     {
-        $plugin = filament(ProfileFilamentPlugin::PLUGIN_ID);
+        $plugin = ProfileFilament::plugin(strict: false);
         if (! $plugin?->hasSettingsPage()) {
             return Filament::getUrl();
         }

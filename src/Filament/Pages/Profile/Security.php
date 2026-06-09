@@ -9,8 +9,8 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Attributes\Computed;
 use Rawilk\ProfileFilament\Auth\Multifactor\Livewire\MultiFactorAuthenticationManager;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Livewire\UpdatePassword;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
  * @property-read PageConfiguration\SecurityConfiguration|null $configurationInstance
@@ -69,7 +69,7 @@ class Security extends ProfilePage
 
     protected function showMultiFactorForm(): bool
     {
-        if (! filament(ProfileFilamentPlugin::PLUGIN_ID)->hasMultiFactorAuthentication()) {
+        if (! ProfileFilament::plugin()->hasMultiFactorAuthentication()) {
             return false;
         }
 

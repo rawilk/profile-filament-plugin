@@ -6,13 +6,12 @@ namespace Rawilk\ProfileFilament\Livewire;
 
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Contracts\Plugin;
-use Filament\FilamentManager;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
@@ -24,9 +23,9 @@ abstract class ProfileComponent extends Component implements HasActions, HasSche
     use InteractsWithSchemas;
 
     #[Computed]
-    public function profilePlugin(): FilamentManager|Plugin|ProfileFilamentPlugin
+    public function profilePlugin(): ProfileFilamentPlugin
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID);
+        return ProfileFilament::plugin();
     }
 
     public function render(): View|string

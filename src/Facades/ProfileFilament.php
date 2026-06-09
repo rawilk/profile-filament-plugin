@@ -20,7 +20,7 @@ use Rawilk\ProfileFilament\ProfileFilamentPlugin;
  * @method static string preferredMfaProviderFor(User $user, Collection $enabledProviders)
  * @method static string preferredSudoChallengeProviderFor(User $user, Collection $enabledProviders)
  * @method static string userTimezone(User $user = null)
- * @method static ProfileFilamentPlugin plugin()
+ * @method static ProfileFilamentPlugin plugin(?string $panelId = null, bool $strict = true)
  * @method static void verifyWebauthnNonce(?string $encryptedNonce)
  * @method static string generateWebauthnNonce()
  * @method static bool verifyWebauthnChallenge(array $data, User $user)

@@ -10,14 +10,14 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Arr;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use SensitiveParameter;
 
 trait HasAuthChecks
 {
     protected function getAttemptAuthCallback(): array|Closure
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID)->getAuthAttemptCallback();
+        return ProfileFilament::plugin()->getAuthAttemptCallback();
     }
 
     protected function hasValidCredentials(

@@ -24,9 +24,9 @@ use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Events\AuthenticatorAppWasUpdated;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\Filament\Actions\DeleteAuthenticatorAppAction;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\AuthenticatorApps\AuthenticatorAppNameInput;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
  * @property-read AppAuthenticationProvider $appAuthenticationProvider
@@ -43,7 +43,7 @@ class AuthenticatorAppActions extends Component implements HasActions, HasSchema
     public function appAuthenticationProvider(): AppAuthenticationProvider
     {
         /** @var AppAuthenticationProvider $provider */
-        $provider = filament(ProfileFilamentPlugin::PLUGIN_ID)->getMultiFactorAuthenticationProvider(AppAuthenticationProvider::ID);
+        $provider = ProfileFilament::plugin()->getMultiFactorAuthenticationProvider(AppAuthenticationProvider::ID);
 
         return $provider;
     }

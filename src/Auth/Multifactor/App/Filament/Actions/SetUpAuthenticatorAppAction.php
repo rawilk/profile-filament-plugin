@@ -35,8 +35,8 @@ use Rawilk\ProfileFilament\Auth\Sudo\Actions\SudoChallengeAction;
 use Rawilk\ProfileFilament\Auth\Sudo\Concerns\InteractsStaticlyWithSudo;
 use Rawilk\ProfileFilament\Auth\Sudo\Events\SudoModeChallengeWasPresented;
 use Rawilk\ProfileFilament\Enums\ProfileFilamentIcon;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\AuthenticatorApps\AuthenticatorAppNameInput;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 class SetUpAuthenticatorAppAction
 {
@@ -211,8 +211,7 @@ class SetUpAuthenticatorAppAction
 
                     static::setPreferredMultiFactorProvider($user, $provider->getId());
 
-                    /** @var ProfileFilamentPlugin $plugin */
-                    $plugin = filament(ProfileFilamentPlugin::PLUGIN_ID);
+                    $plugin = ProfileFilament::plugin();
 
                     if ($plugin->isMultiFactorRecoverable() && $user instanceof HasMultiFactorAuthenticationRecovery) {
                         $provider = $plugin->getMultiFactorRecoveryProvider();

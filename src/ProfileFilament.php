@@ -99,7 +99,7 @@ class ProfileFilament
         static::$generateChallengesUsingCallback = $callback;
     }
 
-    public function plugin(?string $panelId = null): ProfileFilamentPlugin
+    public function plugin(?string $panelId = null, bool $strict = true): ?ProfileFilamentPlugin
     {
         $panel = $panelId
             ? Filament::getPanel($panelId)
@@ -113,7 +113,7 @@ class ProfileFilament
 
         $panel = Filament::getCurrentOrDefaultPanel();
 
-        if (! $panel->hasPlugin(ProfileFilamentPlugin::PLUGIN_ID)) {
+        if ($strict && (! $panel->hasPlugin(ProfileFilamentPlugin::PLUGIN_ID))) {
             throw new LogicException("The ProfileFilamentPlugin is not part of the [{$id}] panel.");
         }
 

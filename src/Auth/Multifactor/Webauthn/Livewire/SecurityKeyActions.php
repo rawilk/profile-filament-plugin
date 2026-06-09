@@ -24,9 +24,9 @@ use Livewire\Component;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUpdated;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Filament\Actions\DeleteSecurityKeyAction;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs\Webauthn\SecurityKeyNameInput;
 use Rawilk\ProfileFilament\Models\WebauthnKey;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
  * @property-read WebauthnProvider $webauthnProvider
@@ -43,7 +43,7 @@ class SecurityKeyActions extends Component implements HasActions, HasSchemas
     public function webauthnProvider(): WebauthnProvider
     {
         /** @var WebauthnProvider $provider */
-        $provider = filament(ProfileFilamentPlugin::PLUGIN_ID)->getMultiFactorAuthenticationProvider(WebauthnProvider::ID);
+        $provider = ProfileFilament::plugin()->getMultiFactorAuthenticationProvider(WebauthnProvider::ID);
 
         return $provider;
     }

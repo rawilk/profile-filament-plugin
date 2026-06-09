@@ -63,7 +63,7 @@ class MultiFactorChallenge extends SimplePage
     #[Computed]
     public function plugin(): ProfileFilamentPlugin
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID);
+        return ProfileFilament::plugin();
     }
 
     #[Computed]

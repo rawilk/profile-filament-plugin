@@ -22,6 +22,7 @@ use Livewire\Attributes\Computed;
 use LogicException;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\HasMultiFactorAuthentication;
 use Rawilk\ProfileFilament\Auth\Multifactor\Contracts\MultiFactorAuthenticationProvider;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 
 /**
@@ -33,7 +34,7 @@ class SetUpRequiredMultiFactorAuthentication extends SimplePage
     #[Computed]
     public function plugin(): ProfileFilamentPlugin
     {
-        return filament(ProfileFilamentPlugin::PLUGIN_ID);
+        return ProfileFilament::plugin();
     }
 
     #[Computed]
