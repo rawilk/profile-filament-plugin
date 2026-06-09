@@ -54,9 +54,9 @@ class ProfileFilament
     public static ?Closure $generateChallengesUsingCallback = null;
 
     /**
-     * The plugin instance for the current panel.
+     * Cached plugin instances for each panel.
      */
-    protected ?ProfileFilamentPlugin $plugin = null;
+    protected array $pluginCache = [];
 
     /**
      * Register a callback that is responsible for retrieving the authenticated user's timezone.
@@ -99,19 +99,25 @@ class ProfileFilament
         static::$generateChallengesUsingCallback = $callback;
     }
 
-    public function plugin(): ProfileFilamentPlugin
+    public function plugin(?string $panelId = null): ProfileFilamentPlugin
     {
-        if ($this->plugin) {
-            return $this->plugin;
+        $panel = $panelId
+            ? Filament::getPanel($panelId)
+            : Filament::getCurrentOrDefaultPanel();
+
+        $id = $panel->getId();
+
+        if (isset($this->pluginCache[$id])) {
+            return $this->pluginCache[$id];
         }
 
         $panel = Filament::getCurrentOrDefaultPanel();
 
         if (! $panel->hasPlugin(ProfileFilamentPlugin::PLUGIN_ID)) {
-            throw new LogicException('The ProfileFilamentPlugin is not part of the current panel.');
+            throw new LogicException("The ProfileFilamentPlugin is not part of the [{$id}] panel.");
         }
 
-        return $this->plugin = $panel->getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
+        return $this->pluginCache[$id] = $panel->getPlugin(ProfileFilamentPlugin::PLUGIN_ID);
     }
 
     /**
