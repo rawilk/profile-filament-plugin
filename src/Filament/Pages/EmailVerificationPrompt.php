@@ -10,12 +10,14 @@ use Filament\Auth\Notifications\VerifyEmail;
 use Filament\Auth\Pages\EmailVerification\EmailVerificationPrompt as BasePage;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\RateLimiter;
 use LogicException;
+use Rawilk\ProfileFilament\Enums\RenderHook as PluginRenderHook;
 use Rawilk\ProfileFilament\Facades\ProfileFilament;
 
 class EmailVerificationPrompt extends BasePage
@@ -60,6 +62,8 @@ class EmailVerificationPrompt extends BasePage
 
         return $schema
             ->components([
+                RenderHook::make(PluginRenderHook::EmailVerificationPromptBefore->value),
+
                 Text::make(str(__('profile-filament::pages/email-verification-prompt.messages.0', [
                     'email' => $email,
                 ]))->inlineMarkdown()->toHtmlString()),
@@ -73,6 +77,8 @@ class EmailVerificationPrompt extends BasePage
                 ]))->inlineMarkdown()->toHtmlString()),
 
                 $this->resendNotificationAction,
+
+                RenderHook::make(PluginRenderHook::EmailVerificationPromptAfter->value),
             ]);
     }
 

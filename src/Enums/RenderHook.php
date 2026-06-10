@@ -6,6 +6,9 @@ namespace Rawilk\ProfileFilament\Enums;
 
 enum RenderHook: string
 {
+    case EmailVerificationPromptBefore = 'profile-filament::email-change-verification.before';
+    case EmailVerificationPromptAfter = 'profile-filament::email-change-verification.after';
+
     case MultiFactorChallengeBefore = 'profile-filament::multi-factor-challenge.before';
     case MultiFactorChallengeAfter = 'profile-filament::multi-factor-challenge.after';
 

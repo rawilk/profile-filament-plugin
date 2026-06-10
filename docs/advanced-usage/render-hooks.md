@@ -28,6 +28,8 @@ FilamentView::registerRenderHook(
 
 Using class `Rawilk\ProfileFilament\Enums\RenderHook`
 
+- `RenderHook::EmailVerificationPromptAfter` - Before the email verification prompt content
+- `RenderHook::EmailVerificationPromptBefore` - After the email verification prompt content
 - `RenderHook::MultiFactorChallengeAfter` - After a MFA challenge form
 - `RenderHook::MultiFactorChallengeBefore` - Before a MFA challenge form
 - `RenderHook::SudoChallengeAfter` - After a sudo challenge form
