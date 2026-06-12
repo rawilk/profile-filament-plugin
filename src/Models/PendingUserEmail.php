@@ -6,11 +6,13 @@ namespace Rawilk\ProfileFilament\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Traits\Tappable;
+use Rawilk\ProfileFilament\Database\Factories\PendingUserEmailFactory;
 use Rawilk\ProfileFilament\Support\Config;
 
 /**
@@ -53,6 +55,11 @@ class PendingUserEmail extends Model
     public function prunable(): Builder
     {
         return static::where('created_at', '<', now()->subMinutes(config('auth.verification.expire', 60)));
+    }
+
+    protected static function newFactory(): Factory
+    {
+        return PendingUserEmailFactory::new();
     }
 
     #[Scope]

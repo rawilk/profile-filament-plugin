@@ -7,12 +7,14 @@ namespace Rawilk\ProfileFilament\Models;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Support\CredentialRecordConverter;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Support\Serializer;
+use Rawilk\ProfileFilament\Database\Factories\WebauthnKeyFactory;
 use Rawilk\ProfileFilament\Support\Config;
 use Webauthn\PublicKeyCredentialSource;
 
@@ -67,6 +69,11 @@ class WebauthnKey extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(Config::getAuthenticatableModel());
+    }
+
+    protected static function newFactory(): Factory
+    {
+        return WebauthnKeyFactory::new();
     }
 
     protected function data(): Attribute

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Rawilk\ProfileFilament\Models;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Rawilk\ProfileFilament\Database\Factories\AuthenticatorAppFactory;
 use Rawilk\ProfileFilament\Support\Config;
 
 /**
@@ -39,6 +41,11 @@ class AuthenticatorApp extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(Config::getAuthenticatableModel());
+    }
+
+    protected static function newFactory(): Factory
+    {
+        return AuthenticatorAppFactory::new();
     }
 
     protected function casts(): array
