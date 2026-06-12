@@ -28,13 +28,16 @@ class ResolveUser
         app(Timebox::class)->call(function (Timebox $timebox) use ($request) {
             $userProvider = $request->getUserProvider();
             $credentials = $request->getCredentialsFromFormData();
+            $authGuard = $request->getAuthGuard();
+
+            $this->fireAttemptingEvent($authGuard, $credentials, $request->shouldRememberUser());
 
             $user = $userProvider->retrieveByCredentials($credentials);
 
             $errorMessage = null;
 
             try {
-                if ($this->hasValidCredentials($userProvider, $user, $credentials) && $this->shouldLogin($user, $request->getAuthGuard())) {
+                if ($this->hasValidCredentials($userProvider, $user, $credentials) && $this->shouldLogin($user, $authGuard)) {
                     $timebox->returnEarly();
 
                     $request->setUser($user);

@@ -22,8 +22,11 @@ class AuthenticateUser
     {
         $authGuard = $request->getAuthGuard();
         $user = $request->user();
+        $shouldRemember = $request->shouldRememberUser();
 
-        app(Timebox::class)->call(function (Timebox $timebox) use ($user, $authGuard) {
+        app(Timebox::class)->call(function (Timebox $timebox) use ($user, $authGuard, $shouldRemember) {
+            $this->fireAttemptingEvent($authGuard, [], $shouldRemember);
+
             $error = null;
 
             try {
@@ -43,7 +46,7 @@ class AuthenticateUser
 
         $authGuard->login(
             user: $user,
-            remember: $request->shouldRememberUser(),
+            remember: $shouldRemember,
         );
 
         Mfa::confirmUserSession($user);

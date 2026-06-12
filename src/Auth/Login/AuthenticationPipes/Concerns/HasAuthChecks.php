@@ -6,7 +6,9 @@ namespace Rawilk\ProfileFilament\Auth\Login\AuthenticationPipes\Concerns;
 
 use Closure;
 use Filament\Facades\Filament;
+use Illuminate\Auth\Events\Attempting;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Arr;
@@ -42,5 +44,17 @@ trait HasAuthChecks
         }
 
         return true;
+    }
+
+    /**
+     * @param  array<string, mixed>  $credentials
+     */
+    protected function fireAttemptingEvent(Guard $guard, #[SensitiveParameter] array $credentials, bool $remember = false): void
+    {
+        event(app(Attempting::class, [
+            'guard' => property_exists($guard, 'name') ? $guard->name : '',
+            'credentials' => $credentials,
+            'remember' => $remember,
+        ]));
     }
 }
