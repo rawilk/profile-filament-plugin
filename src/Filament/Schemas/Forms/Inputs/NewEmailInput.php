@@ -6,6 +6,7 @@ namespace Rawilk\ProfileFilament\Filament\Schemas\Forms\Inputs;
 
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Support\Config;
 
 class NewEmailInput extends TextInput
@@ -32,10 +33,13 @@ class NewEmailInput extends TextInput
 
         $this->email();
 
-        $this->unique(
-            table: fn () => app(Config::getAuthenticatableModel())->getTable(),
-            column: 'email',
-            ignoreRecord: true,
+        $this->when(
+            fn (): bool => ProfileFilament::plugin()->isEnforcingUniqueEmail(),
+            fn (TextInput $component) => $component->unique(
+                table: fn () => app(Config::getAuthenticatableModel())->getTable(),
+                column: 'email',
+                ignoreRecord: true,
+            ),
         );
     }
 }

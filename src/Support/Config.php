@@ -120,6 +120,11 @@ final class Config
         return (int) config('auth.timebox_duration', 200_000);
     }
 
+    public static function shouldAddUniqueEmailConstraint(): bool
+    {
+        return LaravelConfig::boolean('profile-filament.add_unique_email_constraint', true);
+    }
+
     private static function ensureValidActionClass(string $actionName, string $actionBaseClass, string $actionClass): void
     {
         if (! is_a($actionClass, $actionBaseClass, true)) {

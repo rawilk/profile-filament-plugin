@@ -132,6 +132,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Global email uniqueness validation
+    |--------------------------------------------------------------------------
+    |
+    | Indicate if the package's email input should enforce email uniqueness
+    | as a global setting. Each panel can still override this configuration
+    | setting.
+    |
+    */
+    'add_unique_email_constraint' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | Webauthn
     |--------------------------------------------------------------------------
     |
