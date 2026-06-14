@@ -68,11 +68,6 @@ class ProfileFilamentPlugin implements Plugin
                     panel="{$panel->getId()}"
                 />
                 HTML),
-                //                fn () => Blade::render(
-                //                    '<x-profile-filament::passkey-login
-                //
-                //                     />'
-                //                ),
             );
         }
     }
