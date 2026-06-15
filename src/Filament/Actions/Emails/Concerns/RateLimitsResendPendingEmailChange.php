@@ -9,7 +9,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 trait RateLimitsResendPendingEmailChange
 {
-    protected function rateLimitKey(?Authenticatable $user = null): string
+    public function rateLimitKey(?Authenticatable $user = null): string
     {
         $user ??= Filament::auth()->user();
 
