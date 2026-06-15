@@ -6,7 +6,6 @@ namespace Rawilk\ProfileFilament\Filament\Actions\Emails;
 
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\CanCustomizeProcess;
-use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Rawilk\ProfileFilament\Models\PendingUserEmail;
@@ -37,9 +36,11 @@ class ResendPendingEmailAction extends Action
                 return;
             }
 
+            $record->loadMissing('user');
+
             // We'll let the user attempt this 3 times every 10 minutes.
             if (RateLimiter::tooManyAttempts(
-                key: $rateLimitKey = $this->rateLimitKey(),
+                key: $rateLimitKey = $this->rateLimitKey($record->user),
                 maxAttempts: 3,
             )) {
                 $this->getRateLimitedNotification(RateLimiter::availableIn($rateLimitKey))?->send();
@@ -57,7 +58,7 @@ class ResendPendingEmailAction extends Action
                 // Make sure the timestamp ges updated to allow more expiration time.
                 $record->touch('created_at');
 
-                $this->sendEmailChangeVerification(Filament::auth()->user(), $record);
+                $this->sendEmailChangeVerification($record->user, $record);
 
                 return true;
             });
