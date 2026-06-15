@@ -159,7 +159,7 @@ describe('re-send pending email change notification', function () {
 
         livewire($this->component)
             ->callAction('resendPendingEmail', data: [
-                'record' => $this->user->getKey(),
+                'record' => $record,
             ])
             ->assertSuccessful();
 

@@ -59,7 +59,7 @@ class UserEmail extends ProfileComponent implements HasInfolists
         return app(Config::getModel('pending_user_email'))::query()
             ->forUser($this->user)
             ->latest()
-            ->first(['id', 'email']);
+            ->first(['id', 'email', 'user_id', 'user_type']);
     }
 
     public function render(): string
