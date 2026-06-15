@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Filament\Actions\Emails;
 
 use Filament\Actions\Action;
+use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
@@ -13,6 +14,7 @@ use Rawilk\ProfileFilament\Support\Config;
 
 class CancelPendingEmailChangeAction extends Action
 {
+    use CanCustomizeProcess;
     use Concerns\RateLimitsResendPendingEmailChange;
     use RequiresSudoChallengeWithoutModal;
 
@@ -31,13 +33,15 @@ class CancelPendingEmailChangeAction extends Action
                 $this->cancel();
             }
 
-            app(Config::getModel('pending_user_email'))::query()
-                ->forUser(Filament::auth()->user())
-                ->delete();
+            $this->process(function () use ($livewire): void {
+                app(Config::getModel('pending_user_email'))::query()
+                    ->forUser(Filament::auth()->user())
+                    ->delete();
 
-            RateLimiter::clear($this->rateLimitKey());
+                RateLimiter::clear($this->rateLimitKey());
 
-            $livewire->dispatch('email-cancelled')->self();
+                $livewire->dispatch('email-cancelled')->self();
+            });
         });
     }
 
