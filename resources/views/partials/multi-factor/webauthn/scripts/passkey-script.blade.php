@@ -1,8 +1,12 @@
+@php
+    $errors ??= null;
+@endphp
+
 x-data="{
     processing: false,
     hasErrors: false,
     isSupported: true,
-    validationError: @js($errors->first('passkey')),
+    validationError: @js($errors?->first('passkey')),
     panel: @js(Crypt::encryptString($panel)),
 
     init() {
