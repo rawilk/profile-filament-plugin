@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Rawilk\ProfileFilament\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
 use Rawilk\ProfileFilament\Models\AuthenticatorApp;
 use Rawilk\ProfileFilament\Support\Config;
 
@@ -23,7 +23,7 @@ class AuthenticatorAppFactory extends Factory
         return [
             'name' => fake()->word(),
             'user_id' => $authModel::factory(),
-            'secret' => Str::random(),
+            'secret' => AppAuthenticationProvider::make()->generateSecret(),
         ];
     }
 }
