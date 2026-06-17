@@ -146,6 +146,10 @@ class MultiFactorChallenge extends SimplePage
             return null;
         }
 
+        if (! $this->currentProviderInstance) {
+            return null;
+        }
+
         $data = $this->form->getState();
 
         // This is mostly for cross-domain webauthn requests.
