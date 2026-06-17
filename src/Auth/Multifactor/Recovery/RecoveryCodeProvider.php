@@ -170,7 +170,7 @@ class RecoveryCodeProvider implements RecoveryProvider
                 $remainingCodes = [];
                 $isValid = false;
 
-                foreach ($this->getRecoveryCodes($user) as $hashedRecoveryCode) {
+                foreach ($this->getRecoveryCodes($lockedUser) as $hashedRecoveryCode) {
                     if (Hash::check($recoveryCode, $hashedRecoveryCode)) {
                         $isValid = true;
 
@@ -181,9 +181,9 @@ class RecoveryCodeProvider implements RecoveryProvider
                 }
 
                 if ($isValid) {
-                    $user->saveAuthenticationRecoveryCodes($remainingCodes);
+                    $lockedUser->saveAuthenticationRecoveryCodes($remainingCodes);
 
-                    RecoveryCodeWasUsed::dispatch($user);
+                    RecoveryCodeWasUsed::dispatch($lockedUser);
                 }
 
                 return $isValid;
