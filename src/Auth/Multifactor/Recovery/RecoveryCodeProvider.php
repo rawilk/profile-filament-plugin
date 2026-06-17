@@ -15,6 +15,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use LogicException;
@@ -144,29 +146,49 @@ class RecoveryCodeProvider implements RecoveryProvider
 
     public function verifyRecoveryCode(#[SensitiveParameter] string $recoveryCode, ?HasMultiFactorAuthenticationRecovery $user = null): bool
     {
-        /** @var HasMultiFactorAuthenticationRecovery $user */
+        /** @var HasMultiFactorAuthenticationRecovery&\Illuminate\Database\Eloquent\Model $user */
         $user ??= Filament::auth()->user();
 
-        $remainingCodes = [];
-        $isValid = false;
+        $lockKey = 'pf.recovery_codes.' . hash(
+            'sha256',
+            $user::class . ':' . (($user instanceof Authenticatable) ? $user->getAuthIdentifier() : spl_object_id($user))
+        );
 
-        foreach ($this->getRecoveryCodes($user) as $hashedRecoveryCode) {
-            if (Hash::check($recoveryCode, $hashedRecoveryCode)) {
-                $isValid = true;
+        return Cache::lock($lockKey, 10)->block(
+            10,
+            fn (): bool => DB::transaction(function () use ($user, $recoveryCode): bool {
+                $lockedUser = $user
+                    ->newQuery()
+                    ->whereKey($user->getKey())
+                    ->lockForUpdate()
+                    ->first();
 
-                continue;
-            }
+                if ($lockedUser === null) {
+                    return false;
+                }
 
-            $remainingCodes[] = $hashedRecoveryCode;
-        }
+                $remainingCodes = [];
+                $isValid = false;
 
-        if ($isValid) {
-            $user->saveAuthenticationRecoveryCodes($remainingCodes);
+                foreach ($this->getRecoveryCodes($user) as $hashedRecoveryCode) {
+                    if (Hash::check($recoveryCode, $hashedRecoveryCode)) {
+                        $isValid = true;
 
-            RecoveryCodeWasUsed::dispatch($user);
-        }
+                        continue;
+                    }
 
-        return $isValid;
+                    $remainingCodes[] = $hashedRecoveryCode;
+                }
+
+                if ($isValid) {
+                    $user->saveAuthenticationRecoveryCodes($remainingCodes);
+
+                    RecoveryCodeWasUsed::dispatch($user);
+                }
+
+                return $isValid;
+            })
+        );
     }
 
     public function regenerableCodes(bool $condition = true): static
