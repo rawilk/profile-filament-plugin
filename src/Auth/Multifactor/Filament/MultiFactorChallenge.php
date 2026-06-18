@@ -274,51 +274,56 @@ class MultiFactorChallenge extends SimplePage
 
         return Section::make(__('profile-filament::auth/multi-factor/challenge/challenge.form.provider.heading'))
             ->compact()
-            ->secondary()
             ->schema(
                 fn (Section $section): array => [
                     Actions::make(
                         $providers->map(
-                            fn (MultiFactorAuthenticationProvider|RecoveryProvider $provider): Action => Action::make(
-                                'changeProvider.' . ($provider instanceof MultiFactorAuthenticationProvider ? $provider->getId() : static::RECOVERY_ID)
-                            )
-                                ->color('gray')
-                                ->label($provider->getChangeToProviderActionLabel($this->user))
-                                ->extraAttributes(['class' => 'w-full'])
-                                ->action(function () use ($provider) {
-                                    $id = $provider instanceof MultiFactorAuthenticationProvider ? $provider->getId() : static::RECOVERY_ID;
-
-                                    if ($id === static::RECOVERY_ID && (! $this->plugin->isMultiFactorRecoverable())) {
-                                        return;
-                                    }
-
-                                    $this->currentProvider = $id;
-                                    unset($this->currentProviderInstance);
-                                })
-                                ->after(function () use ($provider, $section) {
-                                    if ($this->currentProvider === null) {
-                                        return;
-                                    }
-
-                                    $id = $provider instanceof MultiFactorAuthenticationProvider ? $provider->getId() : static::RECOVERY_ID;
-
-                                    $section
-                                        ->getContainer()
-                                        ->getComponent($id)
-                                        ->getChildSchema()
-                                        ->fill();
-
-                                    if (! ($provider instanceof HasBeforeChallengeHook)) {
-                                        return;
-                                    }
-
-                                    $provider->beforeChallenge($this->user);
-                                })
+                            fn (MultiFactorAuthenticationProvider|RecoveryProvider $provider): Action => $this->changeToProviderAction($provider, $section)
                         )->all()
                     ),
                 ]
             )
             ->visible(fn (): bool => $this->currentProvider === null);
+    }
+
+    protected function changeToProviderAction(MultiFactorAuthenticationProvider|RecoveryProvider $provider, Section $section): Action
+    {
+        return Action::make(
+            'changeProvider.' . ($provider instanceof MultiFactorAuthenticationProvider ? $provider->getId() : static::RECOVERY_ID)
+        )
+            ->color('primary')
+            ->outlined()
+            ->label($provider->getChangeToProviderActionLabel($this->user))
+            ->extraAttributes(['class' => 'w-full'])
+            ->action(function () use ($provider) {
+                $id = $provider instanceof MultiFactorAuthenticationProvider ? $provider->getId() : static::RECOVERY_ID;
+
+                if ($id === static::RECOVERY_ID && (! $this->plugin->isMultiFactorRecoverable())) {
+                    return;
+                }
+
+                $this->currentProvider = $id;
+                unset($this->currentProviderInstance);
+            })
+            ->after(function () use ($provider, $section) {
+                if ($this->currentProvider === null) {
+                    return;
+                }
+
+                $id = $provider instanceof MultiFactorAuthenticationProvider ? $provider->getId() : static::RECOVERY_ID;
+
+                $section
+                    ->getContainer()
+                    ->getComponent($id)
+                    ->getChildSchema()
+                    ->fill();
+
+                if (! ($provider instanceof HasBeforeChallengeHook)) {
+                    return;
+                }
+
+                $provider->beforeChallenge($this->user);
+            });
     }
 
     protected function getChangeProviderAction(): ?Actions
