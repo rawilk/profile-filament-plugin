@@ -66,6 +66,27 @@ test('verification urls cannot be replayed', function () {
         ->assertForbidden();
 });
 
+it('cannot verify an email change when another user already has the email with different casing', function () {
+    User::factory()->create(['email' => 'jhaywood@ivyhospitality.com']);
+
+    $userToVerify = User::factory()->create(['email' => 'one@example.com']);
+    $newEmail = 'JHaywood@ivyhospitality.com';
+    $pendingEmail = PendingUserEmail::factory()->for($userToVerify)->create(['email' => $newEmail]);
+
+    $verificationUrl = ProfileFilament::getVerifyEmailChangeUrl($userToVerify, $newEmail, [
+        'token' => $pendingEmail->token,
+    ]);
+
+    actingAs($userToVerify)
+        ->get($verificationUrl)
+        ->assertForbidden();
+
+    assertModelExists($pendingEmail);
+
+    expect($userToVerify->refresh())
+        ->email->toBe('one@example.com');
+});
+
 it('requires a pending email token', function () {
     $userToVerify = User::factory()->create(['email' => 'one@example.com']);
     $newEmail = 'two@example.com';

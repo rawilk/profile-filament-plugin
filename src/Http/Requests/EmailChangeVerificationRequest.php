@@ -72,7 +72,8 @@ class EmailChangeVerificationRequest extends FormRequest
     protected function guardAgainstTakenEmails(Model $user, string $newEmail): void
     {
         $emailExists = DB::table($user->getTable())
-            ->where('email', $newEmail)
+            ->whereRaw('LOWER(email) = LOWER(?)', [$newEmail])
+            ->where($user->getKeyName(), '!=', $user->getKey())
             ->exists();
 
         throw_if(
