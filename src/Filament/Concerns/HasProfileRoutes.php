@@ -53,15 +53,6 @@ trait HasProfileRoutes
         );
     }
 
-    public function getLayout(): string
-    {
-        if (static::profileRoutesAreTenantAware()) {
-            return parent::getLayout();
-        }
-
-        return 'filament-panels::components.layout.simple';
-    }
-
     protected static function profileRoutesAreTenantAware(?Panel $panel = null): bool
     {
         $panel ??= Filament::getCurrentOrDefaultPanel();

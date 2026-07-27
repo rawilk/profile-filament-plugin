@@ -8,8 +8,10 @@ use Filament\Facades\Filament;
 use Filament\Pages\Page;
 use Filament\Pages\PageConfiguration;
 use Filament\Panel;
+use Illuminate\Support\Facades\Route;
 use Rawilk\ProfileFilament\Filament\Clusters\ProfileCluster;
 use Rawilk\ProfileFilament\Filament\Pages\Profile;
+use Rawilk\ProfileFilament\Http\Middleware\SetTenantForProfilePage;
 
 trait HasProfilePages
 {
@@ -166,24 +168,29 @@ trait HasProfilePages
                 ...$this->getProfilePageClasses(),
             ])
             ->authenticatedRoutes(function (Panel $panel) use ($pages): void {
-                ProfileCluster::registerRoutes($panel);
+                Route::middleware(SetTenantForProfilePage::class)
+                    ->group(function () use ($panel, $pages): void {
+                        ProfileCluster::registerRoutes($panel);
 
-                foreach ($pages as $page) {
-                    $pageClass = $page instanceof PageConfiguration
-                        ? $page->getPage()
-                        : $page;
-                    $configuration = $page instanceof PageConfiguration
-                        ? $page
-                        : null;
+                        foreach ($pages as $page) {
+                            $pageClass = $page instanceof PageConfiguration
+                                ? $page->getPage()
+                                : $page;
 
-                    Filament::setCurrentPageConfigurationKey($configuration?->getKey());
+                            $configuration = $page instanceof PageConfiguration
+                                ? $page
+                                : null;
 
-                    try {
-                        $pageClass::registerRoutes($panel, $configuration);
-                    } finally {
-                        Filament::setCurrentPageConfigurationKey(null);
+                            Filament::setCurrentPageConfigurationKey($configuration?->getKey());
+
+                            try {
+                                $pageClass::registerRoutes($panel, $configuration);
+                            } finally {
+                                Filament::setCurrentPageConfigurationKey(null);
+                            }
+                        }
                     }
-                }
+                    );
             });
     }
 
