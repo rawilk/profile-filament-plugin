@@ -9,14 +9,17 @@ use Filament\Pages\Page;
 use Filament\Pages\PageConfiguration;
 use Filament\Panel;
 use Livewire\Attributes\Computed;
+use Rawilk\ProfileFilament\Facades\ProfileFilament;
 use Rawilk\ProfileFilament\Filament\Clusters\ProfileCluster;
-use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+use Rawilk\ProfileFilament\Filament\Concerns\HasProfileRoutes;
 
 /**
  * @property-read array<int, \Livewire\Component> $livewireComponents
  */
 abstract class ProfilePage extends Page
 {
+    use HasProfileRoutes;
+
     protected static ?string $cluster = ProfileCluster::class;
 
     protected string $view = 'profile-filament::filament.clusters.profile-page';
@@ -39,7 +42,7 @@ abstract class ProfilePage extends Page
     {
         $panel ??= Filament::getCurrentOrDefaultPanel();
 
-        return $panel->getPlugin(ProfileFilamentPlugin::PLUGIN_ID)->getPageConfiguration(static::class);
+        return ProfileFilament::plugin($panel->getId())->getPageConfiguration(static::class);
     }
 
     public static function getRelativeRouteNameFromConfiguration(PageConfiguration $configuration): string

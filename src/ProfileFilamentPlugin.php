@@ -25,6 +25,7 @@ class ProfileFilamentPlugin implements Plugin
     use ProfilePlugin\Concerns\HasProfileCluster;
     use ProfilePlugin\Concerns\HasProfilePages;
     use ProfilePlugin\Concerns\HasSudoMode;
+    use ProfilePlugin\Concerns\HasTenancy;
     use ProfilePlugin\Concerns\UpdatesUserPassword;
 
     public const string PLUGIN_ID = 'rawilk/profile-filament-plugin';
@@ -46,10 +47,10 @@ class ProfileFilamentPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel
-            ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Rawilk\\ProfileFilament\\Filament\\Clusters');
+        $this->isTenantAware()
+            ? $this->registerTenantAwareProfilePages($panel)
+            : $this->registerGlobalProfilePages($panel);
 
-        $this->registerProfilePages($panel);
         $this->configureProfileMenuItem($panel);
 
         if ($this->isMultiFactorAuthenticationRequired()) {

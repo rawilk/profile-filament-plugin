@@ -11,7 +11,9 @@ use Illuminate\Support\Timebox;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Rawilk\ProfileFilament\ProfileFilamentPluginServiceProvider;
 use Rawilk\ProfileFilament\Tests\TestSupport\Filament\AdminPanelProvider;
+use Rawilk\ProfileFilament\Tests\TestSupport\Filament\GlobalProfileTenantPanelProvider;
 use Rawilk\ProfileFilament\Tests\TestSupport\Filament\RequiresMfaPanelProvider;
+use Rawilk\ProfileFilament\Tests\TestSupport\Filament\TenantAwareProfilePanelProvider;
 use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
 use Rawilk\ProfileFilament\Tests\TestSupport\Services\InstantlyResolvingTimebox;
 
@@ -52,7 +54,9 @@ abstract class TestCase extends Orchestra
         return [
             ProfileFilamentPluginServiceProvider::class,
             AdminPanelProvider::class,
+            GlobalProfileTenantPanelProvider::class,
             RequiresMfaPanelProvider::class,
+            TenantAwareProfilePanelProvider::class,
         ];
     }
 
