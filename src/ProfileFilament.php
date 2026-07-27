@@ -111,8 +111,6 @@ class ProfileFilament
             return $this->pluginCache[$id];
         }
 
-        $panel = Filament::getCurrentOrDefaultPanel();
-
         if ($strict && (! $panel->hasPlugin(ProfileFilamentPlugin::PLUGIN_ID))) {
             throw new LogicException("The ProfileFilamentPlugin is not part of the [{$id}] panel.");
         }

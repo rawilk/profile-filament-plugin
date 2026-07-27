@@ -2,16 +2,27 @@
 
 declare(strict_types=1);
 
+use Filament\Facades\Filament;
 use Rawilk\ProfileFilament\Auth\Multifactor\App\AppAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Email\EmailAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\WebauthnProvider;
 use Rawilk\ProfileFilament\Auth\Sudo\Email\SudoEmailAuthenticationProvider;
 use Rawilk\ProfileFilament\Auth\Sudo\Password\SudoPasswordProvider;
 use Rawilk\ProfileFilament\ProfileFilament;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
 use Rawilk\ProfileFilament\Tests\TestSupport\Models\User;
 
 beforeEach(function () {
     $this->service = new ProfileFilament;
+});
+
+describe('plugin', function () {
+    it('resolves the plugin for an explicitly requested panel', function () {
+        expect($this->service->plugin('admin'))
+            ->toBe(Filament::getPanel('admin')->getPlugin(ProfileFilamentPlugin::PLUGIN_ID))
+            ->and($this->service->plugin('requires-mfa'))
+            ->toBe(Filament::getPanel('requires-mfa')->getPlugin(ProfileFilamentPlugin::PLUGIN_ID));
+    });
 });
 
 describe('user timezone', function () {
