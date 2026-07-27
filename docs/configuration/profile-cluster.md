@@ -11,6 +11,23 @@ This plugin makes use of Filament's [Clusters](https://filamentphp.com/docs/5.x/
 
 Profile routes are not tenant-aware by default. This keeps account-level pages available to users who do not belong to a tenant and gives them URLs such as `/admin/profile/user`.
 
+When Filament tenancy is enabled on the panel, the profile pages still use the standard panel layout, including the sidebar and tenant switcher. Since a global profile route does not contain a tenant parameter, the plugin uses Filament's default tenant for the authenticated user while rendering the panel navigation. This does not make the profile route tenant-aware or run the panel's tenant middleware.
+
+You may customize how this tenant is resolved with the `resolveTenantUsing()` method. For example, you could use the user's last active team:
+
+```php
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Rawilk\ProfileFilament\ProfileFilamentPlugin;
+
+ProfileFilamentPlugin::make()
+    ->resolveTenantUsing(
+        fn (User $user): ?Model => $user->lastTeam,
+    )
+```
+
+The callback may return `null` when the user does not have an available tenant. In that case, the profile page remains accessible, but tenant-dependent panel navigation is hidden.
+
 If profile data belongs to a tenant in your application, you may opt into tenant-aware profile routes:
 
 ```php
@@ -20,7 +37,7 @@ ProfileFilamentPlugin::make()
     ->tenantAware()
 ```
 
-Tenant-aware profile pages use the panel's standard layout and include the current tenant in their URLs.
+Tenant-aware profile pages include the current tenant in their URLs and run the panel's tenant middleware.
 
 ## Customizing the cluster slug
 
