@@ -142,7 +142,7 @@ class MultiFactorChallenge extends SimplePage
             return null;
         }
 
-        if ($this->isRateLimited($this->user)) {
+        if ($this->isChallengeRateLimited($this->user)) {
             return null;
         }
 
@@ -394,7 +394,7 @@ class MultiFactorChallenge extends SimplePage
         return $recoveryProvider?->isEnabled($user) ? $recoveryProvider : null;
     }
 
-    protected function isRateLimited(Authenticatable $user): bool
+    protected function isChallengeRateLimited(Authenticatable $user): bool
     {
         $rateLimitKey = "pf-multi-factor-challenge:{$user->getAuthIdentifier()}";
 

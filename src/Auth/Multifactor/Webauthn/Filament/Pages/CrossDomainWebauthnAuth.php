@@ -174,7 +174,7 @@ class CrossDomainWebauthnAuth extends SimplePage
 
     public function authenticate(array $arguments): void
     {
-        if ($this->isRateLimited($this->user)) {
+        if ($this->isChallengeRateLimited($this->user)) {
             return;
         }
 
@@ -265,7 +265,7 @@ class CrossDomainWebauthnAuth extends SimplePage
         return $challenge;
     }
 
-    protected function isRateLimited(Authenticatable $user): bool
+    protected function isChallengeRateLimited(Authenticatable $user): bool
     {
         $rateLimitKey = "pf-cross-domain-webauthn-auth:{$user->getAuthIdentifier()}";
 
