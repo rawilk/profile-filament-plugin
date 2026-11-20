@@ -22,8 +22,9 @@ use Rawilk\ProfileFilament\ProfileFilamentPlugin;
  * @method static string userTimezone(User $user = null)
  * @method static ProfileFilamentPlugin plugin(?string $panelId = null, bool $strict = true)
  * @method static void verifyWebauthnNonce(?string $encryptedNonce)
- * @method static string generateWebauthnNonce()
- * @method static bool verifyWebauthnChallenge(array $data, User $user)
+ * @method static string generateWebauthnNonce(?string $context = null)
+ * @method static bool verifyCrossDomainRequest(array $data, User $user, ?string $context = null)
+ * @method static string crossDomainChallengeCacheKey(User $user, string $nonce)
  *
  * @see ProfileFilamentService
  */

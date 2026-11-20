@@ -29,6 +29,14 @@ No matter which domain is being used to access the application, whether it be `t
 
 Need more help choosing a Relying Party ID? See [these docs](https://webauthn-doc.spomky-labs.com/prerequisites/the-relying-party#how-to-determine-the-relying-party-id) for more information on choosing a Relying Party ID.
 
+## Cache and session requirements
+
+Cross-domain MFA and sudo authentication require a shared cache store with atomic lock support. All application servers handling the originating domain and the relying-party domain must use the same cache and lock backend and namespace. A shared Redis or database cache is suitable; process-local array caches are only suitable for tests.
+
+The originating session stores the nonce and its user, provider, and MFA/sudo context. The completed challenge expires after 30 seconds, and the nonce expires after 15 minutes. A response must match both. Starting another ceremony replaces the session nonce, and a failed verification may consume it, so retry by starting a new ceremony.
+
+If you implement custom cross-domain providers, generate the nonce with `generateWebauthnNonce('mfa:' . $providerId . ':' . $user->getAuthIdentifier())` (use `sudo:` for sudo), and verify the response with `verifyCrossDomainRequest($arguments, $user, 'mfa:' . $providerId)`. Custom completion issuers must use `crossDomainChallengeCacheKey($user, $encryptedNonce)` and issue a nonempty challenge only after successful WebAuthn assertion verification. The encrypted user identifier alone is never proof of authentication.
+
 ## Disabling cross-domain webauthn
 
 If you'd prefer not to use this feature of the package, or would rather implement it yourself with a custom WebAuthn provider, you can disable it on the plugin by telling the `crossDomainWebauthn()` method to not register the routes:

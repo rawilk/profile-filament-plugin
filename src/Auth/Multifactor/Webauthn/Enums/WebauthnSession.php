@@ -10,6 +10,7 @@ enum WebauthnSession: string
     case RegistrationOptions = 'webauthn-registration-options';
     case ChallengeAssertion = 'webauthn-challenge-assertion';
     case Nonce = 'webauthn-nonce';
+    case NonceContext = 'webauthn-nonce-context';
 
     public function get(): mixed
     {

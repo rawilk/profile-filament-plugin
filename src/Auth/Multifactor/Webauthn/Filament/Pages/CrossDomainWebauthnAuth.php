@@ -83,6 +83,10 @@ class CrossDomainWebauthnAuth extends SimplePage
     #[Computed]
     public function user(): ?Authenticatable
     {
+        if ($this->passkeysOnly) {
+            return null;
+        }
+
         return $this->userProvider->retrieveById(
             Crypt::decrypt($this->userId)
         );
@@ -116,13 +120,10 @@ class CrossDomainWebauthnAuth extends SimplePage
         $this->origin = $request->query('origin');
         $this->passkeysOnly = (int) $request->query('passkey') !== 0;
         $this->nonce = $request->query('nonce');
+        $this->isSudo = $request->boolean('sudo');
 
         if (! $this->providerInstance) {
             throw new LogicException('A multi-factor authentication provider instance was not resolved.');
-        }
-
-        if ($request->query('sudo')) {
-            $this->isSudo = true;
         }
 
         $this->promptAuthenticationFromUser();
@@ -184,10 +185,20 @@ class CrossDomainWebauthnAuth extends SimplePage
 
         $authenticationResponse = data_get($arguments, 'authenticationResponse');
 
+        if ((! is_string($authenticationResponse)) || (! json_validate($authenticationResponse)) || (! is_object(json_decode($authenticationResponse)))) {
+            $this->dispatch('webauthnAuthenticationFailed', [
+                'message' => __('profile-filament::auth/multi-factor/webauthn/provider.challenge-form.messages.failed'),
+            ]);
+
+            return;
+        }
+
         $nonce = Js::from($this->nonce);
 
         // We'll defer authentication to our passkey authentication controller.
         if ($this->passkeysOnly) {
+            $authenticationResponse = Js::from(json_decode($authenticationResponse));
+
             // We will need to re-push the options to the session since we're on a different domain session.
             $options = Js::from(
                 Crypt::encrypt(WebauthnSession::AuthenticationOptions->pull())
@@ -260,14 +271,19 @@ class CrossDomainWebauthnAuth extends SimplePage
     {
         $challenge = Str::random(32);
 
-        cache()->put('mfa.external-challenge:' . $this->user->getKey(), $challenge, now()->addSeconds(30));
+        if ($this->nonce === '' || $challenge === '') {
+            throw new LogicException('A cross-domain challenge requires a non-empty nonce and challenge.');
+        }
+
+        cache()->put(ProfileFilament::crossDomainChallengeCacheKey($this->user, $this->nonce), $challenge, now()->addSeconds(30));
 
         return $challenge;
     }
 
-    protected function isChallengeRateLimited(Authenticatable $user): bool
+    protected function isChallengeRateLimited(?Authenticatable $user): bool
     {
-        $rateLimitKey = "pf-cross-domain-webauthn-auth:{$user->getAuthIdentifier()}";
+        $identifier = $user?->getAuthIdentifier() ?? ('passkey:' . request()->ip());
+        $rateLimitKey = "pf-cross-domain-webauthn-auth:{$identifier}";
 
         if (RateLimiter::tooManyAttempts($rateLimitKey, maxAttempts: 5)) {
             $this->getRateLimitedNotification(

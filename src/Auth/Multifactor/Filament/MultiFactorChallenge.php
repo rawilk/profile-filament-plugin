@@ -154,7 +154,7 @@ class MultiFactorChallenge extends SimplePage
 
         // This is mostly for cross-domain webauthn requests.
         if (Arr::has($arguments, 'challenge')) {
-            if (! ProfileFilament::verifyCrossDomainRequest($arguments, $this->user)) {
+            if (! ProfileFilament::verifyCrossDomainRequest($arguments, $this->user, 'mfa:' . $this->currentProviderInstance->getId())) {
                 return null;
             }
         } elseif ($this->currentProviderInstance instanceof HasAfterValidationCheck) {

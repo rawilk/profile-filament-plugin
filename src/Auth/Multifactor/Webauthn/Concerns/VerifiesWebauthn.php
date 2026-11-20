@@ -16,6 +16,7 @@ use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Contracts\HasWebauthn;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Enums\WebauthnSession;
 use Rawilk\ProfileFilament\Auth\Multifactor\Webauthn\Events\SecurityKeyWasUsed;
 use Rawilk\ProfileFilament\Support\Config;
+use Throwable;
 
 trait VerifiesWebauthn
 {
@@ -51,12 +52,22 @@ trait VerifiesWebauthn
     ): bool {
         $findSecurityKeyAction = Config::getWebauthnAction('find_security_key_to_authenticate', FindSecurityKeyToAuthenticateAction::class);
 
-        $securityKey = $findSecurityKeyAction(
-            publicKeyCredentialJson: $response,
-            securityKeyOptionsJson: WebauthnSession::AuthenticationOptions->pull(),
-            requiresPasskey: $requiresPasskey,
-            userBeingAuthenticated: $user,
-        );
+        $options = WebauthnSession::AuthenticationOptions->pull();
+
+        if ((! is_string($options)) || $options === '') {
+            return false;
+        }
+
+        try {
+            $securityKey = $findSecurityKeyAction(
+                publicKeyCredentialJson: $response,
+                securityKeyOptionsJson: $options,
+                requiresPasskey: $requiresPasskey,
+                userBeingAuthenticated: $user,
+            );
+        } catch (Throwable) {
+            return false;
+        }
 
         if (! $securityKey) {
             return false;

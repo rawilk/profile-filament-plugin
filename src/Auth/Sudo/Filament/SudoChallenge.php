@@ -65,7 +65,7 @@ class SudoChallenge extends SimplePage
 
         // This is mostly for cross-domain webauthn requests.
         if (Arr::has($arguments, 'challenge')) {
-            if (! ProfileFilament::verifyCrossDomainRequest($arguments, $this->user)) {
+            if (! ProfileFilament::verifyCrossDomainRequest($arguments, $this->user, 'sudo:' . $this->currentProviderInstance->getId())) {
                 return;
             }
         } elseif ($this->currentProviderInstance instanceof HasAfterValidationCheck) {

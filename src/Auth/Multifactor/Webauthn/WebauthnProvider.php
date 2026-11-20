@@ -200,7 +200,7 @@ class WebauthnProvider implements HasAfterValidationCheck, MultiFactorAuthentica
                         data: [
                             'providerId' => $this->getId(),
                             'passkey' => false,
-                            'nonce' => ProfileFilament::generateWebauthnNonce(),
+                            'nonce' => ProfileFilament::generateWebauthnNonce('mfa:' . $this->getId() . ':' . $user->getAuthIdentifier()),
                         ],
                     );
 

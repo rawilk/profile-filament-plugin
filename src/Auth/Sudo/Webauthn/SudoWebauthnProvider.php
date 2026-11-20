@@ -98,7 +98,7 @@ class SudoWebauthnProvider implements HasAfterValidationCheck, SudoChallengeProv
                         data: [
                             'providerId' => $this->getId(),
                             'passkey' => false,
-                            'nonce' => ProfileFilament::generateWebauthnNonce(),
+                            'nonce' => ProfileFilament::generateWebauthnNonce('sudo:' . $this->getId() . ':' . $user->getAuthIdentifier()),
                             'sudo' => true,
                         ],
                     );

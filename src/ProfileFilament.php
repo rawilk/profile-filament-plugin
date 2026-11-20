@@ -10,7 +10,6 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
@@ -237,29 +236,33 @@ class ProfileFilament
         return Random::token(length: $length);
     }
 
-    public function generateWebauthnNonce(): string
+    public function generateWebauthnNonce(?string $context = null): string
     {
         $nonce = Str::random(32) . ':' . now()->unix();
 
         WebauthnSession::Nonce->put($nonce);
+        WebauthnSession::NonceContext->put($context);
 
         return Crypt::encrypt($nonce);
     }
 
     public function verifyWebauthnNonce(?string $encryptedNonce): void
     {
-        [$nonce, $timestamp] = explode(':', Crypt::decrypt($encryptedNonce), 2);
-        [$storedNonce, $storedTimestamp] = explode(':', WebauthnSession::Nonce->pull(), 2);
+        $storedNonce = WebauthnSession::Nonce->pull();
+        WebauthnSession::NonceContext->pull();
+        $nonce = Crypt::decrypt($encryptedNonce);
 
-        if (! hash_equals($storedNonce, $nonce)) {
+        if ((! is_string($storedNonce)) || (! is_string($nonce)) || $storedNonce === '' || (! hash_equals($storedNonce, $nonce))) {
             throw new RuntimeException('Invalid nonce');
         }
 
-        if (! hash_equals($storedTimestamp, $timestamp)) {
+        $parts = explode(':', $nonce, 2);
+
+        if (count($parts) !== 2 || $parts[0] === '' || (! ctype_digit($parts[1]))) {
             throw new RuntimeException('Invalid nonce timestamp');
         }
 
-        if ((int) $storedTimestamp < now()->subMinutes(15)->unix()) {
+        if ((int) $parts[1] < now()->subMinutes(15)->unix()) {
             throw new RuntimeException('Nonce has expired');
         }
     }
@@ -268,32 +271,49 @@ class ProfileFilament
      * Mostly for cross-domain webauthn, we need to ensure the response we're processing
      * is valid for the user.
      */
-    public function verifyCrossDomainRequest(array $data, Authenticatable $user): bool
+    public function verifyCrossDomainRequest(array $data, Authenticatable $user, ?string $context = null): bool
     {
-        $storedChallenge = cache()->pull('mfa.external-challenge:' . $user->getKey());
-
-        if (! Hash::check($storedChallenge, $data['challenge'])) {
-            return false;
-        }
-
-        // Ensure the challenge is for the correct user.
-        $decryptedUserId = (string) rescue(
-            fn () => Crypt::decrypt($data['userId']),
-            fn () => ''
-        );
-
-        if (! hash_equals((string) $user->getAuthIdentifier(), $decryptedUserId)) {
-            return false;
-        }
-
-        if (Arr::has($data, 'nonce')) {
-            try {
-                $this->verifyWebauthnNonce($data['nonce']);
-            } catch (Throwable) {
+        foreach (['challenge', 'userId', 'nonce'] as $key) {
+            if ((! is_string($data[$key] ?? null)) || $data[$key] === '') {
                 return false;
             }
         }
 
-        return true;
+        try {
+            if ($context === null || WebauthnSession::NonceContext->get() !== $context . ':' . $user->getAuthIdentifier()) {
+                return false;
+            }
+
+            $this->verifyWebauthnNonce($data['nonce']);
+
+            $decryptedUserId = Crypt::decrypt($data['userId']);
+
+            if ((! is_int($decryptedUserId)) && (! is_string($decryptedUserId))) {
+                return false;
+            }
+
+            if (! hash_equals((string) $user->getAuthIdentifier(), (string) $decryptedUserId)) {
+                return false;
+            }
+
+            // Only a completed ceremony can issue this short-lived, session-bound challenge.
+            $cacheKey = $this->crossDomainChallengeCacheKey($user, $data['nonce']);
+            $storedChallenge = cache()->lock($cacheKey . ':consume', 10)->get(
+                fn () => cache()->pull($cacheKey),
+            );
+
+            if ((! is_string($storedChallenge)) || $storedChallenge === '') {
+                return false;
+            }
+
+            return Hash::check($storedChallenge, $data['challenge']);
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    public function crossDomainChallengeCacheKey(Authenticatable $user, string $nonce): string
+    {
+        return 'mfa.external-challenge:' . $user->getAuthIdentifier() . ':' . hash('sha256', $nonce);
     }
 }
